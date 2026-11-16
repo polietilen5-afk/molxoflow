@@ -94,6 +94,10 @@
   padding: 10px 14px; border-radius: var(--radius-sm); font-weight: 600;
   background: rgba(255, 194, 75, .1); border: 1px solid rgba(255, 194, 75, .4); color: #ffd98a;
 }
+.telegram-hint {
+  padding: 10px 14px; border-radius: var(--radius-sm);
+  background: var(--accent-soft); border-left: 3px solid var(--accent);
+}
 .copy-status { color: var(--ok); min-height: 1.2em; }
 .plan-manual { min-height: 200px; font: 14px/1.5 var(--mono); }
 .plan-privacy { padding-bottom: 8px; }

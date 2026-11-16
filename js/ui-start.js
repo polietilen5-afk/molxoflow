@@ -441,6 +441,7 @@
       offer = el('a', { href: link.href, class: 'btn btn-primary' }, MF.t('plan.getOffer'));
     }
     var contactMissing = link.kind === 'none' ? el('p', { class: 'contact-missing', role: 'note' }, MF.t('plan.contactMissing')) : null;
+    var telegramHint = link.kind === 'telegram' ? el('p', { class: 'telegram-hint', role: 'note' }, MF.t('plan.telegramHint')) : null;
     var copyStatus = el('p', { class: 'copy-status small', role: 'status', 'aria-live': 'polite' });
     var manualNote = el('p', { class: 'pending small', hidden: true }, MF.t('plan.copyManual'));
     var manual = el('textarea', { class: 'answer plan-manual', rows: '10', readonly: true, hidden: true, 'aria-label': MF.t('plan.requestText') });
@@ -467,6 +468,7 @@
       el('p', { class: 'muted' }, MF.t('plan.requestLead')),
       el('div', { class: 'plan-actions' }, [offer, copyBtn, zipBtn]),
       contactMissing,
+      telegramHint,
       copyStatus,
       manualNote,
       manual,
