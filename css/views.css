@@ -1,0 +1,88 @@
+/* Molxo Flow: стили «Студии» и «Документов» (тёмная тема, оранжевый акцент). */
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Студия */
+.studio { display: flex; flex-direction: column; gap: 16px; }
+.studio-card { padding: 20px; }
+.module-chain { display: flex; flex-direction: column; align-items: stretch; min-width: 0; }
+.module-item { min-width: 0; }
+.module-btn {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 8px 14px; text-align: left;
+  background: var(--card-2); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; min-width: 0;
+  transition: background-color .2s ease, border-color .2s ease, transform .3s var(--ease);
+}
+.module-btn:hover { background: var(--card-3); border-color: var(--muted); }
+.module-btn.is-selected { background: var(--accent-soft); border-color: var(--accent); color: var(--text); box-shadow: 0 0 22px -8px rgba(255, 106, 43, .6); }
+.module-num {
+  flex: none; width: 30px; height: 30px; border-radius: 8px; background: var(--card-3); color: var(--accent-text);
+  display: inline-flex; align-items: center; justify-content: center; font: 700 14px/1 var(--mono);
+}
+.module-btn.is-selected .module-num { background: var(--accent); color: var(--accent-ink); }
+.module-name { overflow-wrap: anywhere; min-width: 0; }
+
+/* Поток между модулями: линия с бегущей точкой */
+.module-link { position: relative; height: 32px; width: 0; margin: 0 auto; border-left: 2px dashed var(--line-strong); }
+.flow-dot {
+  position: absolute; left: 50%; top: 0; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 10px rgba(255, 106, 43, .9); animation: flow-down 1.8s ease-in-out infinite;
+}
+.module-item:nth-child(4n+3) + .module-link .flow-dot { animation-delay: .3s; }
+@keyframes flow-down { 0% { transform: translateY(-4px); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(26px); opacity: 0; } }
+@keyframes flow-right { 0% { left: 0; opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { left: calc(100% - 10px); opacity: 0; } }
+
+.module-detail { min-height: 150px; }
+.module-role { font-size: 18px; margin-bottom: 12px; overflow-wrap: anywhere; }
+.tag-list { margin: 0; }
+.tag { border: 1px solid transparent; }
+.tag-0 { background: rgba(255, 92, 106, .14); color: #ff9aa2; border-color: rgba(255, 92, 106, .4); }   /* Решение */
+.tag-1 { background: rgba(106, 168, 255, .14); color: #9cc4ff; border-color: rgba(106, 168, 255, .4); }   /* Входные данные */
+.tag-2 { background: rgba(167, 139, 250, .15); color: #c4b0ff; border-color: rgba(167, 139, 250, .4); }   /* AI-модуль */
+.tag-3 { background: var(--accent-soft); color: #ffa47c; border-color: rgba(255, 106, 43, .45); }   /* Код */
+.tag-4 { background: rgba(61, 220, 151, .13); color: #7fe5b8; border-color: rgba(61, 220, 151, .4); }   /* Интеграции */
+.tag-5 { background: rgba(255, 194, 75, .13); color: #ffd27a; border-color: rgba(255, 194, 75, .4); }   /* Ручная проверка */
+.tag-6 { background: rgba(255, 255, 255, .08); color: #d4d8e0; border-color: rgba(255, 255, 255, .22); }   /* Результат */
+.studio-actions { display: flex; flex-wrap: wrap; gap: 12px; padding-bottom: 8px; }
+
+/* Документы */
+.docs { display: flex; flex-direction: column; gap: 16px; }
+.docs-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start; }
+.docs-side, .docs-main { min-width: 0; }
+.doc-list { display: flex; flex-direction: column; gap: 6px; }
+.doc-btn {
+  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 6px 12px; text-align: left;
+  background: var(--card-2); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); cursor: pointer; min-width: 0;
+  transition: background-color .2s ease, border-color .2s ease;
+}
+.doc-btn:hover { background: var(--card-3); border-color: var(--muted); }
+.doc-btn.is-selected { background: var(--accent-soft); border-color: var(--accent); color: var(--text); font-weight: 600; }
+.doc-num { flex: none; font: 700 13px/1 var(--mono); color: var(--accent-text); }
+.doc-name { overflow-wrap: anywhere; min-width: 0; }
+.docs-zip { margin-top: 16px; display: flex; }
+.docs-zip .btn { flex: 1 1 auto; }
+.doc-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 10px 16px; margin-bottom: 12px; }
+.doc-head-text { min-width: 0; flex: 1 1 200px; }
+.doc-title { overflow-wrap: anywhere; margin-bottom: 2px; }
+.doc-file { overflow-wrap: anywhere; }
+.doc-preview {
+  margin: 0; padding: 14px; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius-sm); color: var(--muted);
+  font: 14px/1.6 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere;
+  max-height: 60vh; overflow: auto; min-width: 0;
+}
+.docs-pending { overflow-wrap: anywhere; }
+
+@media (min-width: 768px) {
+  .studio-card { padding: 24px; }
+  .docs-layout { grid-template-columns: minmax(0, 280px) minmax(0, 1fr); gap: 20px; }
+  .docs-side { position: sticky; top: 76px; }
+}
+@media (min-width: 1000px) {
+  .module-chain { flex-direction: row; align-items: stretch; }
+  .module-item { flex: 0 1 auto; display: flex; }
+  .module-link { align-self: center; }
+  .module-btn { flex-direction: column; justify-content: center; text-align: center; min-height: 92px; padding: 10px 12px; width: 140px; max-width: 100%; }
+  .module-link { flex: 1 1 24px; height: 0; width: auto; min-width: 20px; margin: 0; border-left: 0; border-top: 2px dashed var(--line-strong); }
+  .flow-dot { top: -4px; left: 0; margin-left: 0; animation-name: flow-right; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flow-dot { animation: none !important; opacity: 1; left: 50%; margin-left: -5px; top: 50%; margin-top: -5px; }
+}
