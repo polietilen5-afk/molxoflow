@@ -6,7 +6,7 @@
   var MF = root.MF = root.MF || {};
 
   MF.CONFIG = {
-    contact: '',
+    contact: 'tg:Molxo1',
     prices: { start: null, grow: null, scale: null }
   };
 
