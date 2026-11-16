@@ -5,8 +5,8 @@
   if (typeof document === 'undefined') return;
 
   var SVG_NS = 'http://www.w3.org/2000/svg';
-  var ROUTES = { home: true, start: true, plan: true, demo: true, interview: true, studio: true, docs: true, method: true };
-  var NAV = ['start', 'interview'];
+  var ROUTES = { home: true, start: true, plan: true, demo: true, interview: true, studio: true, docs: true, method: true, quiz: true, demos: true, cabinet: true, offer: true };
+  var NAV = ['start', 'quiz', 'demos', 'cabinet', 'offer', 'interview'];
   // Какой пункт шапки подсвечивать на маршруте: Студия и Документы живут внутри конструктора ТЗ.
   var NAV_ACTIVE = { studio: 'interview', docs: 'interview', plan: 'start', demo: 'start' };
   var CONSTRUCTOR_ROUTES = { interview: true, studio: true, docs: true };
@@ -105,6 +105,11 @@
   }
   ui.confirm = confirmAction;
 
+  function cancelConfirm() {
+    var dlg = refs.dialog;
+    if (dlg && dlg.open && typeof dlg.close === 'function') dlg.close('cancel');
+  }
+
   function buildDialog() {
     var title = el('h2', { id: 'dialog-title', class: 'dialog-title' });
     var text = el('p', { id: 'dialog-text', class: 'dialog-text' });
@@ -196,10 +201,14 @@
     refs.navLinks = navLinks;
     refs.methodLink = el('a', { href: '#/method', 'data-route': 'method', class: 'nav-link nav-method' }, MF.t('route.method'));
     header.className = 'app-header';
+    var tools = el('div', { class: 'header-tools' }, [refs.status, refs.methodLink]);
+    // Постоянная кнопка «Спросить ассистента»: есть только при заданном боте (решает ui.renderAskButton).
+    if (ui.renderAskButton) ui.renderAskButton(tools);
+    tools.appendChild(buildLangSwitch());
     header.appendChild(el('div', { class: 'header-inner' }, [
       el('a', { href: '#/', class: 'brand', 'aria-label': MF.t('shell.brandAria') }, [logo(), el('span', { class: 'brand-name' }, 'Molxo Flow')]),
       el('nav', { class: 'main-nav', 'aria-label': MF.t('shell.navAria') }, navLinks),
-      el('div', { class: 'header-tools' }, [refs.status, refs.methodLink, buildLangSwitch()])
+      tools
     ]));
   }
 
@@ -517,18 +526,18 @@
     refs.banner = el('div', { id: 'demo-banner', class: 'demo-banner', role: 'region', 'aria-label': MF.t('shell.banner.aria'), hidden: true });
     refs.view.parentNode.insertBefore(refs.banner, refs.view);
 
+    // Шапка и подвал строятся один раз: их наполняет ui.rebuildChrome ниже.
     refs.footer = el('footer', { class: 'app-footer', id: 'app-footer' });
-    buildFooter();
     refs.view.parentNode.insertBefore(refs.footer, refs.view.nextSibling);
     document.body.appendChild(buildDialog());
 
-    buildHeader();
     setStatus(store.available ? 'saved' : 'unavailable');
     ui.rebuildChrome();
     if (MF.onLang) MF.onLang(function () { ui.rebuildChrome(); ui.render(); });
 
     MF.ui.registerView('interview', renderInterview);
-    root.addEventListener('hashchange', ui.render);
+    // Открытое подтверждение не переживает смену маршрута: иначе «ОК» выполнит действие уже на чужом экране.
+    root.addEventListener('hashchange', function () { cancelConfirm(); ui.render(); });
     ui.render();
     refs.ready = true;
   };

@@ -14,6 +14,8 @@
   var MAX_TEXT = 2000;
   var OTHER_SUFFIX = '.other';
   var MAX_CHOICES = 20;
+  // Ключ ответа «сколько предложений или обращений в месяц» для цели opportunities (не шаг мастера).
+  var HUNT_VOLUME = 'huntVolume';
 
   /* ---------- поиск по каталогу ---------- */
   function byId(list, id) {
@@ -53,13 +55,17 @@
 
   // Варианты шага для текущего состояния: pain зависит от цели, остальные от отрасли.
   // Пока валюта не задана, цифровые диапазоны бюджета не предлагаются: остаются «не знаю» и «Другое».
+  // Валюта владельца задана, если после обрезки пробелов что-то осталось.
+  function ownerCurrencySet() {
+    return !!(MF.CONFIG && typeof MF.CONFIG.currency === 'string' && MF.CONFIG.currency.trim());
+  }
   function priced(o) { return o.id !== 'unknown' && o.id !== 'other'; }
   function groupOptions(stepId, all) {
     var pk = parseKey(stepId);
     var pair = stepDef(pk.stepId);
     var gt = pair && pair.kind === 'pair' && pair.groups.indexOf(pk.group) >= 0 ? MF.WIZARD_OPTIONS[pk.group] : null;
     var list = gt ? (gt['default'] || []) : [];
-    if (!all && pk.group === 'budget' && !(MF.CONFIG && MF.CONFIG.currency)) list = list.filter(function (o) { return !priced(o); });
+    if (!all && pk.group === 'budget' && !ownerCurrencySet()) list = list.filter(function (o) { return !priced(o); });
     return list;
   }
   MF.wizardOptions = function (w, stepId) {
@@ -87,6 +93,11 @@
   /* ---------- проверка и запись ответов ---------- */
   // Приводит ответ к хранимому виду. Результат: { ok, remove, value }. ok=false: мусор.
   function normalize(w, key, value) {
+    if (key === HUNT_VOLUME) {
+      // Необязательное число обращений в месяц для цели «выгодные предложения»: отдельного шага в мастере нет, поле стоит в плане.
+      if (w.goal !== 'opportunities' || typeof value !== 'string') return { ok: false };
+      return value.trim() === '' ? { ok: true, remove: true } : { ok: true, value: value.slice(0, MAX_TEXT) };
+    }
     var pk = parseKey(key);
     var isOther = pk.other;
     var st = visibleStep(w, pk.stepId);
@@ -335,13 +346,56 @@
     return MF.t('price.from', { value: MF.formatNumber(value), currency: currency });
   };
 
+  // Код контекста для start= (допустимые символы Telegram, до 64 знаков).
+  var START_CODE_RE = /^[A-Za-z0-9_-]{1,64}$/;
+
   // Ссылка на Telegram-бота из MF.CONFIG.bot вида «tg:имя» (имя 3-64 знака, допускается @); иначе { ok: false, href: '' }.
-  MF.botLink = function () {
+  // Необязательный code (из MF.botStartCode) дописывается как &start=<код>; недопустимый код молча отбрасывается.
+  MF.botLink = function (code) {
     var b = MF.CONFIG && typeof MF.CONFIG.bot === 'string' ? MF.CONFIG.bot.trim() : '';
     var none = { ok: false, href: '' };
     if (!/^tg:/i.test(b)) return none;
     var name = b.slice(3).replace(/^@/, '');
-    return /^[A-Za-z0-9_]{3,64}$/.test(name) ? { ok: true, href: 'tg://resolve?domain=' + name } : none;
+    if (!/^[A-Za-z0-9_]{3,64}$/.test(name)) return none;
+    var href = 'tg://resolve?domain=' + name;
+    if (typeof code === 'string' && START_CODE_RE.test(code)) href += '&start=' + code;
+    return { ok: true, href: href };
+  };
+
+  // Код плана для бота: g<цель>-i<отрасль>-s<первая возможность>; только идентификаторы справочников, без текста посетителя.
+  // Пустой мастер или цель вне справочника дают ''; неизвестная отрасль заменяется на other.
+  MF.botStartCode = function (w) {
+    if (!isWizard(w) || !w.goal) return '';
+    var goal = byId(MF.GOALS, w.goal);
+    if (!goal) return '';
+    var plan;
+    try { plan = MF.buildPlan(w); } catch (e) { return ''; }
+    if (!plan.ready || !plan.opportunities.length) return '';
+    var industry = byId(MF.INDUSTRIES, w.industry);
+    var code = 'g' + goal.id + '-i' + (industry ? industry.id : 'other') + '-s' + plan.opportunities[0].solutionId;
+    return START_CODE_RE.test(code) ? code : '';
+  };
+
+  // Хост из настроек владельца: буквы, цифры, точки и дефисы, внутри есть точка; иначе ''.
+  function cleanHost(value) {
+    var h = typeof value === 'string' ? value.trim() : '';
+    if (h.length > 253 || !/^[a-z0-9.-]+$/i.test(h) || h.indexOf('.') < 1) return '';
+    if (/\.\.|^[.-]|[.-]$/.test(h)) return '';
+    return h;
+  }
+  // Ссылка без схемы: схему наследует страница.
+  var NOSCHEME = '/' + '/';
+  // Ссылка на веб-чат из MF.CONFIG.agentUrl (хост без схемы); иначе { ok: false, href: '' }.
+  MF.agentLink = function () {
+    var host = cleanHost(MF.CONFIG && MF.CONFIG.agentUrl);
+    return host ? { ok: true, href: NOSCHEME + host + '/' } : { ok: false, href: '' };
+  };
+  // Ссылка на статус заявки по коду: MF.CONFIG.statusUrl + /status?code=<код>; без хоста или кода { ok: false, href: '' }.
+  MF.statusLink = function (code) {
+    var host = cleanHost(MF.CONFIG && MF.CONFIG.statusUrl);
+    var c = typeof code === 'string' ? code.trim() : '';
+    if (!host || !c || c.length > 200) return { ok: false, href: '' };
+    return { ok: true, href: NOSCHEME + host + '/status?code=' + encodeURIComponent(c) };
   };
 
   // Слоты доверия владельца: только валидные элементы { title, text } из непустых строк, не больше 6 в списке.
@@ -381,8 +435,8 @@
     var first = byId(MF.SOLUTIONS, picked[0].solutionId);
     ['start', 'grow', 'scale'].forEach(function (l) { plan.tiers[l] = first.tiers[l].slice(); });
     plan.intelligenceNotice = picked.some(function (r) { return r.direction === 'intelligence'; });
-    var volume = textOf(w, 'volume');
-    if (w.goal !== 'opportunities' && volume) {
+    var volume = textOf(w, w.goal === 'opportunities' ? HUNT_VOLUME : 'volume');
+    if (volume) {
       var p = MF.potential({ answers: { q05: volume }, assumptions: assumptions || MF.DEFAULT_ASSUMPTIONS });
       plan.effect = p.ready ? p : null;
     }
@@ -403,6 +457,12 @@
       MF.t('plan.effect.cost', { value: f(effect.savedCost) }),
       MF.t('plan.effect.year', { value: f(effect.costPerYear) })
     ];
+  };
+
+  // Подпись единицы стоимости часа: на uk/en без валюты владельца остаётся только «в час» (без денежной единицы).
+  MF.rateUnit = function () {
+    var u = MF.t('assume.unit.rub');
+    return u.charAt(0) === '/' ? MF.t('assume.unit.hour') : u;
   };
 
   MF.planText = function (w, plan) {
@@ -441,6 +501,20 @@
     if (shown.length === 0) lines.push(MF.t('price.unknown') + '.');
     else shown.forEach(function (l) { lines.push(MF.t('req.priceLevel', { level: MF.t('tier.' + l + '.title'), value: pr[l] })); });
     lines.push('', MF.t('req.footer'));
+    return lines.join('\n');
+  };
+
+  // Текст заявки на звонок на языке интерфейса: удобное время, часовой пояс, тема; лишнее обрезается, пустое пропускается.
+  function oneLine(v, max) { return String(v === null || v === undefined ? '' : v).replace(/\s+/g, ' ').trim().slice(0, max); }
+  MF.callText = function (opts) {
+    var o = opts && typeof opts === 'object' ? opts : {};
+    var windows = Array.isArray(o.windows) ? o.windows.map(function (x) { return oneLine(x, 80); }).filter(function (x) { return x; }).slice(0, 7) : [];
+    var tz = oneLine(o.tz, 64), topic = oneLine(o.topic, 300);
+    var lines = [MF.t('call.title'), ''];
+    lines.push(windows.length ? MF.t('call.windows', { value: windows.join('; ') }) : MF.t('call.noWindows'));
+    if (tz) lines.push(MF.t('call.tz', { value: tz }));
+    if (topic) lines.push(MF.t('call.topic', { value: topic }));
+    lines.push('', MF.t('call.footer'));
     return lines.join('\n');
   };
 
@@ -520,7 +594,7 @@
       ? [textOf(w, 'find'), textOf(w, 'criteria')].filter(function (x) { return x; }).join('; ')
       : textOf(w, 'result');
     if (result) out.q03 = result;
-    var volume = w.goal === 'opportunities' ? '' : textOf(w, 'volume');
+    var volume = textOf(w, w.goal === 'opportunities' ? HUNT_VOLUME : 'volume');
     if (volume) out.q05 = volume;
     return out;
   };

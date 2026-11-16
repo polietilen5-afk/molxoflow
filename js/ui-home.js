@@ -84,6 +84,7 @@
       el('p', { class: 'hero-hint' }, MF.t('home.hint'))
     ]);
     ui.renderBotCard(hero);
+    if (ui.renderAgentWeb) ui.renderAgentWeb(hero);
 
     var sceneBox = el('div', { class: 'scene-box' });
     var stage = el('section', { class: 'stage', 'aria-labelledby': 'rd-title' }, [
@@ -133,6 +134,22 @@
         el('li', { class: 'rv', style: '--d:.2s' }, el('a', { href: 'industries/auto' + langSuffix + '.html', class: 'card demo-card' }, [
           el('span', { class: 'result-title' }, MF.t('industry.auto.title')),
           el('span', { class: 'result-text' }, MF.t('home.ind.auto'))
+        ])),
+        el('li', { class: 'rv', style: '--d:.3s' }, el('a', { href: 'industries/trade' + langSuffix + '.html', class: 'card demo-card' }, [
+          el('span', { class: 'result-title' }, MF.t('industry.trade.title')),
+          el('span', { class: 'result-text' }, MF.t('home.ind.trade'))
+        ])),
+        el('li', { class: 'rv', style: '--d:.4s' }, el('a', { href: 'industries/marketing' + langSuffix + '.html', class: 'card demo-card' }, [
+          el('span', { class: 'result-title' }, MF.t('industry.marketing.title')),
+          el('span', { class: 'result-text' }, MF.t('home.ind.marketing'))
+        ])),
+        el('li', { class: 'rv', style: '--d:.5s' }, el('a', { href: 'industries/services' + langSuffix + '.html', class: 'card demo-card' }, [
+          el('span', { class: 'result-title' }, MF.t('industry.services.title')),
+          el('span', { class: 'result-text' }, MF.t('home.ind.services'))
+        ])),
+        el('li', { class: 'rv', style: '--d:.6s' }, el('a', { href: 'industries/logistics' + langSuffix + '.html', class: 'card demo-card' }, [
+          el('span', { class: 'result-title' }, MF.t('industry.logistics.title')),
+          el('span', { class: 'result-text' }, MF.t('home.ind.logistics'))
         ]))
       ])
     ]));

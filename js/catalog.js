@@ -216,7 +216,11 @@
       criteria: '@t:demo.auto.criteria', frequency: 'now', notify: 'telegram', store: ['source-link', 'price', 'date', 'history'] } } },
     { id: 'shop', titleKey: 'demo.shop.title', wizard: { goal: 'routine', industry: 'trade', answers: {
       business: '@t:demo.shop.business', team: 'small', pain: ['manual-entry', 'lost-requests', 'reports'],
-      tools: ['sheets', 'messengers', 'site'], volume: '@t:demo.shop.volume', result: '@t:demo.shop.result' } } }
+      tools: ['sheets', 'messengers', 'site'], volume: '@t:demo.shop.volume', result: '@t:demo.shop.result' } } },
+    { id: 'suppliers', titleKey: 'demo.suppliers.title', descKey: 'demo.suppliers.desc', wizard: { goal: 'opportunities', industry: 'trade', answers: {
+      business: '@t:demo.suppliers.business', find: '@t:demo.suppliers.find', sources: '@t:demo.suppliers.sources',
+      criteria: '@t:demo.suppliers.criteria', frequency: 'daily', notify: 'telegram', store: ['source-link', 'price', 'date', 'history'],
+      'budgetTime.budget': 'unknown', 'budgetTime.deadline': 'unknown', huntVolume: '@t:demo.suppliers.volume' } } }
   ];
 
   if (typeof module !== 'undefined' && module.exports) module.exports = MF;

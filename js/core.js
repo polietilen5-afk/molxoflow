@@ -50,6 +50,17 @@
 
   var MONTH_RE = /(?:в|за|\/)\s*(?:мес|месяц)|ежемесячн/i;
   var OTHER_RE = /(?:в|за|\/)\s*(?:день|сутки|недел|год|квартал)|ежедневн|еженедельн|ежегодн|ежеквартальн/i;
+  // Пересчёт «в день / в неделю / в год / в квартал» в месяц: 30 дней, 4,35 недели, 12 месяцев, 3 месяца в квартале.
+  var PER_MONTH = [
+    { re: /(?:в|за|\/)\s*(?:день|сутки)|ежедневн/i, k: 30 },
+    { re: /(?:в|за|\/)\s*недел|еженедельн/i, k: 4.35 },
+    { re: /(?:в|за|\/)\s*год|ежегодн/i, k: 1 / 12 },
+    { re: /(?:в|за|\/)\s*квартал|ежеквартальн/i, k: 1 / 3 }
+  ];
+  function monthFactor(seg) {
+    for (var i = 0; i < PER_MONTH.length; i++) if (PER_MONTH[i].re.test(seg)) return PER_MONTH[i].k;
+    return 0;
+  }
   var NUM_RE = /(\d{1,3}(?:[    .]\d{3})+(?!\d)|\d+(?:[.,]\d+)?)(?:[    ]*(к|тыс[а-яё.]*)(?![а-яё]))?/gi;
 
   // Разбор q05: {value, reason}. reason: 'none' (чисел нет) | 'unit' (не в месяц) | 'many' (несколько чисел).
@@ -70,10 +81,15 @@
       var next = i + 1 < tokens.length ? text.slice(t.end).search(/\d/) : -1;
       var seg = next >= 0 ? text.slice(t.end, t.end + next) : text.slice(t.end);
       t.unit = MONTH_RE.test(seg) ? 'month' : (OTHER_RE.test(seg) ? 'other' : 'none');
+      t.factor = t.unit === 'other' ? monthFactor(seg) : 0;
     });
     var months = tokens.filter(function (t) { return t.unit === 'month'; });
     if (months.length === 1) return { value: months[0].value, reason: 'ok' };
     if (months.length > 1) return { value: null, reason: 'many' };
+    // Одно число с единицей «в день / в неделю / …» пересчитывается в месяц; в смеси чисел единицы не угадываются.
+    if (tokens.length === 1 && tokens[0].unit === 'other' && tokens[0].factor) {
+      return { value: Math.round(tokens[0].value * tokens[0].factor), reason: 'ok', converted: true };
+    }
     if (tokens.some(function (t) { return t.unit === 'other'; })) return { value: null, reason: 'unit' };
     if (tokens.length === 1) return { value: tokens[0].value, reason: 'ok' };
     return { value: null, reason: 'many' };
@@ -109,6 +125,7 @@
     var r = {
       ready: true,
       runs: runs,
+      converted: an.converted === true,
       hoursPerMonth: Math.round(hours),
       savedHours: Math.round(savedHours),
       savedCost: Math.round(savedCost),
@@ -149,7 +166,17 @@
 
   MF.listFrom = function (text) {
     if (typeof text !== 'string') return [];
-    return text.split(/[,;\n]/).map(function (x) { return x.trim(); }).filter(function (x) { return x.length > 0; });
+    // Запятая и «;» внутри закрытых скобок пункт не делят: «CRM (Bitrix, amoCRM)» остаётся одним пунктом.
+    var parts = [], cur = '', stack = [], pairs = { '(': ')', '[': ']' };
+    for (var i = 0; i < text.length; i++) {
+      var c = text.charAt(i);
+      if (pairs[c] && text.indexOf(pairs[c], i + 1) >= 0) stack.push(pairs[c]);
+      else if (stack.length && c === stack[stack.length - 1]) stack.pop();
+      if (!stack.length && (c === ',' || c === ';' || c === '\n')) { parts.push(cur); cur = ''; }
+      else cur += c;
+    }
+    parts.push(cur);
+    return parts.map(function (x) { return x.trim(); }).filter(function (x) { return x.length > 0; });
   };
 
   MF.sidebarSummary = function (state) {

@@ -50,14 +50,44 @@
   };
 
   // Карточка бота: только при верном MF.CONFIG.bot; ссылка tg://resolve?domain=имя, пояснение, что отвечает ИИ.
-  ui.renderBotCard = function (container) {
-    var link = MF.botLink ? MF.botLink() : { ok: false, href: '' };
+  // opts.code (из MF.botStartCode) добавляет в ссылку контекст плана; недопустимый код отбрасывает MF.botLink.
+  ui.renderBotCard = function (container, opts) {
+    var code = opts && typeof opts.code === 'string' ? opts.code : '';
+    var link = MF.botLink ? MF.botLink(code) : { ok: false, href: '' };
     if (!link.ok) return null;
+    var withContext = !!code && link.href.indexOf('&start=') >= 0;
     var card = el('section', { class: 'card bot-card', 'aria-labelledby': 'bot-title' }, [
-      el('h2', { id: 'bot-title', class: 'card-title' }, MF.t('botcard.title')),
+      el('h2', { id: 'bot-title', class: 'card-title' }, [MF.t('botcard.title'), ' ', el('span', { class: 'ai-badge' }, MF.t('agent.ai'))]),
       el('p', { class: 'bot-text' }, MF.t('botcard.text')),
       el('p', { class: 'bot-note small muted' }, MF.t('botcard.note')),
+      withContext ? el('p', { class: 'bot-note small muted' }, MF.t('botcard.context')) : null,
       el('a', { href: link.href, class: 'btn btn-primary bot-link' }, MF.t('botcard.open'))
+    ]);
+    container.appendChild(card);
+    return card;
+  };
+
+  // Постоянная кнопка «Спросить ассистента» (шапка): только при верном MF.CONFIG.bot, с пометкой ИИ.
+  ui.renderAskButton = function (container) {
+    var link = MF.botLink ? MF.botLink() : { ok: false, href: '' };
+    if (!link.ok) return null;
+    var btn = el('a', { href: link.href, class: 'btn btn-secondary btn-small ask-btn', 'aria-label': MF.t('agent.askAria') }, [
+      MF.t('agent.ask'),
+      el('span', { class: 'ai-badge', 'aria-hidden': 'true' }, MF.t('agent.ai'))
+    ]);
+    container.appendChild(btn);
+    return btn;
+  };
+
+  // «Открыть чат на сайте»: только при верном MF.CONFIG.agentUrl; чат живёт на отдельном адресе и сервере, это сказано в тексте.
+  ui.renderAgentWeb = function (container) {
+    var link = MF.agentLink ? MF.agentLink() : { ok: false, href: '' };
+    if (!link.ok) return null;
+    var card = el('section', { class: 'card bot-card agent-web', 'aria-labelledby': 'agent-web-title' }, [
+      el('h2', { id: 'agent-web-title', class: 'card-title' }, [MF.t('agent.webTitle'), ' ', el('span', { class: 'ai-badge' }, MF.t('agent.ai'))]),
+      el('p', { class: 'bot-text' }, MF.t('agent.webText')),
+      el('p', { class: 'bot-note small muted' }, MF.t('agent.webNote')),
+      el('a', { href: link.href, class: 'btn btn-secondary bot-link' }, MF.t('agent.web'))
     ]);
     container.appendChild(card);
     return card;

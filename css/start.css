@@ -195,6 +195,8 @@ a.lang-btn { text-decoration: none; }
 .bot-text { overflow-wrap: anywhere; }
 .bot-note { overflow-wrap: anywhere; }
 .bot-link { margin-top: 4px; }
+.ai-badge { display: inline-block; padding: 0 6px; border: 1px solid var(--accent); border-radius: 4px; color: var(--accent); font: 700 11px/18px var(--mono); letter-spacing: .04em; vertical-align: middle; }
+.ask-btn { display: inline-flex; align-items: center; gap: 8px; }
 
 @media (min-width: 768px) {
   .how-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -211,4 +213,24 @@ a.lang-btn { text-decoration: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .lang-btn { transition: none !important; }
+}
+
+/* Квиз, кабинет, предложение, звонок: поля и кнопки не ниже 44 px, без горизонтальной прокрутки */
+.field-input { min-height: 44px; resize: none; }
+.field-label { display: block; margin: 12px 0 6px; font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
+.quiz-group, .call-field { margin-bottom: 8px; min-width: 0; }
+.quiz-result, .cabinet-status, .cabinet-send, .call-card { margin-top: 16px; }
+.quiz-ideas, .cabinet-entries { list-style: none; margin: 12px 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.quiz-score, .quiz-level { overflow-wrap: anywhere; }
+.cabinet-action { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; }
+.cabinet-action .btn, .cabinet-send .btn, .call-card .btn, .quiz-actions .btn, .offer-page .btn { min-height: 44px; }
+.cabinet-entry, .cabinet-list, .demos-page .demo-card { min-width: 0; overflow-wrap: anywhere; }
+.offer-text { margin: 16px 0; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
+.quiz-actions { margin-top: 16px; }
+.nav-link { min-height: 44px; }
+@media (min-width: 768px) {
+  .quiz-ideas { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .quiz-actions .btn, .cabinet-send .btn, .cabinet-action .btn, .offer-page .plan-actions .btn, .call-card .btn { flex: 1 1 100%; align-self: stretch; }
 }

@@ -35,12 +35,16 @@
     n.savedAt = Date.now();
     return n;
   }
+  ui.saveWizard = function (next) { return saveWizard(next); };
   function wizardSaved() { return wizardStore().available && lastSaveOk; }
   function updateStatus() {
     if (!statusNode || !statusNode.isConnected) return;
     var ok = wizardSaved();
-    statusNode.className = 'save-status wizard-status ' + (ok ? 'is-saved' : 'is-unavailable');
-    statusNode.textContent = ok ? MF.t('wizard.saved') : MF.t('wizard.unavailable');
+    var cls = 'save-status wizard-status ' + (ok ? 'is-saved' : 'is-unavailable');
+    var text = ok ? MF.t('wizard.saved') : MF.t('wizard.unavailable');
+    // Текст не переписывается, пока он тот же: иначе чтец экрана повторяет «Сохранено» на каждый символ.
+    if (statusNode.className !== cls) statusNode.className = cls;
+    if (statusNode.textContent !== text) statusNode.textContent = text;
   }
   function saveWizard(next) {
     next = stamp(next);
@@ -134,12 +138,20 @@
       ui.go('plan');
     }
     function advance() {
+      // Кнопка не disabled (иначе она выпадает из Tab), поэтому ответ проверяется здесь: причина показывается рядом.
+      if (!MF.wizardAnswered(ui.wizard, step.id)) {
+        if (refs.need) { refs.need.hidden = false; }
+        return;
+      }
       if (isLast) finish(); else go(index + 1, true);
     }
     function refreshNav() {
       var cur = ui.wizard;
       var answered = MF.wizardAnswered(cur, step.id);
-      if (refs.next) refs.next.disabled = !answered;
+      if (refs.next) {
+        refs.next.setAttribute('aria-disabled', answered ? 'false' : 'true');
+        refs.next.className = 'btn btn-primary' + (answered ? '' : ' is-disabled');
+      }
       if (refs.need) refs.need.hidden = answered;
       if (refs.skipped) refs.skipped.hidden = !stepSkipped(cur, step);
     }
@@ -376,6 +388,8 @@
     legacy();
   }
 
+  ui.copyText = copyText;
+
   /* ---------- «Ваш план» ---------- */
   function leaveDemo() {
     clearWizardData();
@@ -448,7 +462,8 @@
     ui.renderHow(page);
 
     /* оценка эффекта с редактируемыми допущениями */
-    var volumeText = MF.wizardAnswerText(w, 'volume');
+    var hunt = w.goal === 'opportunities';
+    var volumeText = hunt ? (typeof w.answers.huntVolume === 'string' ? w.answers.huntVolume.trim() : '') : MF.wizardAnswerText(w, 'volume');
     var effLines = el('ul', { class: 'potential-lines' });
     var assumeInputs = {};
     function assumption(key, label, unit, min, max, stepVal) {
@@ -467,23 +482,49 @@
       ]);
     }
     var effectBox = null;
-    if (w.goal !== 'opportunities' && volumeText) {
+    // Для цели «выгодные предложения» число обращений в месяц спрашивается здесь, необязательным полем (шагов мастера не добавляется).
+    var huntInput = null;
+    if (hunt) {
+      huntInput = el('input', {
+        type: 'text', id: 'pl-hunt-volume', class: 'answer other-input', maxlength: '200', value: volumeText,
+        'aria-describedby': 'pl-hunt-hint', placeholder: MF.t('wizard.placeholder')
+      });
+      huntInput.addEventListener('change', function () {
+        saveWizard(MF.setWizardAnswer(ui.wizard, 'huntVolume', huntInput.value));
+        ui.render();
+      });
+    }
+    var huntAsk = hunt ? el('div', { class: 'hunt-volume' }, [
+      el('label', { 'for': 'pl-hunt-volume', class: 'assume-label' }, MF.t('plan.huntVolume.label')),
+      huntInput,
+      el('p', { id: 'pl-hunt-hint', class: 'small muted' }, MF.t('plan.huntVolume.hint'))
+    ]) : null;
+    if (hunt && !volumeText) {
+      effectBox = el('section', { class: 'card plan-effect', 'aria-labelledby': 'pl-eff' }, [
+        el('h2', { id: 'pl-eff', class: 'card-title' }, MF.t('plan.effect')),
+        huntAsk
+      ]);
+      page.appendChild(effectBox);
+      effectBox = null; // оценки ещё нет: обновлять нечего
+    } else if (volumeText) {
       if (plan.effect) {
         effectBox = el('section', { class: 'card plan-effect', 'aria-labelledby': 'pl-eff' }, [
           el('h2', { id: 'pl-eff', class: 'card-title' }, MF.t('plan.effect')),
           el('p', { class: 'plan-prelim' }, MF.t('plan.preliminary')),
+          huntAsk,
           effLines,
           el('div', { class: 'assume' }, [
             el('p', { class: 'assume-head' }, MF.t('assume.head')),
             assumption('minutesPerRun', MF.t('assume.minutes'), MF.t('assume.unit.min'), '1', '1440', '1'),
             assumption('automationShare', MF.t('assume.share'), MF.t('assume.unit.pct'), '1', '100', '1'),
-            assumption('hourlyRate', MF.t('assume.rate'), MF.t('assume.unit.rub'), '0', '10000000', '50')
+            assumption('hourlyRate', MF.t('assume.rate'), MF.rateUnit(), '0', '10000000', '50')
           ])
         ]);
       } else {
         effectBox = el('section', { class: 'card plan-effect', 'aria-labelledby': 'pl-eff' }, [
           el('h2', { id: 'pl-eff', class: 'card-title' }, MF.t('plan.effect')),
-          el('p', { class: 'pending' }, MF.t('plan.effectUnclear'))
+          el('p', { class: 'pending' }, MF.t(hunt ? 'plan.huntVolume.unclear' : 'plan.effectUnclear')),
+          huntAsk
         ]);
       }
       page.appendChild(effectBox);
@@ -503,7 +544,10 @@
     if (link.kind === 'none') {
       offer = el('button', { type: 'button', class: 'btn btn-primary', disabled: true }, MF.t('plan.getOffer'));
     } else {
-      offer = el('a', { href: link.href, class: 'btn btn-primary' }, MF.t('plan.getOffer'));
+      offer = el('a', { href: link.href, class: 'btn btn-primary', on: { click: function () {
+        // История планов на устройстве: запись добавляется при «Получить предложение».
+        if (ui.saveToCabinet) ui.saveToCabinet(ui.wizard, MF.buildPlan(ui.wizard, ui.state.assumptions));
+      } } }, MF.t('plan.getOffer'));
     }
     var contactMissing = link.kind === 'none' ? el('p', { class: 'contact-missing', role: 'note' }, MF.t('plan.contactMissing')) : null;
     var telegramHint = link.kind === 'telegram' ? el('p', { class: 'telegram-hint', role: 'note' }, MF.t('plan.telegramHint')) : null;
@@ -541,10 +585,13 @@
       el('p', { class: 'small muted' }, MF.t('plan.zipNote'))
     ]));
 
-    ui.renderBotCard(page);
+    if (ui.renderCallBlock) ui.renderCallBlock(page);
+    ui.renderBotCard(page, { code: MF.botStartCode ? MF.botStartCode(ui.wizard) : '' });
+    if (ui.renderAgentWeb) ui.renderAgentWeb(page);
 
     page.appendChild(el('div', { class: 'plan-links' }, [
       el('a', { href: '#/start', class: 'btn btn-secondary' }, MF.t('plan.edit')),
+      el('a', { href: '#/offer', class: 'btn btn-secondary' }, MF.t('plan.toOffer')),
       el('a', { href: '#/interview', class: 'btn btn-secondary' }, MF.t('plan.toTz'))
     ]));
     page.appendChild(el('p', { class: 'small muted plan-privacy' }, MF.t('plan.privacy')));
