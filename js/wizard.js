@@ -274,6 +274,46 @@
     return selectedLabels(w, stepId, lang).join(', ');
   };
 
+  // Число для показа клиенту: на английском тысячи через запятую, на ru и uk неразрывный пробел (как MF.formatNumber).
+  // Русский конструктор ТЗ остаётся на MF.formatNumber: язык интерфейса на него не влияет.
+  MF.formatNumberLang = function (n) {
+    var s = MF.formatNumber(n);
+    return MF.LANG === 'en' ? s.replace(/\u00a0/g, ',') : s;
+  };
+
+  // Слова клиента для начала плана: { named, need } только из его ответов (сложности, инструменты, результат или то, что искать).
+  // Строки обрезаются; пустые поля остаются ''. Показывать только через textContent.
+  var RECAP_MAX = 240;
+  function recapPart(s) {
+    var t = String(s || '').replace(/\s+/g, ' ').trim().replace(/[\s.;,!?\u2026]+$/, '');
+    return t.length > RECAP_MAX ? t.slice(0, RECAP_MAX - 1).replace(/\s+$/, '') + '\u2026' : t;
+  }
+  MF.planRecap = function (w) {
+    var out = { named: '', need: '' };
+    if (!isWizard(w) || !w.goal) return out;
+    var hunt = w.goal === 'opportunities';
+    var named = [];
+    (hunt ? ['find'] : ['pain', 'tools']).forEach(function (id) {
+      var sel = selectedIds(w, id);
+      if (id === 'tools' && sel.length === 1 && sel[0] === 'none') return;
+      var t = recapPart(MF.wizardAnswerText(w, id));
+      if (t) named.push(t);
+    });
+    out.named = named.join(', ');
+    if (!hunt) out.need = recapPart(MF.wizardAnswerText(w, 'result'));
+    return out;
+  };
+
+  // Блок «Кто за этим стоит» из MF.CONFIG.about: null, пока текст пуст; текст до 600 знаков, заголовок до 120.
+  MF.aboutSlot = function () {
+    var a = MF.CONFIG && MF.CONFIG.about;
+    if (!a || typeof a !== 'object' || Array.isArray(a)) return null;
+    var text = typeof a.text === 'string' ? a.text.trim().slice(0, 600) : '';
+    if (!text) return null;
+    var title = typeof a.title === 'string' ? a.title.trim().slice(0, 120) : '';
+    return { title: title, text: text };
+  };
+
   /* ---------- подбор возможностей (правила, не AI) ---------- */
   // Буквы слова: латиница, цифры, русские и украинские (іїєґ).
   var LETTER = /[a-z0-9\u0430-\u044f\u0451\u0456\u0457\u0454\u0491]/;
@@ -343,7 +383,7 @@
     if (typeof value !== 'number' || !isFinite(value) || value <= 0) return null;
     var currency = MF.CONFIG && typeof MF.CONFIG.currency === 'string' ? MF.CONFIG.currency.trim() : '';
     if (!currency) return null;
-    return MF.t('price.from', { value: MF.formatNumber(value), currency: currency });
+    return MF.t('price.from', { value: MF.formatNumberLang(value), currency: currency });
   };
 
   // Код контекста для start= (допустимые символы Telegram, до 64 знаков).
@@ -449,7 +489,7 @@
   // Строки блока эффекта из чисел потенциала на языке интерфейса; пусто, пока оценки нет.
   MF.effectLines = function (effect) {
     if (!effect || !effect.ready) return [];
-    var f = MF.formatNumber;
+    var f = MF.formatNumberLang;
     return [
       MF.t('plan.effect.runs', { value: f(effect.runs) }),
       MF.t('plan.effect.hours', { value: f(effect.hoursPerMonth) }),

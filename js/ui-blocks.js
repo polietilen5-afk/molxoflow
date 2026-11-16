@@ -57,11 +57,12 @@
     if (!link.ok) return null;
     var withContext = !!code && link.href.indexOf('&start=') >= 0;
     var card = el('section', { class: 'card bot-card', 'aria-labelledby': 'bot-title' }, [
-      el('h2', { id: 'bot-title', class: 'card-title' }, [MF.t('botcard.title'), ' ', el('span', { class: 'ai-badge' }, MF.t('agent.ai'))]),
+      el('p', { class: 'ai-badge-row', 'aria-hidden': 'true' }, el('span', { class: 'ai-badge' }, MF.t('agent.ai'))),
+      el('h2', { id: 'bot-title', class: 'card-title' }, MF.t('botcard.title')),
       el('p', { class: 'bot-text' }, MF.t('botcard.text')),
       el('p', { class: 'bot-note small muted' }, MF.t('botcard.note')),
       withContext ? el('p', { class: 'bot-note small muted' }, MF.t('botcard.context')) : null,
-      el('a', { href: link.href, class: 'btn btn-primary bot-link' }, MF.t('botcard.open'))
+      el('a', { href: link.href, class: 'btn btn-secondary bot-link' }, MF.t('botcard.open'))
     ]);
     container.appendChild(card);
     return card;
@@ -72,7 +73,7 @@
     var link = MF.botLink ? MF.botLink() : { ok: false, href: '' };
     if (!link.ok) return null;
     var btn = el('a', { href: link.href, class: 'btn btn-secondary btn-small ask-btn', 'aria-label': MF.t('agent.askAria') }, [
-      MF.t('agent.ask'),
+      MF.t('agent.ask') + ' ',
       el('span', { class: 'ai-badge', 'aria-hidden': 'true' }, MF.t('agent.ai'))
     ]);
     container.appendChild(btn);
@@ -84,13 +85,80 @@
     var link = MF.agentLink ? MF.agentLink() : { ok: false, href: '' };
     if (!link.ok) return null;
     var card = el('section', { class: 'card bot-card agent-web', 'aria-labelledby': 'agent-web-title' }, [
-      el('h2', { id: 'agent-web-title', class: 'card-title' }, [MF.t('agent.webTitle'), ' ', el('span', { class: 'ai-badge' }, MF.t('agent.ai'))]),
+      el('p', { class: 'ai-badge-row', 'aria-hidden': 'true' }, el('span', { class: 'ai-badge' }, MF.t('agent.ai'))),
+      el('h2', { id: 'agent-web-title', class: 'card-title' }, MF.t('agent.webTitle')),
       el('p', { class: 'bot-text' }, MF.t('agent.webText')),
       el('p', { class: 'bot-note small muted' }, MF.t('agent.webNote')),
-      el('a', { href: link.href, class: 'btn btn-secondary bot-link' }, MF.t('agent.web'))
+      el('a', { href: link.href, class: 'btn btn-secondary bot-link', 'aria-label': MF.t('agent.webAria') }, MF.t('agent.web'))
     ]);
     container.appendChild(card);
     return card;
+  };
+
+  // Плавающий чат с менеджером (ИИ): кнопка в углу экрана и панель с iframe. Только при верном MF.CONFIG.agentUrl;
+  // адрес чата загружается лишь при первом открытии панели, до этого iframe не существует.
+  var chatWidget = null;
+  ui.renderChatWidget = function (container) {
+    if (chatWidget) chatWidget.dispose();
+    chatWidget = null;
+    var link = MF.agentLink ? MF.agentLink() : { ok: false, href: '' };
+    if (!link.ok) return null;
+    var frame = null, opened = false;
+    var button = el('button', { type: 'button', class: 'chat-fab', 'aria-label': MF.t('agent.chatAria'), 'aria-expanded': 'false', 'aria-controls': 'chat-panel', on: { click: function () { if (opened) close(); else open(); } } }, [
+      MF.t('agent.chat') + ' ',
+      el('span', { class: 'ai-badge', 'aria-hidden': 'true' }, MF.t('agent.ai'))
+    ]);
+    var body = el('div', { class: 'chat-body' });
+    var closeBtn = el('button', { type: 'button', class: 'chat-close', 'aria-label': MF.t('agent.chatClose'), on: { click: function () { close(); } } }, '×');
+    var panel = el('div', { id: 'chat-panel', class: 'chat-panel', role: 'dialog', 'aria-labelledby': 'chat-panel-title', hidden: true }, [
+      el('div', { class: 'chat-head' }, [
+        el('h2', { id: 'chat-panel-title', class: 'chat-title' }, MF.t('agent.chatTitle')),
+        closeBtn
+      ]),
+      body
+    ]);
+    panel.hidden = true;
+    function onKey(e) { if (e && (e.key === 'Escape' || e.key === 'Esc')) close(); }
+    function open() {
+      if (opened) return;
+      opened = true;
+      if (!frame) {
+        frame = el('iframe', { class: 'chat-frame', src: link.href + 'chat', title: MF.t('agent.chatTitle'), sandbox: 'allow-scripts allow-same-origin allow-forms', referrerpolicy: 'no-referrer' });
+        body.appendChild(frame);
+      }
+      panel.hidden = false;
+      button.setAttribute('aria-expanded', 'true');
+      document.addEventListener('keydown', onKey);
+      closeBtn.focus();
+    }
+    function close() {
+      if (!opened) return;
+      opened = false;
+      panel.hidden = true;
+      button.setAttribute('aria-expanded', 'false');
+      document.removeEventListener('keydown', onKey);
+      button.focus();
+    }
+    var rootNode = el('div', { class: 'chat-widget' }, [button, panel]);
+    container.appendChild(rootNode);
+    function dispose() {
+      document.removeEventListener('keydown', onKey);
+      if (rootNode.parentNode) rootNode.parentNode.removeChild(rootNode);
+    }
+    chatWidget = { root: rootNode, button: button, panel: panel, open: open, close: close, dispose: dispose };
+    return chatWidget;
+  };
+
+  // «Кто за этим стоит»: только при непустом MF.CONFIG.about.text; текст владельца выводится только текстом.
+  ui.renderAbout = function (container) {
+    var slot = MF.aboutSlot ? MF.aboutSlot() : null;
+    if (!slot) return null;
+    var box = el('section', { class: 'info-block about-block', 'aria-labelledby': 'about-title' }, [
+      el('h2', { id: 'about-title', class: 'section-sub info-title' }, slot.title || MF.t('about.title')),
+      el('p', { class: 'about-text' }, slot.text)
+    ]);
+    container.appendChild(box);
+    return box;
   };
 
   // Кейсы, отзывы, гарантии владельца: каждый список только когда непуст; текст только текстом.

@@ -97,7 +97,7 @@
     step('team', 'choice', 'team', COMMON, true),
     step('pain', 'multi', 'pain', COMMON, true),
     step('tools', 'multi', 'tools', COMMON, true),
-    step('volume', 'text', null, COMMON, true),
+    step('volume', 'text', 'volume', COMMON, true),
     step('result', 'text', 'result', COMMON, true),
     step('find', 'text', 'find', HUNT, true),
     step('sources', 'text', null, HUNT, true),
@@ -120,6 +120,8 @@
   MF.WIZARD_OPTIONS = {
     team: { 'default': [opt('team', 'one'), opt('team', 'small'), opt('team', 'mid'), opt('team', 'large'), OTHER] },
     tools: { 'default': [opt('tools', 'sheets'), opt('tools', 'crm'), opt('tools', 'messengers'), opt('tools', 'site'), opt('tools', 'mail'), opt('tools', 'none'), OTHER] },
+    // Подсказки-чипы шага volume: вставляются в поле текстом, как у result.
+    volume: { 'default': [opt('volume', 'daily'), opt('volume', 'weekly'), opt('volume', 'unknown')] },
     result: { 'default': [opt('result', 'saves-time'), opt('result', 'faster-replies'), opt('result', 'order'), opt('result', 'new-channel'), opt('result', 'see-numbers')] },
     find: {
       'default': [

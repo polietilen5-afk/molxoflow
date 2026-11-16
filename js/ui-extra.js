@@ -22,15 +22,26 @@
   // «Очистить данные проекта» стирает и кабинет; язык не трогается.
   if (ui.onClear) ui.onClear(function () { cabinetStore().clear(); });
 
-  // Запись плана в кабинет (вызывается при «Получить предложение»); пустой план не сохраняется.
+  // Запись плана в кабинет (вызывается при «Отправить заявку»); пустой план не сохраняется.
+  // После записи шапка перестраивается: пункт «Мои заявки» появляется, когда в кабинете есть записи.
   ui.saveToCabinet = function (w, plan) {
     if (!plan || !plan.ready || !plan.opportunities.length) return false;
     var first = byId(MF.SOLUTIONS, plan.opportunities[0].solutionId);
     var now = Date.now();
-    return cabinetStore().add({
+    var saved = cabinetStore().add({
       id: 'p' + now, savedAt: now, goal: w.goal, industry: w.industry || null,
       planTitle: first ? MF.t(first.titleKey) : '', statusCode: ''
     });
+    if (saved && ui.rebuildChrome) ui.rebuildChrome();
+    return saved;
+  };
+
+  // Пункт меню «Мои заявки» нужен, только если в кабинете есть записи или настроен приём или проверка статуса.
+  // Прямой маршрут #/cabinet работает всегда.
+  ui.cabinetNavVisible = function () {
+    var has = false;
+    try { has = cabinetStore().load().length > 0; } catch (e) { has = false; }
+    return has || statusConfigured() || !!intakeHref();
   };
 
   /* ---------- общие помощники ---------- */
@@ -170,9 +181,10 @@
     page.appendChild(el('p', { class: 'lead' }, MF.t('demos.lead')));
     page.appendChild(el('ul', { class: 'demo-grid', 'aria-label': MF.t('demos.title') }, MF.WIZARD_DEMOS.map(function (d) {
       return el('li', null, el('a', { href: '#/demo/' + d.id, class: 'card demo-card' }, [
+        el('span', { class: 'demo-thumb demo-thumb-' + d.id, 'aria-hidden': 'true' }),
         el('span', { class: 'tag-assume' }, MF.t('home.demo.tag')),
         el('span', { class: 'result-title' }, MF.t(d.titleKey)),
-        d.descKey ? el('span', { class: 'small muted' }, MF.t(d.descKey)) : null,
+        el('span', { class: 'small muted' }, MF.t(d.descKey || 'demo.' + d.id + '.desc')),
         el('span', { class: 'result-more', 'aria-hidden': 'true' }, MF.t('home.demo.open'))
       ]));
     })));
@@ -185,6 +197,8 @@
     if (v.length > 253 || !/^[a-z0-9.-]+$/i.test(v) || v.indexOf('.') < 1 || /\.\.|^[.-]|[.-]$/.test(v)) return '';
     return '/' + '/' + v + '/';
   }
+
+  function statusConfigured() { return MF.statusLink ? MF.statusLink('x').ok : false; }
 
   function renderCabinet(container) {
     var store = cabinetStore();
@@ -199,7 +213,11 @@
     function renderList() {
       ui.clear(listBox);
       var entries = store.load();
-      if (!entries.length) { listBox.appendChild(el('p', { class: 'muted' }, MF.t('cabinet.empty'))); return; }
+      if (!entries.length) {
+        listBox.appendChild(el('p', { class: 'muted' }, MF.t('cabinet.empty')));
+        listBox.appendChild(el('a', { href: '#/start', class: 'btn btn-primary' }, MF.t('plan.toStart')));
+        return;
+      }
       listBox.appendChild(el('ul', { class: 'cabinet-entries', 'aria-label': MF.t('cabinet.history') }, entries.map(function (e) {
         var goal = byId(MF.GOALS, e.goal), industry = byId(MF.INDUSTRIES, e.industry);
         var meta = [];
@@ -214,57 +232,59 @@
         ]);
       })));
     }
+    page.appendChild(el('h2', { class: 'section-sub' }, MF.t('cabinet.history')));
+    page.appendChild(listBox);
+    renderList();
 
-    /* статус по коду */
-    var statusConfigured = MF.statusLink ? MF.statusLink('x').ok : false;
-    var codeInput = el('input', { id: 'cab-code', type: 'text', class: 'answer field-input', maxlength: '200', autocomplete: 'off', 'aria-describedby': 'cab-code-hint' });
-    var actionBox = el('div', { class: 'cabinet-action' });
-    var rememberNote = el('p', { class: 'copy-status small', role: 'status', 'aria-live': 'polite' });
-    function refreshStatus() {
-      ui.clear(actionBox);
-      var code = codeInput.value.trim();
-      if (!statusConfigured) {
-        actionBox.appendChild(el('button', { type: 'button', class: 'btn btn-primary', disabled: true }, MF.t('cabinet.status.check')));
-        actionBox.appendChild(el('p', { class: 'pending small', role: 'note' }, MF.t('cabinet.status.stub')));
-        return;
+    /* статус по коду: блок есть, только когда владелец указал адрес (statusUrl); иначе нейтральная фраза или ничего */
+    if (!statusConfigured()) {
+      var soonKind = MF.contactLink('x').kind;
+      if (soonKind === 'telegram' || soonKind === 'mailto') {
+        page.appendChild(el('p', { class: 'muted cabinet-soon', role: 'note' }, MF.t(soonKind === 'mailto' ? 'cabinet.status.soonMail' : 'cabinet.status.soon')));
       }
-      var link = MF.statusLink(code);
-      if (!link.ok) {
-        actionBox.appendChild(el('button', { type: 'button', class: 'btn btn-primary', disabled: true }, MF.t('cabinet.status.check')));
-        actionBox.appendChild(el('p', { class: 'muted small' }, MF.t('cabinet.status.enter')));
-        return;
-      }
-      actionBox.appendChild(el('a', { href: link.href, class: 'btn btn-primary' }, MF.t('cabinet.status.check')));
-      actionBox.appendChild(el('p', { class: 'muted small' }, MF.t('cabinet.status.note')));
+    } else {
+      var codeInput = el('input', { id: 'cab-code', type: 'text', class: 'answer field-input', maxlength: '200', autocomplete: 'off', 'aria-describedby': 'cab-code-hint' });
+      var actionBox = el('div', { class: 'cabinet-action' });
+      var rememberNote = el('p', { class: 'copy-status small', role: 'status', 'aria-live': 'polite' });
+      var refreshStatus = function () {
+        ui.clear(actionBox);
+        var link = MF.statusLink(codeInput.value.trim());
+        if (!link.ok) {
+          // aria-disabled вместо disabled: кнопка остаётся в Tab, причина в подсказке рядом.
+          actionBox.appendChild(el('button', { type: 'button', class: 'btn btn-primary is-disabled', 'aria-disabled': 'true', 'aria-describedby': 'cab-status-why' }, MF.t('cabinet.status.check')));
+          actionBox.appendChild(el('p', { id: 'cab-status-why', class: 'muted small' }, MF.t('cabinet.status.enter')));
+          return;
+        }
+        actionBox.appendChild(el('a', { href: link.href, class: 'btn btn-primary' }, MF.t('cabinet.status.check')));
+        actionBox.appendChild(el('p', { class: 'muted small' }, MF.t('cabinet.status.note')));
+      };
+      codeInput.addEventListener('input', function () { rememberNote.textContent = ''; refreshStatus(); });
+      var remember = el('button', { type: 'button', class: 'btn btn-secondary', on: { click: function () {
+        var code = codeInput.value.trim();
+        var entries = store.load();
+        if (!code) { rememberNote.textContent = MF.t('cabinet.status.enter'); return; }
+        if (!entries.length) { rememberNote.textContent = MF.t('cabinet.status.noEntry'); return; }
+        var latest = entries[0];
+        latest.statusCode = code;
+        rememberNote.textContent = store.add(latest) ? MF.t('cabinet.status.saved') : MF.t('cabinet.unavailable');
+        renderList();
+      } } }, MF.t('cabinet.status.remember'));
+      page.appendChild(el('section', { class: 'card cabinet-status', 'aria-labelledby': 'cab-status-title' }, [
+        el('h2', { id: 'cab-status-title', class: 'card-title' }, MF.t('cabinet.status.title')),
+        el('label', { 'for': 'cab-code', class: 'field-label' }, MF.t('cabinet.status.label')),
+        codeInput,
+        el('p', { id: 'cab-code-hint', class: 'small muted' }, MF.t('cabinet.status.hint')),
+        el('div', { class: 'plan-actions' }, [actionBox, remember]),
+        rememberNote
+      ]));
+      refreshStatus();
     }
-    codeInput.addEventListener('input', function () { rememberNote.textContent = ''; refreshStatus(); });
-    var remember = el('button', { type: 'button', class: 'btn btn-secondary', on: { click: function () {
-      var code = codeInput.value.trim();
-      var entries = store.load();
-      if (!code) { rememberNote.textContent = MF.t('cabinet.status.enter'); return; }
-      if (!entries.length) { rememberNote.textContent = MF.t('cabinet.status.noEntry'); return; }
-      var latest = entries[0];
-      latest.statusCode = code;
-      rememberNote.textContent = store.add(latest) ? MF.t('cabinet.status.saved') : MF.t('cabinet.unavailable');
-      renderList();
-    } } }, MF.t('cabinet.status.remember'));
-    page.appendChild(el('section', { class: 'card cabinet-status', 'aria-labelledby': 'cab-status-title' }, [
-      el('h2', { id: 'cab-status-title', class: 'card-title' }, MF.t('cabinet.status.title')),
-      el('label', { 'for': 'cab-code', class: 'field-label' }, MF.t('cabinet.status.label')),
-      codeInput,
-      el('p', { id: 'cab-code-hint', class: 'small muted' }, MF.t('cabinet.status.hint')),
-      el('div', { class: 'plan-actions' }, [actionBox, remember]),
-      rememberNote
-    ]));
-    refreshStatus();
 
-    /* передача заявки в Molxo Centr */
+    /* передача заявки разработчикам: ссылка на приём только при заданном intakeUrl, файл для разработчиков всегда */
     var w = ui.getWizard();
     var href = intakeHref();
     var ready = !!w.goal;
-    var sendNode = href
-      ? el('a', { href: href, class: 'btn btn-primary' }, MF.t('cabinet.send.open'))
-      : el('button', { type: 'button', class: 'btn btn-primary', disabled: true }, MF.t('cabinet.send.open'));
+    var sendNode = href ? el('a', { href: href, class: 'btn btn-primary' }, MF.t('cabinet.send.open')) : null;
     var bundleBtn = el('button', { type: 'button', class: 'btn btn-secondary', disabled: !ready, on: { click: function () {
       if (!ui.download) return;
       var bundle = MF.handoffBundle(ui.getWizard(), ui.state.answers, { elapsedMs: Date.now() - loadedAt });
@@ -272,16 +292,12 @@
     } } }, MF.t('cabinet.bundle'));
     page.appendChild(el('section', { class: 'card cabinet-send', 'aria-labelledby': 'cab-send-title' }, [
       el('h2', { id: 'cab-send-title', class: 'card-title' }, MF.t('cabinet.send.title')),
-      el('p', { class: 'muted' }, MF.t('cabinet.send.text')),
+      href ? el('p', { class: 'muted' }, MF.t('cabinet.send.text')) : null,
       el('div', { class: 'plan-actions' }, [sendNode, bundleBtn]),
-      href ? null : el('p', { class: 'pending small', role: 'note' }, MF.t('cabinet.send.stub')),
       el('p', { class: 'small muted' }, MF.t('cabinet.bundle.note')),
       ready ? null : el('p', { class: 'pending small', role: 'note' }, MF.t('cabinet.bundle.need'))
     ]));
 
-    page.appendChild(el('h2', { class: 'section-sub' }, MF.t('cabinet.history')));
-    page.appendChild(listBox);
-    renderList();
     page.appendChild(el('p', { class: 'small muted' }, MF.t('cabinet.clearNote', { button: MF.t('shell.clear.button') })));
   }
 
@@ -289,7 +305,7 @@
   function renderOffer(container) {
     var w = ui.getWizard();
     var plan = MF.buildPlan(w, ui.state.assumptions);
-    var page = el('div', { class: 'page narrow offer-page' });
+    var page = el('div', { class: 'page offer-page' });
     container.appendChild(page);
     page.appendChild(el('h1', { class: 'page-title' }, MF.t('offer.title')));
     if (!plan.ready) {
@@ -298,6 +314,21 @@
       return;
     }
     page.appendChild(el('p', { class: 'lead' }, MF.t('offer.lead')));
+    // Три уровня колонками: цена крупным моно-шрифтом (нет цены - фраза «уточним после обсуждения»), пояснения вторично.
+    page.appendChild(el('div', { class: 'tiers offer-tiers' }, ['start', 'grow', 'scale'].map(function (l) {
+      var price = plan.prices && plan.prices[l];
+      return el('section', { class: 'card tier-card tier-' + l, 'aria-labelledby': 'offer-tier-' + l }, [
+        el('h2', { id: 'offer-tier-' + l, class: 'tier-title' }, MF.t('tier.' + l + '.title')),
+        el('p', { class: 'tier-price tier-price-big' + (price ? '' : ' is-unknown') }, price || MF.t('price.unknown')),
+        el('p', { class: 'tier-lead muted' }, MF.t('tier.' + l + '.lead')),
+        el('ul', { class: 'tier-items' }, plan.tiers[l].map(function (k) { return el('li', null, MF.t(k)); }))
+      ]);
+    })));
+    // Оговорки отдельным блоком, не внутри текста предложения.
+    page.appendChild(el('div', { class: 'offer-terms', role: 'note' }, [
+      el('p', null, MF.t('offer.prelim')),
+      plan.intelligenceNotice ? el('p', null, MF.t('notice.intelligence')) : null
+    ]));
     function current() { return MF.buildOffer(ui.getWizard(), MF.buildPlan(ui.getWizard(), ui.state.assumptions)).text; }
     page.appendChild(el('section', { class: 'card offer-text', tabindex: '0', 'aria-label': MF.t('offer.title') }, current()));
     var c = copier(current, 'offer.copied');
@@ -331,8 +362,8 @@
     }
     var link = MF.contactLink(text());
     var action = link.kind === 'none'
-      ? el('button', { type: 'button', class: 'btn btn-primary', disabled: true }, MF.t('call.button'))
-      : el('a', { href: link.href, class: 'btn btn-primary' }, MF.t('call.button'));
+      ? el('button', { type: 'button', class: 'btn btn-primary', disabled: true }, MF.t('call.send'))
+      : el('a', { href: link.href, class: 'btn btn-primary' }, MF.t('call.send'));
     function refresh() {
       if (link.kind === 'mailto') action.setAttribute('href', MF.contactLink(text()).href);
     }
@@ -351,7 +382,8 @@
     var topic = el('input', { id: 'call-topic', type: 'text', class: 'answer field-input', maxlength: '300', value: call.topic, autocomplete: 'off' });
     topic.addEventListener('input', function () { call.topic = topic.value; refresh(); });
     var c = copier(text, 'call.copied');
-    var card = el('section', { class: 'card call-card', 'aria-labelledby': 'call-title' }, [
+    // Форма звонка свёрнута: на странице плана главный призыв один, «Отправить заявку».
+    var panel = el('div', { id: 'call-panel', class: 'card call-panel', 'aria-labelledby': 'call-title', hidden: true }, [
       el('h2', { id: 'call-title', class: 'card-title' }, MF.t('call.title')),
       el('p', { class: 'muted' }, MF.t('call.lead')),
       el('div', { class: 'call-field', role: 'group', 'aria-labelledby': 'call-win-label' }, [
@@ -368,6 +400,12 @@
       link.kind === 'telegram' ? el('p', { class: 'telegram-hint', role: 'note' }, MF.t('call.telegramHint')) : null,
       c.status, c.manualNote, c.manual
     ]);
+    var toggle = el('button', { type: 'button', class: 'btn btn-secondary call-toggle', 'aria-expanded': 'false', 'aria-controls': 'call-panel', on: { click: function () {
+      var open = panel.hidden;
+      panel.hidden = !open;
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    } } }, MF.t('call.button'));
+    var card = el('section', { class: 'call-card', 'aria-label': MF.t('call.button') }, [toggle, panel]);
     container.appendChild(card);
     return card;
   };

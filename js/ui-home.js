@@ -70,16 +70,22 @@
       ]));
     }));
 
+    // Подзаголовок обещает цену ориентиром, только когда владелец задал валюту и хотя бы одну цену.
+    var prices = (MF.CONFIG && MF.CONFIG.prices) || {};
+    var hasPrice = ['start', 'grow', 'scale'].some(function (l) { return !!MF.formatPrice(prices[l]); });
     var title = el('h1', { class: 'hero-title' }, MF.t('home.title'));
     var hero = el('div', { class: 'hero-text' }, [
       title,
-      el('p', { class: 'hero-sub' }, MF.t('home.sub')),
+      el('p', { class: 'hero-sub' }, MF.t(hasPrice ? 'home.sub' : 'home.subNoPrice')),
+      // Один главный путь: «Начать». ТЗ, демо и квиз вторичными ссылками.
+      el('div', { class: 'hero-actions' }, el('button', { type: 'button', class: 'btn btn-primary btn-large', on: { click: start } }, MF.t('home.final.cta'))),
+      el('p', { class: 'hero-links' }, [
+        el('a', { href: '#/interview', class: 'link-btn' }, MF.t('home.secondary')),
+        el('button', { type: 'button', class: 'link-btn', on: { click: toDemo } }, MF.t('home.demoLink')),
+        el('a', { href: '#/quiz', class: 'link-btn' }, MF.t('home.quizLink'))
+      ]),
       el('h2', { class: 'home-question' }, MF.t('home.question')),
       goalCards,
-      el('div', { class: 'hero-actions' }, [
-        el('a', { href: '#/interview', class: 'btn btn-secondary' }, MF.t('home.secondary')),
-        el('button', { type: 'button', class: 'link-btn', on: { click: toDemo } }, MF.t('home.demoLink'))
-      ]),
       el('p', { class: 'hero-micro' }, MF.t('home.micro')),
       el('p', { class: 'hero-hint' }, MF.t('home.hint'))
     ]);
@@ -197,6 +203,7 @@
     ui.renderHow(infoWrap);
     ui.renderSecurity(infoWrap);
     ui.renderTrust(infoWrap);
+    if (ui.renderAbout) ui.renderAbout(infoWrap);
 
     var finalBox = el('section', { class: 'home-section' }, el('div', { class: 'wrap' }, el('div', { class: 'final rv' }, [
       el('h2', { class: 'final-title' }, MF.t('home.final.title')),
@@ -227,6 +234,8 @@
       return el('section', { class: 'card method-block' }, [el('h2', { class: 'card-title' }, title)].concat(kids));
     }
     var count = MF.QUESTIONS.length;
+    // Стоимость часа: на ru валюта «₽» стоит в самом тексте (допущение принято владельцем), на uk и en {currency} берётся из MF.CONFIG.currency.
+    var rateText = MF.formatNumberLang(a.hourlyRate);
     container.appendChild(el('div', { class: 'page narrow method' }, [
       el('h1', { class: 'page-title' }, MF.t('method.title')),
       el('p', { class: 'lead' }, MF.t('method.lead')),
@@ -245,7 +254,7 @@
         el('p', null, MF.t('method.ready.text', { count: count }))
       ]),
       block(MF.t('method.potential.title'), [
-        el('p', null, MF.t('method.potential.text1', { minutes: a.minutesPerRun, share: Math.round(a.automationShare * 100), rate: MF.formatNumber(a.hourlyRate) })),
+        el('p', null, MF.t('method.potential.text1', { minutes: a.minutesPerRun, share: Math.round(a.automationShare * 100), rate: rateText })),
         el('p', null, MF.t('method.potential.text2'))
       ]),
       block(MF.t('method.docs.title'), [

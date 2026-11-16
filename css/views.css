@@ -12,7 +12,7 @@
   transition: background-color .2s ease, border-color .2s ease, transform .3s var(--ease);
 }
 .module-btn:hover { background: var(--card-3); border-color: var(--muted); }
-.module-btn.is-selected { background: var(--accent-soft); border-color: var(--accent); color: var(--text); box-shadow: 0 0 22px -8px rgba(255, 106, 43, .6); }
+.module-btn.is-selected { background: var(--accent-soft); border-color: var(--accent); color: var(--text); }
 .module-num {
   flex: none; width: 30px; height: 30px; border-radius: 8px; background: var(--card-3); color: var(--accent-text);
   display: inline-flex; align-items: center; justify-content: center; font: 700 14px/1 var(--mono);
@@ -24,23 +24,24 @@
 .module-link { position: relative; height: 32px; width: 0; margin: 0 auto; border-left: 2px dashed var(--line-strong); }
 .flow-dot {
   position: absolute; left: 50%; top: 0; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%;
-  background: var(--accent); box-shadow: 0 0 10px rgba(255, 106, 43, .9); animation: flow-down 1.8s ease-in-out infinite;
+  background: var(--accent); box-shadow: 0 0 4px rgba(255, 106, 43, .5); animation: flow-down 1.8s ease-in-out infinite;
 }
 .module-item:nth-child(4n+3) + .module-link .flow-dot { animation-delay: .3s; }
 @keyframes flow-down { 0% { transform: translateY(-4px); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(26px); opacity: 0; } }
 @keyframes flow-right { 0% { left: 0; opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { left: calc(100% - 10px); opacity: 0; } }
 
 .module-detail { min-height: 150px; }
-.module-role { font-size: 18px; margin-bottom: 12px; overflow-wrap: anywhere; }
+.module-role { font-size: var(--fs-card); margin-bottom: 12px; overflow-wrap: anywhere; }
 .tag-list { margin: 0; }
-.tag { border: 1px solid transparent; }
-.tag-0 { background: rgba(255, 92, 106, .14); color: #ff9aa2; border-color: rgba(255, 92, 106, .4); }   /* Решение */
-.tag-1 { background: rgba(106, 168, 255, .14); color: #9cc4ff; border-color: rgba(106, 168, 255, .4); }   /* Входные данные */
-.tag-2 { background: rgba(167, 139, 250, .15); color: #c4b0ff; border-color: rgba(167, 139, 250, .4); }   /* AI-модуль */
-.tag-3 { background: var(--accent-soft); color: #ffa47c; border-color: rgba(255, 106, 43, .45); }   /* Код */
-.tag-4 { background: rgba(61, 220, 151, .13); color: #7fe5b8; border-color: rgba(61, 220, 151, .4); }   /* Интеграции */
-.tag-5 { background: rgba(255, 194, 75, .13); color: #ffd27a; border-color: rgba(255, 194, 75, .4); }   /* Ручная проверка */
-.tag-6 { background: rgba(255, 255, 255, .08); color: #d4d8e0; border-color: rgba(255, 255, 255, .22); }   /* Результат */
+
+/* Цвета тегов только из токенов системы; различие ещё и по рамке (сплошная/пунктир) и по подписи */
+.tag-0 { background: rgba(255, 92, 106, .12); color: var(--danger); border-color: rgba(255, 92, 106, .5); border-style: solid; }   /* Решение */
+.tag-1 { background: transparent; color: var(--muted); border-color: var(--line-strong); border-style: solid; }   /* Входные данные */
+.tag-2 { background: var(--card-3); color: var(--text); border-color: var(--line-strong); border-style: dashed; }   /* AI-модуль */
+.tag-3 { background: var(--accent-soft); color: var(--accent-text); border-color: rgba(255, 106, 43, .45); border-style: solid; }   /* Код */
+.tag-4 { background: rgba(61, 220, 151, .12); color: var(--ok); border-color: rgba(61, 220, 151, .5); border-style: solid; }   /* Интеграции */
+.tag-5 { background: rgba(255, 194, 75, .12); color: var(--warn); border-color: rgba(255, 194, 75, .5); border-style: solid; }   /* Ручная проверка */
+.tag-6 { background: rgba(255, 255, 255, .06); color: var(--text); border-color: var(--muted); border-style: solid; }   /* Результат */
 .studio-actions { display: flex; flex-wrap: wrap; gap: 12px; padding-bottom: 8px; }
 
 /* Документы */

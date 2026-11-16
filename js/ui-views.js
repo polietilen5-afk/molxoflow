@@ -68,7 +68,7 @@
         legend
       ]),
       el('div', { class: 'studio-actions' }, [
-        el('button', { type: 'button', class: 'btn btn-primary btn-large', on: { click: function () { ui.go('interview'); } } }, 'Начать Discovery →')
+        el('button', { type: 'button', class: 'btn btn-primary btn-large', on: { click: function () { ui.go('interview'); } } }, 'К первому этапу: вопросы →')
       ])
     ]));
     showModule(selectedModule);

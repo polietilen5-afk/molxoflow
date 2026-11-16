@@ -6,9 +6,11 @@
 
   var SVG_NS = 'http://www.w3.org/2000/svg';
   var ROUTES = { home: true, start: true, plan: true, demo: true, interview: true, studio: true, docs: true, method: true, quiz: true, demos: true, cabinet: true, offer: true };
-  var NAV = ['start', 'quiz', 'demos', 'cabinet', 'offer', 'interview'];
+  // Основная навигация: не больше пяти пунктов. «Мои заявки» появляется, только когда в кабинете есть что показать
+  // (решает ui.cabinetNavVisible из ui-extra.js); квиз, предложение и методика-«Как это работает» остаются рабочими маршрутами.
+  var NAV = ['start', 'demos', 'method', 'cabinet', 'interview'];
   // Какой пункт шапки подсвечивать на маршруте: Студия и Документы живут внутри конструктора ТЗ.
-  var NAV_ACTIVE = { studio: 'interview', docs: 'interview', plan: 'start', demo: 'start' };
+  var NAV_ACTIVE = { studio: 'interview', docs: 'interview', plan: 'start', demo: 'demos', quiz: 'start', offer: 'start' };
   var CONSTRUCTOR_ROUTES = { interview: true, studio: true, docs: true };
   var clearHooks = [];
   var PENDING = 'Нужно уточнить';
@@ -20,6 +22,7 @@
   var currentRoute = '';
   var focusAnswerNext = false;
   var statusMode = 'saved';
+  var pendingLangFocus = '';
 
   /* ---------- DOM-помощник ---------- */
   // el('div', {class:'x', text:'…', on:{click:fn}, 'aria-label':'…'}, [детей])
@@ -111,7 +114,8 @@
   }
 
   function buildDialog() {
-    var title = el('h2', { id: 'dialog-title', class: 'dialog-title' });
+    // Заголовок не пустой даже до первого показа (его текст подставляет confirmAction).
+    var title = el('h2', { id: 'dialog-title', class: 'dialog-title' }, MF.t('shell.confirm'));
     var text = el('p', { id: 'dialog-text', class: 'dialog-text' });
     var cancel = el('button', { type: 'button', class: 'btn btn-secondary', autofocus: true });
     var ok = el('button', { type: 'button', class: 'btn btn-danger' });
@@ -166,6 +170,7 @@
       store.clear();
       ui.state = MF.resetProject();
       clearHooks.forEach(function (fn) { try { fn(); } catch (e) { /* очистка остальных данных продолжается */ } });
+      ui.rebuildChrome();
       ui.render();
       setStatus(store.available ? 'cleared' : 'unavailable');
       ui.go('home');
@@ -177,7 +182,9 @@
     var h = (root.location && root.location.hash) || '';
     var name = h.replace(/^#\/?/, '').split(/[?\/]/)[0];
     if (name === '') return 'home';
-    return ROUTES[name] ? name : 'home';
+    if (ROUTES[name]) return name;
+    // Только «#/что-то» считается маршрутом: якорь вроде «#view» остаётся главной, а неизвестный маршрут показывает «не найдено».
+    return h.charAt(1) === '/' ? 'notfound' : 'home';
   }
 
   ui.go = function (route) {
@@ -195,22 +202,53 @@
   function buildHeader() {
     var header = refs.header;
     clear(header);
-    var navLinks = NAV.map(function (n) {
+    var navLinks = NAV.filter(function (n) {
+      return n !== 'cabinet' || (typeof ui.cabinetNavVisible === 'function' && ui.cabinetNavVisible());
+    }).map(function (n) {
       return el('a', { href: '#/' + n, 'data-route': n, class: 'nav-link' }, MF.t('route.' + n));
     });
     refs.navLinks = navLinks;
-    refs.methodLink = el('a', { href: '#/method', 'data-route': 'method', class: 'nav-link nav-method' }, MF.t('route.method'));
     header.className = 'app-header';
-    var tools = el('div', { class: 'header-tools' }, [refs.status, refs.methodLink]);
+    var tools = el('div', { class: 'header-tools' }, [refs.status]);
     // Постоянная кнопка «Спросить ассистента»: есть только при заданном боте (решает ui.renderAskButton).
     if (ui.renderAskButton) ui.renderAskButton(tools);
     tools.appendChild(buildLangSwitch());
+    // На телефоне пункты меню раскрываются кнопкой; кнопка ассистента при этом уходит в раскрытое меню.
+    var toggle = el('button', {
+      type: 'button', class: 'nav-toggle', 'aria-expanded': 'false', 'aria-controls': 'main-nav', 'aria-label': MF.t('shell.menu'),
+      on: { click: function () { setNav(!navOpen(), false); } }
+    }, el('span', { class: 'nav-toggle-bar', 'aria-hidden': 'true' }));
+    var nav = el('nav', { id: 'main-nav', class: 'main-nav', 'aria-label': MF.t('shell.navAria') }, navLinks);
+    if (ui.renderAskButton) {
+      var navAsk = ui.renderAskButton(nav);
+      if (navAsk) navAsk.className += ' nav-ask';
+    }
+    refs.navToggle = toggle;
+    refs.nav = nav;
+    nav.addEventListener('click', function (e) {
+      var t = e && e.target;
+      if (t && t.tagName && String(t.tagName).toLowerCase() === 'a') setNav(false, false);
+    });
+    header.addEventListener('keydown', function (e) {
+      if (e && (e.key === 'Escape' || e.key === 'Esc') && navOpen()) setNav(false, true);
+    });
     header.appendChild(el('div', { class: 'header-inner' }, [
       el('a', { href: '#/', class: 'brand', 'aria-label': MF.t('shell.brandAria') }, [logo(), el('span', { class: 'brand-name' }, 'Molxo Flow')]),
-      el('nav', { class: 'main-nav', 'aria-label': MF.t('shell.navAria') }, navLinks),
+      toggle,
+      nav,
       tools
     ]));
   }
+
+  function navOpen() { return !!refs.navToggle && refs.navToggle.getAttribute('aria-expanded') === 'true'; }
+  // Меню телефона: aria-expanded на кнопке, атрибут data-nav-open на шапке (его читает CSS); Esc возвращает фокус на кнопку.
+  function setNav(open, focusToggle) {
+    if (!refs.navToggle || !refs.header) return;
+    refs.navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) refs.header.setAttribute('data-nav-open', 'true'); else refs.header.removeAttribute('data-nav-open');
+    if (focusToggle && refs.navToggle.focus) refs.navToggle.focus();
+  }
+  ui.closeNav = function () { setNav(false, false); };
 
   // Переключатель RU / UK / EN: кнопки с aria-pressed, выбор запоминает MF.setLang.
   function buildLangSwitch() {
@@ -218,7 +256,7 @@
       return el('button', {
         type: 'button', class: 'lang-btn', 'data-lang': code, lang: code, 'aria-pressed': MF.LANG === code ? 'true' : 'false',
         'aria-label': MF.langName(code), title: MF.langName(code),
-        on: { click: function () { if (MF.LANG !== code && MF.setLang) MF.setLang(code); } }
+        on: { click: function () { if (MF.LANG !== code && MF.setLang) { pendingLangFocus = code; MF.setLang(code); } } }
       }, code.toUpperCase());
     });
     return el('div', { class: 'lang-switch', role: 'group', 'aria-label': MF.t('lang.label') }, buttons);
@@ -236,9 +274,10 @@
   // Перестраивает шапку, подвал, подписи страницы и баннер на текущем языке; фокус на кнопке языка сохраняется.
   ui.rebuildChrome = function () {
     if (!refs.header) return;
-    var focusLang = null;
+    var focusLang = pendingLangFocus || null;
+    pendingLangFocus = '';
     var active = document.activeElement;
-    if (active && active.getAttribute && active.classList && active.classList.contains('lang-btn')) focusLang = active.getAttribute('data-lang');
+    if (!focusLang && active && active.getAttribute && active.classList && active.classList.contains('lang-btn')) focusLang = active.getAttribute('data-lang');
     buildHeader();
     if (refs.footer) buildFooter();
     if (refs.banner) refs.banner.setAttribute('aria-label', MF.t('shell.banner.aria'));
@@ -255,9 +294,23 @@
     }
   };
 
+  // Сообщает чтецу экрана о смене языка (polite-область создаётся при запуске).
+  function announceLang(code) {
+    if (!refs.announce) return;
+    refs.announce.textContent = '';
+    refs.announce.textContent = MF.t('lang.announce', { name: MF.langName(code) });
+  }
+
+  // Флаг на body для стилей: нижняя панель действий (мастер, план) поднимает плавающий чат.
+  ui.setBodyFlag = function (name, on) {
+    var b = document.body;
+    if (!b) return;
+    if (on) b.setAttribute('data-' + name, 'true'); else b.removeAttribute('data-' + name);
+  };
+
   function markNav(route) {
     var active = NAV_ACTIVE[route] || route;
-    refs.navLinks.concat([refs.methodLink]).forEach(function (a) {
+    (refs.navLinks || []).forEach(function (a) {
       if (a.getAttribute('data-route') === active) a.setAttribute('aria-current', 'page');
       else a.removeAttribute('aria-current');
     });
@@ -291,6 +344,10 @@
     renderBanner();
     var container = refs.view;
     clear(container);
+    ui.setBodyFlag('actionbar', false);
+    ui.closeNav();
+    // Конструктор ТЗ остаётся русским: на другом языке интерфейса содержимое помечено lang="ru" для чтеца экрана.
+    if (CONSTRUCTOR_ROUTES[route] && MF.LANG !== 'ru') container.setAttribute('lang', 'ru'); else container.removeAttribute('lang');
     var fn = views[route];
     try {
       if (CONSTRUCTOR_ROUTES[route] && typeof ui.prefillFromWizard === 'function') ui.prefillFromWizard();
@@ -311,6 +368,14 @@
     }
   };
 
+  function renderNotFound(container) {
+    container.appendChild(el('section', { class: 'page narrow notfound' }, [
+      el('h1', { class: 'page-title' }, MF.t('route.notfound')),
+      el('p', { class: 'lead' }, MF.t('notfound.text')),
+      el('a', { href: '#/', class: 'btn btn-primary' }, MF.t('demo.home'))
+    ]));
+  }
+
   /* ---------- интервью ---------- */
   function sectionOf(q) {
     for (var i = 0; i < MF.SECTIONS.length; i++) if (MF.SECTIONS[i].id === q.section) return MF.SECTIONS[i];
@@ -320,9 +385,15 @@
 
   // Вкладки конструктора ТЗ: Вопросы, Студия, Документы, Ваш план.
   ui.renderConstructorTabs = function (container, active) {
-    if (MF.LANG !== 'ru') container.appendChild(el('p', { class: 'ctabs-note muted small', role: 'note' }, MF.t('constructor.ru-only')));
+    if (MF.LANG !== 'ru') {
+      // Пометка и ссылка на мастер написаны на языке интерфейса (lang), остальной экран остаётся русским.
+      container.appendChild(el('p', { class: 'ctabs-note muted small', role: 'note', lang: MF.LANG }, [
+        MF.t('constructor.ru-only') + ' ',
+        el('a', { href: '#/start', class: 'ctabs-back' }, MF.t('constructor.backToWizard', { lang: MF.langName(MF.LANG) }))
+      ]));
+    }
     var tabs = [['interview', MF.t('tabs.questions')], ['studio', MF.t('tabs.studio')], ['docs', MF.t('tabs.docs')], ['plan', MF.t('tabs.plan')]];
-    container.appendChild(el('nav', { class: 'ctabs', 'aria-label': MF.t('tabs.label') }, el('ul', { class: 'ctabs-list' }, tabs.map(function (t) {
+    container.appendChild(el('nav', { class: 'ctabs', lang: MF.LANG !== 'ru' ? MF.LANG : null, 'aria-label': MF.t('tabs.label') }, el('ul', { class: 'ctabs-list' }, tabs.map(function (t) {
       return el('li', null, el('a', { href: '#/' + t[0], class: 'ctab', 'aria-current': t[0] === active ? 'page' : null }, t[1]));
     }))));
   };
@@ -351,7 +422,9 @@
       } } }, c));
     }));
 
-    var back = el('button', { type: 'button', class: 'btn btn-secondary', disabled: state.current <= 1, on: { click: function () {
+    // Первый вопрос: кнопка не disabled (остаётся в Tab), а aria-disabled с пояснением; клик ничего не делает.
+    var back = el('button', { type: 'button', class: 'btn btn-secondary' + (state.current <= 1 ? ' is-disabled' : ''), 'aria-disabled': state.current <= 1 ? 'true' : null, title: state.current <= 1 ? 'Это первый вопрос, назад идти некуда' : null, on: { click: function () {
+      if (state.current <= 1) return;
       focusAnswerNext = true; ui.setState(MF.setCurrent(ui.state, state.current - 1));
     } } }, 'Назад');
     var next = state.current >= total
@@ -531,17 +604,30 @@
     refs.view.parentNode.insertBefore(refs.footer, refs.view.nextSibling);
     document.body.appendChild(buildDialog());
 
+    refs.announce = el('p', { id: 'lang-status', class: 'visually-hidden', role: 'status', 'aria-live': 'polite' });
+    document.body.appendChild(refs.announce);
+    var skip = document.querySelector('.skip-link');
+    if (skip && skip.addEventListener) skip.addEventListener('click', function (e) {
+      // «#view» не должен менять маршрут: фокус переносится на содержимое напрямую.
+      if (e && e.preventDefault) e.preventDefault();
+      refs.view.focus();
+    });
+
     setStatus(store.available ? 'saved' : 'unavailable');
     ui.rebuildChrome();
-    if (MF.onLang) MF.onLang(function () { ui.rebuildChrome(); ui.render(); });
+    // Плавающий чат с менеджером (ИИ): есть только при заданном agentUrl (решает ui.renderChatWidget).
+    if (ui.renderChatWidget) ui.renderChatWidget(document.body);
+    if (MF.onLang) MF.onLang(function (code) { ui.rebuildChrome(); if (ui.renderChatWidget) ui.renderChatWidget(document.body); ui.render(); announceLang(code); });
 
     MF.ui.registerView('interview', renderInterview);
+    MF.ui.registerView('notfound', renderNotFound);
     // Открытое подтверждение не переживает смену маршрута: иначе «ОК» выполнит действие уже на чужом экране.
     root.addEventListener('hashchange', function () { cancelConfirm(); ui.render(); });
     ui.render();
     refs.ready = true;
   };
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { ui.init(); });
+  // Скрипты подключены с defer: во время их выполнения readyState равен interactive, запуск ждёт DOMContentLoaded.
+  if (document.readyState !== 'complete') document.addEventListener('DOMContentLoaded', function () { ui.init(); });
   else root.setTimeout(function () { ui.init(); }, 0);
 })(typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : this));

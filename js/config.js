@@ -9,6 +9,8 @@
    statusUrl: хост страницы статуса заявки без схемы; пусто = проверка статуса по коду недоступна.
    intakeUrl: хост приёма заявок Molxo Centr без схемы; пусто = кнопки отправки заявки нет.
    cases, reviews, guarantees: списки { title: '…', text: '…' }; пустой список = блок на сайте скрыт; показываются первые 6.
+   about: { title: '', text: '' } — блок «Кто за этим стоит» на главной и в плане; пустой text = блок скрыт.
+     Пишите сами и только правду: до 600 знаков; title можно оставить пустым (будет стандартный заголовок).
    После правки файла выполните: node tools/build-site.js */
 (function (root) {
   'use strict';
@@ -24,7 +26,8 @@
     intakeUrl: '',
     cases: [],
     reviews: [],
-    guarantees: []
+    guarantees: [],
+    about: { title: '', text: '' }
   };
 
   if (typeof module !== 'undefined' && module.exports) module.exports = MF;
