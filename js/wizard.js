@@ -224,6 +224,7 @@
     var v = w.answers[stepId];
     return typeof v === 'string' && v !== MF.WIZARD_SKIP ? v.trim() : '';
   }
+  function textOfRaw(w, stepId) { return textOf(w, stepId); }
   function selectedIds(w, stepId) {
     var v = w.answers[stepId];
     var list = Array.isArray(v) ? v : (typeof v === 'string' ? [v] : []);
@@ -483,6 +484,21 @@
     var out = {};
     if (!isWizard(w) || !w.goal) return out;
     var plan = MF.buildPlan(w);
+    // Чип-подсказки вставляются в текст на языке интерфейса: подписи известных подсказок возвращаем на русский.
+    var textOf = function (wz, id) {
+      var text = textOfRaw(wz, id);
+      if (!text) return text;
+      var opts = [];
+      try { opts = MF.wizardOptions(wz, id) || []; } catch (e) { opts = []; }
+      opts.forEach(function (o) {
+        var ru = MF.tIn('ru', o.labelKey);
+        ['uk', 'en'].forEach(function (lg) {
+          var s = MF.tIn(lg, o.labelKey);
+          if (s && s !== ru) text = text.split(s).join(ru);
+        });
+      });
+      return text;
+    };
     if (plan.ready) out.q01 = titleOf(plan.opportunities[0].solutionId, 'ru');
     var ctx = [];
     var business = textOf(w, 'business');
