@@ -5,8 +5,12 @@
   if (typeof document === 'undefined') return;
 
   var SVG_NS = 'http://www.w3.org/2000/svg';
-  var ROUTE_TITLES = { home: 'Главная', interview: 'Требования', studio: 'Студия', docs: 'Документы', method: 'Методика' };
-  var NAV = [['interview', 'Требования'], ['studio', 'Студия'], ['docs', 'Документы']];
+  var ROUTE_TITLES = { home: 'Главная', start: 'Начать', plan: 'Ваш план', demo: 'Демо', interview: 'Составить ТЗ', studio: 'Студия', docs: 'Документы', method: 'Методика' };
+  var NAV = [['start', 'Начать'], ['interview', 'Составить ТЗ']];
+  // Какой пункт шапки подсвечивать на маршруте: Студия и Документы живут внутри конструктора ТЗ.
+  var NAV_ACTIVE = { studio: 'interview', docs: 'interview', plan: 'start', demo: 'start' };
+  var CONSTRUCTOR_ROUTES = { interview: true, studio: true, docs: true };
+  var clearHooks = [];
   var PENDING = 'Нужно уточнить';
 
   var ui = MF.ui = MF.ui || {};
@@ -145,14 +149,18 @@
     } else then();
   };
 
+  // Хуки очистки: экраны воронки стирают здесь свои данные (ответы мастера).
+  ui.onClear = function (fn) { if (typeof fn === 'function') clearHooks.push(fn); };
+
   function clearProject() {
     confirmAction({
       title: 'Очистить данные проекта?',
-      text: 'Все ответы и допущения будут удалены с этого устройства. Это действие нельзя отменить.',
+      text: MF.t('clear.text'),
       okLabel: 'Очистить данные'
     }, function () {
       store.clear();
       ui.state = MF.resetProject();
+      clearHooks.forEach(function (fn) { try { fn(); } catch (e) { /* очистка остальных данных продолжается */ } });
       ui.render();
       setStatus(store.available ? 'cleared' : 'unavailable');
       ui.go('home');
@@ -196,8 +204,9 @@
   }
 
   function markNav(route) {
+    var active = NAV_ACTIVE[route] || route;
     refs.navLinks.concat([refs.methodLink]).forEach(function (a) {
-      if (a.getAttribute('data-route') === route) a.setAttribute('aria-current', 'page');
+      if (a.getAttribute('data-route') === active) a.setAttribute('aria-current', 'page');
       else a.removeAttribute('aria-current');
     });
   }
@@ -232,6 +241,7 @@
     clear(container);
     var fn = views[route];
     try {
+      if (CONSTRUCTOR_ROUTES[route] && typeof ui.prefillFromWizard === 'function') ui.prefillFromWizard();
       if (fn) fn(container, { state: ui.state, setState: ui.setState, go: ui.go });
       else placeholder(container, route);
     } catch (e) {
@@ -256,8 +266,17 @@
   }
   function pad2(n) { return (n < 10 ? '0' : '') + n; }
 
+  // Вкладки конструктора ТЗ: Вопросы, Студия, Документы, Ваш план.
+  ui.renderConstructorTabs = function (container, active) {
+    var tabs = [['interview', MF.t('tabs.questions')], ['studio', MF.t('tabs.studio')], ['docs', MF.t('tabs.docs')], ['plan', MF.t('tabs.plan')]];
+    container.appendChild(el('nav', { class: 'ctabs', 'aria-label': MF.t('tabs.label') }, el('ul', { class: 'ctabs-list' }, tabs.map(function (t) {
+      return el('li', null, el('a', { href: '#/' + t[0], class: 'ctab', 'aria-current': t[0] === active ? 'page' : null }, t[1]));
+    }))));
+  };
+
   function renderInterview(container) {
     var state = ui.state;
+    ui.renderConstructorTabs(container, 'interview');
     var q = MF.QUESTIONS[state.current - 1];
     var total = MF.QUESTIONS.length;
 
@@ -455,7 +474,7 @@
     refs.view.parentNode.insertBefore(refs.banner, refs.view);
 
     refs.footer = el('footer', { class: 'app-footer', id: 'app-footer' }, el('div', { class: 'footer-inner' }, [
-      el('p', { class: 'footer-note' }, 'Данные хранятся только на этом устройстве, в браузере. Ничего не отправляется в сеть.'),
+      el('p', { class: 'footer-note' }, MF.t('footer.note')),
       el('button', { type: 'button', class: 'btn btn-secondary btn-small', id: 'clear-data', on: { click: clearProject } }, 'Очистить данные проекта')
     ]));
     refs.view.parentNode.insertBefore(refs.footer, refs.view.nextSibling);

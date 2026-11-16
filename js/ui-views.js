@@ -21,6 +21,7 @@
   var selectedModule = 0;
 
   function renderStudio(container) {
+    ui.renderConstructorTabs(container, 'studio');
     var modules = MF.MODULES;
     var buttons = [];
     var roleBox = el('div', { class: 'module-detail card', 'aria-live': 'polite' });
@@ -77,6 +78,7 @@
   var selectedDoc = 0;
 
   function renderDocs(container, ctx) {
+    ui.renderConstructorTabs(container, 'docs');
     var docs = MF.buildDocs(ctx.state);
     var items = [];
     var title = el('h2', { class: 'card-title doc-title' });
@@ -111,7 +113,9 @@
     }));
 
     var zipBtn = el('button', { type: 'button', class: 'btn btn-primary', on: { click: function () {
-      var bytes = MF.buildZip(docs.map(function (d) { return { name: d.file, content: d.content }; }));
+      // Пакет «Для разработчика»: сводка 00-svodka-dlya-centr.md и 12 документов.
+      var wizard = typeof ui.getWizard === 'function' ? ui.getWizard() : MF.emptyWizard();
+      var bytes = MF.buildZip(MF.devFiles(ui.state, wizard));
       download('molxo-flow-tz.zip', bytes, 'application/zip');
     } } }, 'Скачать всё (ZIP)');
 
@@ -120,6 +124,7 @@
     container.appendChild(el('div', { class: 'page docs' }, [
       el('h1', { class: 'page-title' }, 'Документы'),
       el('p', { class: 'lead' }, 'Двенадцать файлов технического задания в формате Markdown. Выберите файл для предпросмотра, скачайте его или весь пакет.'),
+      el('p', { class: 'muted small docs-zip-note' }, MF.t('docs.zipNote')),
       pendingCount ? el('p', { class: 'pending docs-pending' }, 'В ' + pendingCount + ' из ' + docs.length + ' документов есть пометки «' + MF.PENDING_MARK + '»: ответьте на вопросы, и они пропадут.') : null,
       el('div', { class: 'docs-layout' }, [
         el('div', { class: 'card docs-side' }, [list, el('div', { class: 'docs-zip' }, zipBtn)]),

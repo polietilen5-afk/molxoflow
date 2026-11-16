@@ -56,22 +56,31 @@
   function renderHome(container, ctx) {
     var r = MF.readiness(ctx.state.answers);
 
-    function start() {
-      if (ui.state.demo) ui.backToEmpty({ go: 'interview' });
-      else ui.go('interview');
+    function start() { ui.go('start'); }
+    function toDemo() {
+      var box = document.getElementById('home-demo');
+      if (box && box.scrollIntoView) box.scrollIntoView({ behavior: SC() && SC().reduced && SC().reduced() ? 'auto' : 'smooth', block: 'start' });
     }
-    var startBtn = el('button', { type: 'button', class: 'btn btn-primary btn-large', on: { click: start } }, 'Начать свой проект');
-    var demoBtn = el('button', { type: 'button', class: 'btn btn-secondary btn-large', on: { click: function () {
-      ui.startDemo({ restart: true, go: 'interview' });
-    } } }, 'Посмотреть готовое демо');
 
-    var title = el('h1', { class: 'hero-title' }, 'От идеи до понятного плана');
+    // Пять целей: каждая карточка ведёт в мастер на свою ветку.
+    var goalCards = el('ul', { class: 'goal-grid goal-grid-home', 'aria-label': MF.t('home.goalsLabel') }, MF.GOALS.map(function (g) {
+      return el('li', null, el('a', { href: '#/start/' + g.id, class: 'goal-card' }, [
+        el('span', { class: 'goal-title' }, MF.t(g.titleKey)),
+        el('span', { class: 'goal-hint' }, MF.t(g.hintKey))
+      ]));
+    }));
+
+    var title = el('h1', { class: 'hero-title' }, MF.t('home.title'));
     var hero = el('div', { class: 'hero-text' }, [
       title,
-      el('p', { class: 'hero-sub' }, 'Покажите процесс — мы соберём решение'),
-      el('p', { class: 'lead' }, 'Отвечайте обычными словами, как рассказали бы коллеге: без терминов и схем. Мы сами сложим ответы в схему процесса, оценим эффект и подготовим техническое задание.'),
-      el('div', { class: 'hero-actions' }, [startBtn, demoBtn]),
-      el('p', { class: 'hero-hint' }, '5–10 минут · можно отвечать приблизительно · всё редактируется')
+      el('p', { class: 'hero-sub' }, MF.t('home.sub')),
+      el('h2', { class: 'home-question' }, MF.t('home.question')),
+      goalCards,
+      el('div', { class: 'hero-actions' }, [
+        el('a', { href: '#/interview', class: 'btn btn-secondary' }, MF.t('home.secondary')),
+        el('button', { type: 'button', class: 'link-btn', on: { click: toDemo } }, MF.t('home.demoLink'))
+      ]),
+      el('p', { class: 'hero-hint' }, MF.t('home.hint'))
     ]);
 
     var sceneBox = el('div', { class: 'scene-box' });
@@ -95,6 +104,35 @@
       canvas, el('div', { class: 'hero-glow', 'aria-hidden': 'true' }),
       el('div', { class: 'wrap' }, el('div', { class: 'hero' }, [hero, stage]))
     ]);
+
+    // Три демо: вымышленные данные, каждая карточка открывает «Ваш план».
+    var demos = el('section', { class: 'home-section', id: 'home-demo', 'aria-labelledby': 'demo-title' }, el('div', { class: 'wrap' }, [
+      el('h2', { id: 'demo-title', class: 'section-title rv' }, MF.t('home.demo.title')),
+      el('p', { class: 'section-kicker rv', style: '--d:.08s' }, MF.t('home.demo.lead')),
+      el('ul', { class: 'demo-grid', 'aria-label': MF.t('home.demo.title') }, MF.WIZARD_DEMOS.map(function (d, k) {
+        return el('li', { class: 'rv', style: '--d:' + (0.1 + k * 0.1) + 's' }, el('a', { href: '#/demo/' + d.id, class: 'card demo-card' }, [
+          el('span', { class: 'tag-assume' }, MF.t('home.demo.tag')),
+          el('span', { class: 'result-title' }, MF.t(d.titleKey)),
+          el('span', { class: 'result-more', 'aria-hidden': 'true' }, MF.t('home.demo.open'))
+        ]));
+      }))
+    ]));
+
+    // Отраслевые страницы лежат отдельными файлами: ссылки относительные.
+    var industries = el('section', { class: 'home-section', 'aria-labelledby': 'ind-title' }, el('div', { class: 'wrap' }, [
+      el('h2', { id: 'ind-title', class: 'section-title rv' }, MF.t('home.ind.title')),
+      el('p', { class: 'section-kicker rv', style: '--d:.08s' }, MF.t('home.ind.lead')),
+      el('ul', { class: 'industry-links-grid', 'aria-label': MF.t('home.ind.title') }, [
+        el('li', { class: 'rv', style: '--d:.1s' }, el('a', { href: 'industries/real-estate.html', class: 'card demo-card' }, [
+          el('span', { class: 'result-title' }, MF.t('industry.real-estate.title')),
+          el('span', { class: 'result-text' }, MF.t('home.ind.real-estate'))
+        ])),
+        el('li', { class: 'rv', style: '--d:.2s' }, el('a', { href: 'industries/auto.html', class: 'card demo-card' }, [
+          el('span', { class: 'result-title' }, MF.t('industry.auto.title')),
+          el('span', { class: 'result-text' }, MF.t('home.ind.auto'))
+        ]))
+      ])
+    ]));
 
     function resultCard(href, title, text, kind, d) {
       return el('li', { class: 'rv', style: '--d:' + d + 's' }, el('a', { href: href, class: 'card result-card' }, [
@@ -131,11 +169,11 @@
     ]));
 
     var finalBox = el('section', { class: 'home-section' }, el('div', { class: 'wrap' }, el('div', { class: 'final rv' }, [
-      el('h2', { class: 'final-title' }, 'Расскажите процесс — получите план.'),
-      el('button', { type: 'button', class: 'btn btn-primary btn-large', on: { click: start } }, 'Начать свой проект')
+      el('h2', { class: 'final-title' }, MF.t('home.final.title')),
+      el('button', { type: 'button', class: 'btn btn-primary btn-large', on: { click: start } }, MF.t('home.final.cta'))
     ])));
 
-    var page = el('div', { class: 'page home' }, [heroBox, results, blocks, privacy, finalBox]);
+    var page = el('div', { class: 'page home' }, [heroBox, demos, industries, results, blocks, privacy, finalBox]);
     container.appendChild(page);
 
     var sc = SC();
@@ -161,6 +199,10 @@
     container.appendChild(el('div', { class: 'page narrow method' }, [
       el('h1', { class: 'page-title' }, 'Методика'),
       el('p', { class: 'lead' }, 'Коротко о том, как Molxo Flow собирает требования и что делает с вашими ответами.'),
+      block(MF.t('method.wizard.title'), [
+        el('p', null, MF.t('method.wizard.text1')),
+        el('p', null, MF.t('method.wizard.text2'))
+      ]),
       block('Как устроен сбор требований', [
         el('p', null, 'Вы отвечаете на ' + MF.QUESTIONS.length + ' вопросов обычными словами. Отвечать можно приблизительно, к любому вопросу можно вернуться и поправить ответ. Рядом, в боковой панели, сразу видно, как из ответов складывается схема процесса.')
       ]),
@@ -176,10 +218,11 @@
         el('p', null, 'Из ответов собирается пакет из 12 файлов в формате Markdown. Если на вопрос нет ответа, в документе остаётся явная пометка «Не заполнено», ничего не придумывается.')
       ]),
       block('Приватность', [
-        el('p', null, 'Всё работает в вашем браузере. Ответы сохраняются только на этом устройстве, в локальном хранилище браузера, и автоматически. Нет аккаунтов, паролей, платежей, аналитики и отправки данных в сеть. Удалить всё можно кнопкой «Очистить данные проекта» внизу страницы.')
+        el('p', null, MF.t('method.privacy'))
       ]),
       el('div', { class: 'method-actions' }, [
-        el('a', { href: '#/interview', class: 'btn btn-primary' }, ctx.state.demo ? 'К интервью' : 'Перейти к вопросам'),
+        el('a', { href: '#/start', class: 'btn btn-primary' }, MF.t('home.final.cta')),
+        el('a', { href: '#/interview', class: 'btn btn-secondary' }, ctx.state.demo ? 'К интервью' : 'Перейти к вопросам'),
         el('a', { href: '#/', class: 'btn btn-secondary' }, 'На главную')
       ])
     ]));
