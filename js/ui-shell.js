@@ -5,8 +5,8 @@
   if (typeof document === 'undefined') return;
 
   var SVG_NS = 'http://www.w3.org/2000/svg';
-  var ROUTE_TITLES = { home: 'Главная', start: 'Начать', plan: 'Ваш план', demo: 'Демо', interview: 'Составить ТЗ', studio: 'Студия', docs: 'Документы', method: 'Методика' };
-  var NAV = [['start', 'Начать'], ['interview', 'Составить ТЗ']];
+  var ROUTES = { home: true, start: true, plan: true, demo: true, interview: true, studio: true, docs: true, method: true };
+  var NAV = ['start', 'interview'];
   // Какой пункт шапки подсвечивать на маршруте: Студия и Документы живут внутри конструктора ТЗ.
   var NAV_ACTIVE = { studio: 'interview', docs: 'interview', plan: 'start', demo: 'start' };
   var CONSTRUCTOR_ROUTES = { interview: true, studio: true, docs: true };
@@ -80,7 +80,7 @@
     statusMode = mode;
     var s = refs.status;
     if (!s) return;
-    var text = mode === 'saved' ? 'Сохранено' : mode === 'cleared' ? 'Данные очищены' : 'Не сохраняется (хранилище недоступно)';
+    var text = mode === 'saved' ? MF.t('wizard.saved') : mode === 'cleared' ? MF.t('shell.statusCleared') : MF.t('wizard.unavailable');
     s.className = 'save-status is-' + mode;
     s.textContent = text;
   }
@@ -94,8 +94,8 @@
     }
     refs.dialogTitle.textContent = opts.title;
     refs.dialogText.textContent = opts.text;
-    refs.dialogOk.textContent = opts.okLabel || 'Подтвердить';
-    refs.dialogCancel.textContent = opts.cancelLabel || 'Отмена';
+    refs.dialogOk.textContent = opts.okLabel || MF.t('shell.confirm');
+    refs.dialogCancel.textContent = opts.cancelLabel || MF.t('shell.cancel');
     dlg.returnValue = '';
     dlg.onclose = function () {
       dlg.onclose = null;
@@ -134,7 +134,7 @@
       if (opts && opts.go) ui.go(opts.go);
     };
     if (hasAnswers(ui.state) && !ui.state.demo) {
-      confirmAction({ title: 'Заменить ваши ответы демо-примером?', text: 'Ваши текущие ответы будут заменены вымышленным примером «Обработка заявок». Вернуть их потом не получится.', okLabel: 'Заменить демо-примером' }, then);
+      confirmAction({ title: MF.t('shell.demo.title'), text: MF.t('shell.demo.text'), okLabel: MF.t('shell.demo.ok') }, then);
     } else then();
   };
 
@@ -145,7 +145,7 @@
       if (opts && opts.go) ui.go(opts.go);
     };
     if (ui.state.demo && demoEdited(ui.state)) {
-      confirmAction({ title: 'Вернуться к пустому проекту?', text: 'Вы меняли демо-ответы. Эти правки будут потеряны.', okLabel: 'Вернуться к пустому проекту' }, then);
+      confirmAction({ title: MF.t('shell.empty.title'), text: MF.t('shell.empty.text'), okLabel: MF.t('shell.empty.ok') }, then);
     } else then();
   };
 
@@ -154,9 +154,9 @@
 
   function clearProject() {
     confirmAction({
-      title: 'Очистить данные проекта?',
+      title: MF.t('shell.clear.title'),
       text: MF.t('clear.text'),
-      okLabel: 'Очистить данные'
+      okLabel: MF.t('shell.clear.ok')
     }, function () {
       store.clear();
       ui.state = MF.resetProject();
@@ -172,7 +172,7 @@
     var h = (root.location && root.location.hash) || '';
     var name = h.replace(/^#\/?/, '').split(/[?\/]/)[0];
     if (name === '') return 'home';
-    return ROUTE_TITLES[name] ? name : 'home';
+    return ROUTES[name] ? name : 'home';
   }
 
   ui.go = function (route) {
@@ -191,17 +191,60 @@
     var header = refs.header;
     clear(header);
     var navLinks = NAV.map(function (n) {
-      return el('a', { href: '#/' + n[0], 'data-route': n[0], class: 'nav-link' }, n[1]);
+      return el('a', { href: '#/' + n, 'data-route': n, class: 'nav-link' }, MF.t('route.' + n));
     });
     refs.navLinks = navLinks;
-    refs.methodLink = el('a', { href: '#/method', 'data-route': 'method', class: 'nav-link nav-method' }, 'Методика');
+    refs.methodLink = el('a', { href: '#/method', 'data-route': 'method', class: 'nav-link nav-method' }, MF.t('route.method'));
     header.className = 'app-header';
     header.appendChild(el('div', { class: 'header-inner' }, [
-      el('a', { href: '#/', class: 'brand', 'aria-label': 'Molxo Flow — на главную' }, [logo(), el('span', { class: 'brand-name' }, 'Molxo Flow')]),
-      el('nav', { class: 'main-nav', 'aria-label': 'Разделы' }, navLinks),
-      el('div', { class: 'header-tools' }, [refs.status, refs.methodLink])
+      el('a', { href: '#/', class: 'brand', 'aria-label': MF.t('shell.brandAria') }, [logo(), el('span', { class: 'brand-name' }, 'Molxo Flow')]),
+      el('nav', { class: 'main-nav', 'aria-label': MF.t('shell.navAria') }, navLinks),
+      el('div', { class: 'header-tools' }, [refs.status, refs.methodLink, buildLangSwitch()])
     ]));
   }
+
+  // Переключатель RU / UK / EN: кнопки с aria-pressed, выбор запоминает MF.setLang.
+  function buildLangSwitch() {
+    var buttons = (MF.LANGS || ['ru']).map(function (code) {
+      return el('button', {
+        type: 'button', class: 'lang-btn', 'data-lang': code, lang: code, 'aria-pressed': MF.LANG === code ? 'true' : 'false',
+        'aria-label': MF.langName(code), title: MF.langName(code),
+        on: { click: function () { if (MF.LANG !== code && MF.setLang) MF.setLang(code); } }
+      }, code.toUpperCase());
+    });
+    return el('div', { class: 'lang-switch', role: 'group', 'aria-label': MF.t('lang.label') }, buttons);
+  }
+
+  function buildFooter() {
+    var f = refs.footer;
+    clear(f);
+    f.appendChild(el('div', { class: 'footer-inner' }, [
+      el('p', { class: 'footer-note' }, MF.t('footer.note')),
+      el('button', { type: 'button', class: 'btn btn-secondary btn-small', id: 'clear-data', on: { click: clearProject } }, MF.t('shell.clear.button'))
+    ]));
+  }
+
+  // Перестраивает шапку, подвал, подписи страницы и баннер на текущем языке; фокус на кнопке языка сохраняется.
+  ui.rebuildChrome = function () {
+    if (!refs.header) return;
+    var focusLang = null;
+    var active = document.activeElement;
+    if (active && active.getAttribute && active.classList && active.classList.contains('lang-btn')) focusLang = active.getAttribute('data-lang');
+    buildHeader();
+    if (refs.footer) buildFooter();
+    if (refs.banner) refs.banner.setAttribute('aria-label', MF.t('shell.banner.aria'));
+    var skip = document.querySelector('.skip-link');
+    if (skip) skip.textContent = MF.t('shell.skip');
+    var desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute('content', MF.t('shell.metaDescription'));
+    var ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', MF.t('shell.metaTitle'));
+    setStatus(statusMode);
+    if (focusLang) {
+      var again = refs.header.querySelector('.lang-btn[data-lang="' + focusLang + '"]');
+      if (again) again.focus({ preventScroll: true });
+    }
+  };
 
   function markNav(route) {
     var active = NAV_ACTIVE[route] || route;
@@ -217,16 +260,16 @@
     if (!ui.state.demo) { b.hidden = true; return; }
     b.hidden = false;
     b.appendChild(el('div', { class: 'banner-inner' }, [
-      el('p', { class: 'banner-text' }, [el('strong', null, 'Это демо-пример. '), 'Ответы вымышлены, их можно править или начать с пустого проекта.']),
-      el('button', { type: 'button', class: 'btn btn-secondary btn-small', on: { click: function () { ui.backToEmpty(); } } }, 'Вернуться к пустому проекту')
+      el('p', { class: 'banner-text' }, [el('strong', null, MF.t('shell.banner.lead') + ' '), MF.t('shell.banner.text')]),
+      el('button', { type: 'button', class: 'btn btn-secondary btn-small', on: { click: function () { ui.backToEmpty(); } } }, MF.t('shell.banner.reset'))
     ]));
   }
 
   function placeholder(container, name) {
     container.appendChild(el('section', { class: 'page narrow' }, [
-      el('h1', { class: 'page-title' }, ROUTE_TITLES[name] || 'Раздел'),
-      el('p', { class: 'lead' }, 'Этот раздел пока не готов. Вы можете продолжить работу в других разделах.'),
-      el('a', { href: '#/', class: 'btn btn-secondary' }, 'На главную')
+      el('h1', { class: 'page-title' }, ROUTES[name] ? MF.t('route.' + name) : MF.t('shell.section')),
+      el('p', { class: 'lead' }, MF.t('shell.placeholder')),
+      el('a', { href: '#/', class: 'btn btn-secondary' }, MF.t('demo.home'))
     ]));
   }
 
@@ -247,12 +290,12 @@
     } catch (e) {
       clear(container);
       container.appendChild(el('section', { class: 'page narrow' }, [
-        el('h1', { class: 'page-title' }, 'Что-то пошло не так'),
-        el('p', { class: 'lead' }, 'Раздел не удалось показать. Обновите страницу — ваши ответы сохранены на этом устройстве.')
+        el('h1', { class: 'page-title' }, MF.t('shell.error.title')),
+        el('p', { class: 'lead' }, MF.t('shell.error.text'))
       ]));
       if (root.console && root.console.warn) root.console.warn('Molxo Flow: ошибка показа раздела', e);
     }
-    document.title = (route === 'home' ? '' : ROUTE_TITLES[route] + ' — ') + 'Molxo Flow';
+    document.title = route === 'home' ? MF.t('shell.metaTitle') : MF.t('route.' + route) + ' — Molxo Flow';
     if (changed && refs.ready) {
       root.scrollTo(0, 0);
       container.focus({ preventScroll: true });
@@ -268,6 +311,7 @@
 
   // Вкладки конструктора ТЗ: Вопросы, Студия, Документы, Ваш план.
   ui.renderConstructorTabs = function (container, active) {
+    if (MF.LANG !== 'ru') container.appendChild(el('p', { class: 'ctabs-note muted small', role: 'note' }, MF.t('constructor.ru-only')));
     var tabs = [['interview', MF.t('tabs.questions')], ['studio', MF.t('tabs.studio')], ['docs', MF.t('tabs.docs')], ['plan', MF.t('tabs.plan')]];
     container.appendChild(el('nav', { class: 'ctabs', 'aria-label': MF.t('tabs.label') }, el('ul', { class: 'ctabs-list' }, tabs.map(function (t) {
       return el('li', null, el('a', { href: '#/' + t[0], class: 'ctab', 'aria-current': t[0] === active ? 'page' : null }, t[1]));
@@ -470,18 +514,18 @@
     store = MF.createStore(MF.getLocalStorage());
     ui.state = store.load();
 
-    refs.banner = el('div', { id: 'demo-banner', class: 'demo-banner', role: 'region', 'aria-label': 'Демо-режим', hidden: true });
+    refs.banner = el('div', { id: 'demo-banner', class: 'demo-banner', role: 'region', 'aria-label': MF.t('shell.banner.aria'), hidden: true });
     refs.view.parentNode.insertBefore(refs.banner, refs.view);
 
-    refs.footer = el('footer', { class: 'app-footer', id: 'app-footer' }, el('div', { class: 'footer-inner' }, [
-      el('p', { class: 'footer-note' }, MF.t('footer.note')),
-      el('button', { type: 'button', class: 'btn btn-secondary btn-small', id: 'clear-data', on: { click: clearProject } }, 'Очистить данные проекта')
-    ]));
+    refs.footer = el('footer', { class: 'app-footer', id: 'app-footer' });
+    buildFooter();
     refs.view.parentNode.insertBefore(refs.footer, refs.view.nextSibling);
     document.body.appendChild(buildDialog());
 
     buildHeader();
     setStatus(store.available ? 'saved' : 'unavailable');
+    ui.rebuildChrome();
+    if (MF.onLang) MF.onLang(function () { ui.rebuildChrome(); ui.render(); });
 
     MF.ui.registerView('interview', renderInterview);
     root.addEventListener('hashchange', ui.render);

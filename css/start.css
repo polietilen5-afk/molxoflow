@@ -144,3 +144,71 @@
   .page.wizard { animation: none; }
 }
 #home-demo { scroll-margin-top: 72px; }
+
+/* Переключатель языка RU / UK / EN в шапке */
+.lang-switch { display: inline-flex; align-items: center; gap: 2px; padding: 2px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); }
+.lang-btn {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 0 8px; cursor: pointer;
+  background: transparent; color: var(--muted); border: 0; border-radius: 6px; font: 700 13px/1 var(--mono); letter-spacing: .06em;
+  transition: background-color .2s ease, color .2s ease;
+}
+.lang-btn:hover { background: var(--card-2); color: var(--text); }
+.lang-btn[aria-pressed="true"], .lang-btn[aria-current="true"] { background: var(--accent); color: var(--accent-ink); }
+a.lang-btn { text-decoration: none; }
+
+/* Пометка конструктора ТЗ: он только на русском */
+.ctabs-note { max-width: 1200px; margin: 0 auto; padding: 10px 16px 0; }
+@media (min-width: 768px) { .ctabs-note { padding-left: 24px; padding-right: 24px; } }
+
+/* Микротекст возле главной кнопки */
+.hero-micro { margin: 0 0 6px; color: var(--text); font-weight: 600; overflow-wrap: anywhere; }
+.hero-text .bot-card { margin-top: 18px; }
+
+/* Две группы выбора в шаге «бюджет и срок» */
+.wizard-group { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.wizard-group + .wizard-group { margin-top: 18px; }
+.group-title { font: 700 17px/1.25 var(--disp); }
+
+/* Общие блоки: «Как мы работаем», «Безопасность и контроль», кейсы, отзывы, гарантии */
+.info-block { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.info-wrap { display: flex; flex-direction: column; gap: 40px; }
+.info-lead { max-width: 62ch; }
+.how-steps { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; counter-reset: how; }
+.how-step { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.how-num {
+  display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; background: var(--accent-soft); color: var(--accent-text);
+  border: 1px solid rgba(255, 106, 43, .45); font: 700 14px/1 var(--mono);
+}
+.how-name { font-size: 18px; line-height: 1.2; overflow-wrap: anywhere; }
+.how-text { color: var(--muted); overflow-wrap: anywhere; }
+.security-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.security-item { position: relative; padding: 12px 14px 12px 40px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-sm); overflow-wrap: anywhere; }
+.security-item::before { content: ""; position: absolute; left: 16px; top: 1.1em; width: 10px; height: 10px; border-radius: 50%; background: var(--ok); }
+.security-note { padding: 10px 14px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: var(--radius-sm); overflow-wrap: anywhere; }
+.trust-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.trust-item { display: flex; flex-direction: column; gap: 6px; }
+.trust-title { font-size: 18px; line-height: 1.2; overflow-wrap: anywhere; }
+.trust-text { color: var(--muted); overflow-wrap: anywhere; white-space: pre-line; }
+
+/* Карточка бота */
+.bot-card { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; border-left: 3px solid var(--accent); }
+.bot-text { overflow-wrap: anywhere; }
+.bot-note { overflow-wrap: anywhere; }
+.bot-link { margin-top: 4px; }
+
+@media (min-width: 768px) {
+  .how-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .security-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .trust-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1000px) {
+  .how-steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .trust-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+  .header-tools { width: 100%; justify-content: space-between; }
+  .bot-link { align-self: stretch; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lang-btn { transition: none !important; }
+}

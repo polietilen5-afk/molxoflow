@@ -18,9 +18,9 @@
 
   /* ---------- схема: шесть модулей, пакеты по маршруту, документы веером ---------- */
   function buildScene(container) {
-    var titles = (MF.MODULES || []).map(function (m) { return m.title; });
+    var titles = (MF.MODULES || []).map(function (m) { return MF.t('mod.' + m.id + '.title'); });
     var svg = s('svg', { viewBox: '0 0 560 400', 'class': 'scene', role: 'img',
-      'aria-label': 'Схема процесса: шесть модулей, от входных данных до результата' });
+      'aria-label': MF.t('scene.aria') });
     var route = s('path', { 'class': 'sc-track', d: 'M105 66 H280 H455 V206 H280 H105' }, svg);
     var pos = [[30, 34], [205, 34], [380, 34], [380, 174], [205, 174], [30, 174]];
     var nodes = pos.map(function (p, i) {
@@ -38,7 +38,7 @@
       r.style.transform = 'rotate(' + ((i - 5.5) * 7) + 'deg)';
       sheets.push(r);
     }
-    var lbl = s('text', { 'class': 'sc-label', x: 330, y: 372 }, svg); lbl.textContent = '12 документов ТЗ';
+    var lbl = s('text', { 'class': 'sc-label', x: 330, y: 372 }, svg); lbl.textContent = MF.t('scene.label');
     var pkG = s('g', null, svg), dots = [];
     for (var k = 0; k < 4; k++) dots.push(s('circle', { r: 4.5, 'class': 'sc-pk' }, pkG));
     container.appendChild(svg);

@@ -93,6 +93,11 @@
     var v = w.answers[id];
     return v === MF.WIZARD_SKIP || (Array.isArray(v) && v.length === 1 && v[0] === MF.WIZARD_SKIP);
   }
+  // Шаг пропущен целиком: для вида pair это обе группы, пропущенные кнопкой «Пропустить».
+  function stepSkipped(w, step) {
+    if (step.kind === 'pair') return step.groups.every(function (g) { return isSkipped(w, step.id + '.' + g); });
+    return isSkipped(w, step.id);
+  }
   function textOf(w, id) {
     var v = w.answers[id];
     return typeof v === 'string' && v !== MF.WIZARD_SKIP ? v : '';
@@ -136,11 +141,19 @@
       var answered = MF.wizardAnswered(cur, step.id);
       if (refs.next) refs.next.disabled = !answered;
       if (refs.need) refs.need.hidden = answered;
-      if (refs.skipped) refs.skipped.hidden = !isSkipped(cur, step.id);
+      if (refs.skipped) refs.skipped.hidden = !stepSkipped(cur, step);
     }
     function skip() {
-      var value = step.kind === 'multi' ? [MF.WIZARD_SKIP] : MF.WIZARD_SKIP;
-      saveWizard(MF.setWizardAnswer(ui.wizard, step.id, value));
+      if (step.kind === 'pair') {
+        // Пропускаются только группы без ответа: выбранное в другой группе остаётся.
+        step.groups.forEach(function (g) {
+          var key = step.id + '.' + g;
+          if (selectedOf(ui.wizard, key).length === 0) saveWizard(MF.setWizardAnswer(ui.wizard, key, MF.WIZARD_SKIP));
+        });
+      } else {
+        var value = step.kind === 'multi' ? [MF.WIZARD_SKIP] : MF.WIZARD_SKIP;
+        saveWizard(MF.setWizardAnswer(ui.wizard, step.id, value));
+      }
       advance();
     }
 
@@ -207,6 +220,53 @@
           })));
         }
       }
+    } else if (step.kind === 'pair') {
+      // Две группы одиночного выбора со своими подзаголовками и своим «Другое».
+      step.groups.forEach(function (g) {
+        var key = step.id + '.' + g;
+        var gOpts = MF.wizardOptions(w, key);
+        var gButtons = [];
+        var gOtherRow = null;
+        var gOtherInput = null;
+        var refreshGroup = function () {
+          var sel = selectedOf(ui.wizard, key);
+          gButtons.forEach(function (b) {
+            var on = sel.indexOf(b.id) >= 0;
+            b.node.setAttribute('aria-pressed', on ? 'true' : 'false');
+            b.node.className = 'chip chip-choice' + (on ? ' is-on' : '');
+          });
+          if (gOtherRow) gOtherRow.hidden = sel.indexOf('other') < 0;
+        };
+        var gToggle = function (id) {
+          var cur = ui.wizard, sel = selectedOf(cur, key);
+          saveWizard(MF.setWizardAnswer(cur, key, sel[0] === id ? '' : id));
+          refreshGroup();
+          refreshNav();
+          if (id === 'other' && gOtherRow && !gOtherRow.hidden) gOtherInput.focus();
+        };
+        var groupBox = el('div', { class: 'wizard-group', role: 'group', 'aria-labelledby': 'wz-group-' + g }, [
+          el('h2', { id: 'wz-group-' + g, class: 'group-title' }, MF.t('group.' + g)),
+          el('ul', { class: 'chips wizard-options', 'aria-label': MF.t('group.' + g) }, gOpts.map(function (o) {
+            var b = el('button', { type: 'button', class: 'chip chip-choice', 'aria-pressed': 'false', on: { click: function () { gToggle(o.id); } } }, MF.t(o.labelKey));
+            gButtons.push({ id: o.id, node: b });
+            return el('li', null, b);
+          }))
+        ]);
+        if (byId(gOpts, 'other')) {
+          gOtherInput = el('input', {
+            id: 'wz-other-' + g, type: 'text', class: 'answer other-input', maxlength: '200', value: textOf(w, key + '.other'),
+            'aria-label': MF.t('wizard.otherLabel'), placeholder: MF.t('wizard.otherLabel')
+          });
+          gOtherInput.addEventListener('input', function () {
+            saveWizard(MF.setWizardAnswer(ui.wizard, key + '.other', gOtherInput.value));
+            refreshNav();
+          });
+          gOtherRow = el('div', { class: 'other-row', hidden: true }, gOtherInput);
+          groupBox.appendChild(gOtherRow);
+        }
+        body.appendChild(groupBox);
+        refreshGroup();
+      });
     } else {
       // choice и multi: варианты-переключатели и поле «Другое»
       var opts = MF.wizardOptions(w, step.id);
@@ -385,6 +445,8 @@
       names.length ? el('p', { class: 'tier-additional muted' }, MF.t('plan.additional', { names: names.join(', ') })) : null
     ]));
 
+    ui.renderHow(page);
+
     /* оценка эффекта с редактируемыми допущениями */
     var volumeText = MF.wizardAnswerText(w, 'volume');
     var effLines = el('ul', { class: 'potential-lines' });
@@ -431,6 +493,9 @@
       page.appendChild(el('aside', { class: 'card plan-notice', role: 'note' }, el('p', null, MF.t('notice.intelligence'))));
     }
 
+    ui.renderSecurity(page, { intelligence: plan.intelligenceNotice });
+    ui.renderTrust(page);
+
     /* заявка */
     function currentText() { return MF.planText(ui.wizard, MF.buildPlan(ui.wizard, ui.state.assumptions)); }
     var link = MF.contactLink(currentText());
@@ -476,6 +541,8 @@
       el('p', { class: 'small muted' }, MF.t('plan.zipNote'))
     ]));
 
+    ui.renderBotCard(page);
+
     page.appendChild(el('div', { class: 'plan-links' }, [
       el('a', { href: '#/start', class: 'btn btn-secondary' }, MF.t('plan.edit')),
       el('a', { href: '#/interview', class: 'btn btn-secondary' }, MF.t('plan.toTz'))
@@ -487,7 +554,7 @@
       var cur = MF.buildPlan(ui.wizard, ui.state.assumptions);
       if (effectBox && cur.effect) {
         ui.clear(effLines);
-        cur.effect.lines.forEach(function (l) { effLines.appendChild(el('li', null, l)); });
+        MF.effectLines(cur.effect).forEach(function (l) { effLines.appendChild(el('li', null, l)); });
         var a = ui.state.assumptions;
         [['minutesPerRun', a.minutesPerRun], ['automationShare', Math.round(a.automationShare * 100)], ['hourlyRate', a.hourlyRate]].forEach(function (p) {
           var input = assumeInputs[p[0]];
@@ -512,6 +579,8 @@
       return;
     }
     page.appendChild(el('p', { class: 'lead' }, MF.t('demo.loading')));
+    ui.renderBotCard(page);
+
     page.appendChild(el('div', { class: 'plan-links' }, [
       el('a', { href: '#/plan', class: 'btn btn-primary' }, MF.t('demo.openPlan')),
       el('a', { href: '#/', class: 'btn btn-secondary' }, MF.t('demo.home'))

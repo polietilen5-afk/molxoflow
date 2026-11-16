@@ -4,7 +4,7 @@
   'use strict';
   var MF = root.MF = root.MF || {};
   if (typeof module !== 'undefined' && typeof require === 'function') {
-    require('./data.js'); require('./core.js'); require('./docs.js'); require('./texts.js'); require('./config.js');
+    require('./data.js'); require('./core.js'); require('./docs.js'); require('./texts.js'); require('./lang.js'); require('./config.js');
     require('./catalog.js'); require('./wizard.js');
   }
 
@@ -49,7 +49,8 @@
     var goal = byId(MF.GOALS, wz.goal), industry = byId(MF.INDUSTRIES, wz.industry);
     parts.push(section(MF.t('sum.h.goal'), [
       MF.t('sum.goal', { name: goal ? MF.t(goal.titleKey) : MF.t('sum.unset') }),
-      MF.t('sum.industry', { name: industry ? MF.t(industry.titleKey) : MF.t('sum.unset') })
+      MF.t('sum.industry', { name: industry ? MF.t(industry.titleKey) : MF.t('sum.unset') }),
+      MF.t('sum.lang', { name: MF.langName(MF.LANG) })
     ]));
 
     var answers = [];

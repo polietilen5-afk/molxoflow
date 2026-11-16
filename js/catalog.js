@@ -1,9 +1,11 @@
 /* Molxo Flow: каталог мастера (направления, цели, отрасли, решения, шаги, варианты, демо). Только данные, без DOM.
-   Все тексты лежат в js/texts.js; здесь только ключи. Правила подбора возможностей: js/wizard.js. */
+   Все тексты лежат в js/texts.js, texts.uk.js и texts.en.js; здесь только ключи. Правила подбора возможностей: js/wizard.js. */
 (function (root) {
   'use strict';
   var MF = root.MF = root.MF || {};
-  if (typeof module !== 'undefined' && typeof require === 'function') require('./texts.js');
+  if (typeof module !== 'undefined' && typeof require === 'function') {
+    require('./texts.js'); require('./texts.uk.js'); require('./texts.en.js');
+  }
 
   /* ---------- направления ---------- */
   MF.DIRECTIONS = [
@@ -41,12 +43,28 @@
     }
     return out;
   }
-  // Основы слов (ключ kw.<решение> в texts.js, через «|») сравниваются с началом слова в свободном тексте клиента.
+  // Основы слов решения из словарей всех языков сразу (ключ kw.<решение>, основы через «|»): клиент пишет на любом языке.
+  // Читаются при каждом вызове, поэтому порядок загрузки словарей и смена языка на лету не мешают.
+  MF.solutionKeywords = function (solutionId) {
+    var out = [];
+    Object.keys(MF.TEXTS || {}).forEach(function (lang) {
+      var raw = MF.TEXTS[lang]['kw.' + solutionId];
+      if (typeof raw !== 'string') return;
+      raw.split('|').forEach(function (stem) {
+        var s = stem.trim().toLowerCase();
+        if (s && out.indexOf(s) < 0) out.push(s);
+      });
+    });
+    return out;
+  };
+  // Основы слов сравниваются с началом слова в свободном тексте клиента.
   function solution(id, direction, goals, industries) {
-    return {
+    var s = {
       id: id, direction: direction, titleKey: 'sol.' + id + '.title', changesKey: 'sol.' + id + '.changes',
-      goals: goals, industries: industries, keywords: MF.t('kw.' + id).split('|'), tiers: tierKeys(id, [3, 3, 3])
+      goals: goals, industries: industries, tiers: tierKeys(id, [3, 3, 3])
     };
+    Object.defineProperty(s, 'keywords', { enumerable: true, get: function () { return MF.solutionKeywords(id); } });
+    return s;
   }
 
   MF.SOLUTIONS = [
@@ -65,7 +83,7 @@
   ];
 
   /* ---------- шаги мастера ---------- */
-  // Путь routine/growth/build/unknown: 7 шагов; путь opportunities: 8 шагов.
+  // Путь routine/growth/build/unknown: 8 шагов; путь opportunities: 9 шагов (последним на обоих идёт budgetTime).
   var COMMON = ['routine', 'growth', 'build', 'unknown'];
   var HUNT = ['opportunities'];
   function step(id, kind, optionsKey, forGoals, skippable) {
@@ -86,7 +104,10 @@
     step('criteria', 'text', 'criteria', HUNT, true),
     step('frequency', 'choice', 'frequency', HUNT, true),
     step('notify', 'choice', 'notify', HUNT, true),
-    step('store', 'multi', 'store', HUNT, true)
+    step('store', 'multi', 'store', HUNT, true),
+    // Одна пара вопросов в одном шаге: ответы budgetTime.budget и budgetTime.deadline (каждый со своим «Другое»).
+    { id: 'budgetTime', kind: 'pair', groups: ['budget', 'deadline'], titleKey: 'step.budgetTime.title', hintKey: 'step.budgetTime.hint',
+      forGoals: COMMON.concat(HUNT), skippable: true }
   ];
 
   /* ---------- варианты ответов ---------- */
@@ -141,7 +162,10 @@
     },
     frequency: { 'default': [opt('frequency', 'now'), opt('frequency', 'daily'), opt('frequency', 'weekly'), OTHER] },
     notify: { 'default': [opt('notify', 'telegram'), opt('notify', 'mail'), opt('notify', 'screen'), OTHER] },
-    store: { 'default': [opt('store', 'source-link'), opt('store', 'price'), opt('store', 'date'), opt('store', 'history'), OTHER] }
+    store: { 'default': [opt('store', 'source-link'), opt('store', 'price'), opt('store', 'date'), opt('store', 'history'), OTHER] },
+    // Диапазоны примерные; {currency} в подписи берётся из MF.CONFIG.currency (пусто: подпись без валюты).
+    budget: { 'default': [opt('budget', 'lt1k'), opt('budget', '1k-5k'), opt('budget', '5k-15k'), opt('budget', 'gt15k'), opt('budget', 'unknown'), OTHER] },
+    deadline: { 'default': [opt('deadline', 'urgent'), opt('deadline', '1-3m'), opt('deadline', '3-6m'), opt('deadline', 'none'), opt('deadline', 'unknown'), OTHER] }
   };
 
   // Сложности (шаг pain) зависят от цели, а не от отрасли.

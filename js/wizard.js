@@ -4,7 +4,8 @@
   'use strict';
   var MF = root.MF = root.MF || {};
   if (typeof module !== 'undefined' && typeof require === 'function') {
-    require('./data.js'); require('./core.js'); require('./texts.js'); require('./config.js'); require('./catalog.js');
+    require('./data.js'); require('./core.js'); require('./texts.js'); require('./texts.uk.js'); require('./texts.en.js');
+    require('./lang.js'); require('./config.js'); require('./catalog.js');
   }
 
   MF.WIZARD_KEY = 'molxo-flow-wizard-v1';
@@ -35,6 +36,14 @@
     return n;
   }
 
+  // Ключ ответа: <шаг>, <шаг>.other, а у шага вида pair ещё <шаг>.<группа> и <шаг>.<группа>.other.
+  function parseKey(key) {
+    var other = key.length > OTHER_SUFFIX.length && key.slice(-OTHER_SUFFIX.length) === OTHER_SUFFIX;
+    var base = other ? key.slice(0, -OTHER_SUFFIX.length) : key;
+    var dot = base.indexOf('.');
+    return { other: other, base: base, stepId: dot >= 0 ? base.slice(0, dot) : base, group: dot >= 0 ? base.slice(dot + 1) : null };
+  }
+
   /* ---------- шаги и варианты ---------- */
   MF.wizardSteps = function (w) {
     var goal = isWizard(w) && w.goal ? w.goal : 'unknown';
@@ -43,7 +52,22 @@
   function visibleStep(w, id) { return byId(MF.wizardSteps(w), id); }
 
   // Варианты шага для текущего состояния: pain зависит от цели, остальные от отрасли.
+  // Пока валюта не задана, цифровые диапазоны бюджета не предлагаются: остаются «не знаю» и «Другое».
+  function priced(o) { return o.id !== 'unknown' && o.id !== 'other'; }
+  function groupOptions(stepId, all) {
+    var pk = parseKey(stepId);
+    var pair = stepDef(pk.stepId);
+    var gt = pair && pair.kind === 'pair' && pair.groups.indexOf(pk.group) >= 0 ? MF.WIZARD_OPTIONS[pk.group] : null;
+    var list = gt ? (gt['default'] || []) : [];
+    if (!all && pk.group === 'budget' && !(MF.CONFIG && MF.CONFIG.currency)) list = list.filter(function (o) { return !priced(o); });
+    return list;
+  }
   MF.wizardOptions = function (w, stepId) {
+    var pk = typeof stepId === 'string' ? parseKey(stepId) : null;
+    if (pk && pk.group) {
+      // Группа шага pair, например budgetTime.budget: варианты лежат в MF.WIZARD_OPTIONS.<группа>.
+      return groupOptions(stepId, false);
+    }
     var st = stepDef(stepId);
     if (!st) return [];
     if (stepId === 'business') {
@@ -63,22 +87,32 @@
   /* ---------- проверка и запись ответов ---------- */
   // Приводит ответ к хранимому виду. Результат: { ok, remove, value }. ok=false: мусор.
   function normalize(w, key, value) {
-    var isOther = key.length > OTHER_SUFFIX.length && key.slice(-OTHER_SUFFIX.length) === OTHER_SUFFIX;
-    var stepId = isOther ? key.slice(0, -OTHER_SUFFIX.length) : key;
-    var st = visibleStep(w, stepId);
+    var pk = parseKey(key);
+    var isOther = pk.other;
+    var st = visibleStep(w, pk.stepId);
     if (!st || st.kind === 'goal') return { ok: false };
+    // Шаг pair: каждая группа отвечается как одиночный выбор со своими вариантами.
+    var kind = st.kind;
+    var stepId = pk.base;
+    if (kind === 'pair') {
+      if (!pk.group || st.groups.indexOf(pk.group) < 0) return { ok: false };
+      kind = 'choice';
+    } else if (pk.group) {
+      return { ok: false };
+    }
     if (isOther) {
-      if (st.kind !== 'choice' && st.kind !== 'multi') return { ok: false };
+      if (kind !== 'choice' && kind !== 'multi') return { ok: false };
       if (typeof value !== 'string') return { ok: false };
       return value.trim() === '' ? { ok: true, remove: true } : { ok: true, value: value.slice(0, MAX_TEXT) };
     }
-    if (st.kind === 'text') {
+    if (kind === 'text') {
       if (typeof value !== 'string') return { ok: false };
       if (value === MF.WIZARD_SKIP) return { ok: true, value: value };
       return value.trim() === '' ? { ok: true, remove: true } : { ok: true, value: value.slice(0, MAX_TEXT) };
     }
-    var ids = MF.wizardOptions(w, stepId).map(function (o) { return o.id; });
-    if (st.kind === 'choice') {
+    // Для проверки берутся все варианты: ранее сохранённый цифровой ответ не теряется при пустой валюте.
+    var ids = (kind === 'choice' && pk.group ? groupOptions(stepId, true) : MF.wizardOptions(w, stepId)).map(function (o) { return o.id; });
+    if (kind === 'choice') {
       if (typeof value !== 'string') return { ok: false };
       if (value === '') return { ok: true, remove: true };
       if (value === MF.WIZARD_SKIP || ids.indexOf(value) >= 0) return { ok: true, value: value };
@@ -114,7 +148,7 @@
     if (w.goal !== goalId) {
       // Ответы чужой ветки и сложности (варианты зависят от цели) сбрасываются.
       Object.keys(n.answers).forEach(function (k) {
-        var base = k.slice(-OTHER_SUFFIX.length) === OTHER_SUFFIX ? k.slice(0, -OTHER_SUFFIX.length) : k;
+        var base = parseKey(k).stepId;
         if (!visibleStep(n, base) || base === 'pain') delete n.answers[k];
       });
     }
@@ -167,6 +201,14 @@
   MF.wizardAnswered = function (w, stepId) {
     if (!isWizard(w)) return false;
     if (stepId === 'goal') return !!w.goal;
+    var pairDef = stepDef(stepId);
+    if (pairDef && pairDef.kind === 'pair') {
+      // Шаг pair отвечен, когда есть любой из ответов групп или пропуск.
+      return pairDef.groups.some(function (g) {
+        var pv = w.answers[stepId + '.' + g];
+        return typeof pv === 'string' && pv !== '';
+      });
+    }
     var v = w.answers[stepId];
     if (typeof v === 'string') return v.trim() !== '' || (stepId === 'business' && !!w.industry);
     if (Array.isArray(v)) return v.length > 0;
@@ -174,6 +216,10 @@
   };
 
   /* ---------- чтение ответов ---------- */
+  // Перевод на заданный язык (без языка: язык интерфейса).
+  function tfor(lang) {
+    return lang ? function (key, params) { return MF.tIn(lang, key, params); } : MF.t;
+  }
   function textOf(w, stepId) {
     var v = w.answers[stepId];
     return typeof v === 'string' && v !== MF.WIZARD_SKIP ? v.trim() : '';
@@ -183,29 +229,44 @@
     var list = Array.isArray(v) ? v : (typeof v === 'string' ? [v] : []);
     return list.filter(function (x) { return x !== MF.WIZARD_SKIP; });
   }
-  function selectedLabels(w, stepId) {
+  function selectedLabels(w, stepId, lang) {
+    var tr = tfor(lang);
     var opts = MF.wizardOptions(w, stepId), other = textOf(w, stepId + OTHER_SUFFIX);
     return selectedIds(w, stepId).map(function (id) {
-      if (id === 'other') return other || MF.t('opt.other');
+      if (id === 'other') return other || tr('opt.other');
       var o = byId(opts, id);
-      return o ? MF.t(o.labelKey) : id;
-    });
+      // Скрытый вариант группы (цифровой бюджет без валюты) в текст не попадает.
+      if (!o && parseKey(stepId).group) return '';
+      return o ? tr(o.labelKey) : id;
+    }).filter(function (x) { return x !== ''; });
   }
   // Ответ шага одной строкой для сводки и заявки; пустая строка: нет ответа или пропуск.
-  MF.wizardAnswerText = function (w, stepId) {
+  MF.wizardAnswerText = function (w, stepId, lang) {
+    var pk = typeof stepId === 'string' ? parseKey(stepId) : null;
+    if (pk && pk.group && isWizard(w)) {
+      var holder = stepDef(pk.stepId);
+      return holder && holder.kind === 'pair' && holder.groups.indexOf(pk.group) >= 0 ? selectedLabels(w, stepId, lang).join(', ') : '';
+    }
     var st = stepDef(stepId);
     if (!isWizard(w) || !st) return '';
+    if (st.kind === 'pair') {
+      // «бюджет; срок»: только отвеченные группы по порядку.
+      return st.groups.map(function (g) { return selectedLabels(w, stepId + '.' + g, lang).join(', '); })
+        .filter(function (x) { return x; }).join('; ');
+    }
     if (st.kind === 'goal') {
       var g = byId(MF.GOALS, w.goal);
-      return g ? MF.t(g.titleKey) : '';
+      return g ? tfor(lang)(g.titleKey) : '';
     }
     if (st.kind === 'text') return textOf(w, stepId);
-    return selectedLabels(w, stepId).join(', ');
+    return selectedLabels(w, stepId, lang).join(', ');
   };
 
   /* ---------- подбор возможностей (правила, не AI) ---------- */
-  var LETTER = /[a-z0-9\u0430-\u044f\u0451]/;
+  // Буквы слова: латиница, цифры, русские и украинские (іїєґ).
+  var LETTER = /[a-z0-9\u0430-\u044f\u0451\u0456\u0457\u0454\u0491]/;
   // Основа слова ищется только с начала слова: «бот» не находится в «работа».
+  MF.hasStem = hasStem;
   function hasStem(text, stem) {
     var i = text.indexOf(stem);
     while (i >= 0) {
@@ -219,6 +280,7 @@
     MF.WIZARD_STEPS.forEach(function (st) {
       if (st.kind === 'text' && st.id !== 'volume') parts.push(textOf(w, st.id));
       if (st.kind === 'choice' || st.kind === 'multi') parts.push(textOf(w, st.id + OTHER_SUFFIX));
+      // Бюджет и срок (шаг pair) в подбор решений слов не дают.
     });
     return parts.join(' \n ').toLowerCase();
   }
@@ -264,9 +326,40 @@
     var p = (MF.CONFIG && MF.CONFIG.prices) || {};
     return { start: MF.formatPrice(p.start), grow: MF.formatPrice(p.grow), scale: MF.formatPrice(p.scale) };
   }
+  // Цена «от X валюта» (на языке интерфейса); null, пока цена не положительное число или валюта владельца не задана.
   MF.formatPrice = function (value) {
     if (typeof value !== 'number' || !isFinite(value) || value <= 0) return null;
-    return MF.t('price.value', { value: MF.formatNumber(value) });
+    var currency = MF.CONFIG && typeof MF.CONFIG.currency === 'string' ? MF.CONFIG.currency.trim() : '';
+    if (!currency) return null;
+    return MF.t('price.from', { value: MF.formatNumber(value), currency: currency });
+  };
+
+  // Ссылка на Telegram-бота из MF.CONFIG.bot вида «tg:имя» (имя 3-64 знака, допускается @); иначе { ok: false, href: '' }.
+  MF.botLink = function () {
+    var b = MF.CONFIG && typeof MF.CONFIG.bot === 'string' ? MF.CONFIG.bot.trim() : '';
+    var none = { ok: false, href: '' };
+    if (!/^tg:/i.test(b)) return none;
+    var name = b.slice(3).replace(/^@/, '');
+    return /^[A-Za-z0-9_]{3,64}$/.test(name) ? { ok: true, href: 'tg://resolve?domain=' + name } : none;
+  };
+
+  // Слоты доверия владельца: только валидные элементы { title, text } из непустых строк, не больше 6 в списке.
+  var TRUST_MAX = 6;
+  function trustList(list) {
+    var out = [];
+    if (!Array.isArray(list)) return out;
+    for (var i = 0; i < list.length && out.length < TRUST_MAX; i++) {
+      var it = list[i];
+      if (!it || typeof it !== 'object' || Array.isArray(it)) continue;
+      if (typeof it.title !== 'string' || typeof it.text !== 'string') continue;
+      var title = it.title.trim(), text = it.text.trim();
+      if (title && text) out.push({ title: title, text: text });
+    }
+    return out;
+  }
+  MF.trustSlots = function () {
+    var c = MF.CONFIG || {};
+    return { cases: trustList(c.cases), reviews: trustList(c.reviews), guarantees: trustList(c.guarantees) };
   };
 
   MF.buildPlan = function (w, assumptions) {
@@ -296,7 +389,20 @@
   };
 
   /* ---------- текст заявки и ссылка для связи ---------- */
-  function titleOf(solutionId) { return MF.t(byId(MF.SOLUTIONS, solutionId).titleKey); }
+  function titleOf(solutionId, lang) { return tfor(lang)(byId(MF.SOLUTIONS, solutionId).titleKey); }
+
+  // Строки блока эффекта из чисел потенциала на языке интерфейса; пусто, пока оценки нет.
+  MF.effectLines = function (effect) {
+    if (!effect || !effect.ready) return [];
+    var f = MF.formatNumber;
+    return [
+      MF.t('plan.effect.runs', { value: f(effect.runs) }),
+      MF.t('plan.effect.hours', { value: f(effect.hoursPerMonth) }),
+      MF.t('plan.effect.saved', { value: f(effect.savedHours) }),
+      MF.t('plan.effect.cost', { value: f(effect.savedCost) }),
+      MF.t('plan.effect.year', { value: f(effect.costPerYear) })
+    ];
+  };
 
   MF.planText = function (w, plan) {
     var pl = plan || MF.buildPlan(w);
@@ -310,6 +416,10 @@
     if (industry) lines.push(MF.t('req.industry', { name: MF.t(industry.titleKey) }));
     var business = textOf(w, 'business');
     if (business) lines.push(MF.t('req.business', { text: business.replace(/\s*\n\s*/g, ' ') }));
+    lines.push(MF.t('req.lang', { name: MF.langName(MF.LANG) }));
+    var budget = MF.wizardAnswerText(w, 'budgetTime.budget'), deadline = MF.wizardAnswerText(w, 'budgetTime.deadline');
+    if (budget) lines.push(MF.t('req.budget', { value: budget }));
+    if (deadline) lines.push(MF.t('req.deadline', { value: deadline }));
     lines.push('', MF.t('req.opps'));
     pl.opportunities.forEach(function (o, i) {
       var s = byId(MF.SOLUTIONS, o.solutionId);
@@ -321,7 +431,7 @@
     });
     if (pl.effect) {
       lines.push('', MF.t('req.effect'));
-      pl.effect.lines.forEach(function (x) { lines.push('- ' + x); });
+      MF.effectLines(pl.effect).forEach(function (x) { lines.push('- ' + x); });
     }
     if (pl.intelligenceNotice) lines.push('', MF.t('notice.intelligence'));
     var pr = pl.prices || {};
@@ -368,23 +478,27 @@
   };
 
   /* ---------- перенос в конструктор ---------- */
-  // Предзаполнение q01, q02, q03, q05: только непустые строки.
+  // Предзаполнение русского конструктора q01, q02, q03, q05: только непустые строки, служебные слова и подписи всегда по-русски.
   MF.wizardToAnswers = function (w) {
     var out = {};
     if (!isWizard(w) || !w.goal) return out;
     var plan = MF.buildPlan(w);
-    if (plan.ready) out.q01 = titleOf(plan.opportunities[0].solutionId);
+    if (plan.ready) out.q01 = titleOf(plan.opportunities[0].solutionId, 'ru');
     var ctx = [];
     var business = textOf(w, 'business');
     if (business) ctx.push(business.replace(/\s*\n\s*/g, ' '));
     var industry = byId(MF.INDUSTRIES, w.industry);
-    if (industry) ctx.push(MF.t('answers.industry', { name: MF.t(industry.titleKey) }));
-    var team = MF.wizardAnswerText(w, 'team');
-    if (team) ctx.push(MF.t('answers.team', { name: team }));
-    var tools = MF.wizardAnswerText(w, 'tools');
-    if (tools) ctx.push(MF.t('answers.tools', { names: tools }));
-    var pain = MF.wizardAnswerText(w, 'pain');
-    if (pain) ctx.push(MF.t('answers.pain', { names: pain }));
+    if (industry) ctx.push(MF.tIn('ru', 'answers.industry', { name: MF.tIn('ru', industry.titleKey) }));
+    var team = MF.wizardAnswerText(w, 'team', 'ru');
+    if (team) ctx.push(MF.tIn('ru', 'answers.team', { name: team }));
+    var tools = MF.wizardAnswerText(w, 'tools', 'ru');
+    if (tools) ctx.push(MF.tIn('ru', 'answers.tools', { names: tools }));
+    var pain = MF.wizardAnswerText(w, 'pain', 'ru');
+    if (pain) ctx.push(MF.tIn('ru', 'answers.pain', { names: pain }));
+    var budget = MF.wizardAnswerText(w, 'budgetTime.budget', 'ru'), deadline = MF.wizardAnswerText(w, 'budgetTime.deadline', 'ru');
+    if (budget && deadline) ctx.push(MF.tIn('ru', 'answers.budgetTime', { budget: budget, deadline: deadline }));
+    else if (budget) ctx.push(MF.tIn('ru', 'answers.budget', { budget: budget }));
+    else if (deadline) ctx.push(MF.tIn('ru', 'answers.deadline', { deadline: deadline }));
     if (ctx.length) out.q02 = ctx.join(' ');
     var result = w.goal === 'opportunities'
       ? [textOf(w, 'find'), textOf(w, 'criteria')].filter(function (x) { return x; }).join('; ')
