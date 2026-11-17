@@ -16,9 +16,30 @@
     return n;
   }
 
-  // Следит, видна ли сцена: на экране и вкладка не скрыта. cb(true/false) вызывается при каждой смене; класс is-off ставит css-паузу циклов.
+  // Пауза «по просьбе пользователя»: хранится только в памяти страницы, на диск и в хранилище браузера не пишется, действует на схему и поле частиц.
+  var userPaused = false, pauseListeners = [];
+  function isPaused() { return userPaused; }
+  function setPaused(v) {
+    userPaused = !!v;
+    pauseListeners = pauseListeners.filter(function (l) { return l.node.isConnected !== false; });
+    pauseListeners.forEach(function (l) { l.fn(userPaused); });
+  }
+  function onPause(node, fn) { pauseListeners.push({ node: node, fn: fn }); }
+
+  // Один общий visibilitychange на модуль. Сцена видна, когда она на экране и вкладка не скрыта.
+  // Наблюдатель и запись снимаются, как только контейнер отсоединён от документа.
+  var watchers = [], tabOn = !document.hidden;
+  document.addEventListener('visibilitychange', function () {
+    tabOn = !document.hidden;
+    watchers = watchers.filter(function (w) {
+      if (w.node.isConnected === false) { w.dispose(); return false; }
+      w.apply();
+      return true;
+    });
+  });
+  // cb(true/false) вызывается при каждой смене; класс is-off ставит css-паузу циклов.
   function watchVisible(node, cb) {
-    var inView = true, tabOn = !document.hidden, last = true;
+    var inView = true, last = true, io = null;
     function apply() {
       var on = inView && tabOn;
       if (on === last) return;
@@ -26,27 +47,102 @@
       if (node.classList) node.classList.toggle('is-off', !on);
       cb(on);
     }
+    var w = { node: node, apply: apply, dispose: function () { if (io && io.disconnect) io.disconnect(); io = null; } };
     if ('IntersectionObserver' in root) {
-      try { new root.IntersectionObserver(function (es) { inView = es[es.length - 1].isIntersecting; apply(); }).observe(node); } catch (e) { /* без наблюдателя сцена идёт всегда */ }
+      try {
+        io = new root.IntersectionObserver(function (es) {
+          if (node.isConnected === false) { w.dispose(); watchers = watchers.filter(function (x) { return x !== w; }); return; }
+          inView = es[es.length - 1].isIntersecting; apply();
+        });
+        io.observe(node);
+      } catch (e) { io = null; /* без наблюдателя сцена идёт всегда */ }
     }
-    document.addEventListener('visibilitychange', function () { tabOn = !document.hidden; apply(); });
+    watchers.push(w);
+    return w;
+  }
+
+  // Слабое устройство: сенсорный указатель, не больше четырёх ядер или включённая экономия трафика.
+  function weakDevice() {
+    try {
+      var nav = root.navigator || {}, coarse = !!(root.matchMedia && root.matchMedia('(pointer: coarse)').matches);
+      var cores = nav.hardwareConcurrency, save = !!(nav.connection && nav.connection.saveData);
+      return coarse || (typeof cores === 'number' && cores <= 4) || save;
+    } catch (e) { return false; }
   }
 
   /* ---------- схема: шесть модулей, пакеты по маршруту, документы веером ---------- */
-  function buildScene(container) {
-    var titles = (MF.MODULES || []).map(function (m) { return MF.t('mod.' + m.id + '.title'); });
-    var svg = s('svg', { viewBox: '0 0 560 400', 'class': 'scene', role: 'img',
-      'aria-label': MF.t('scene.aria') });
-    var route = s('path', { 'class': 'sc-track', d: 'M105 66 H280 H455 V206 H280 H105' }, svg);
-    var pos = [[30, 34], [205, 34], [380, 34], [380, 174], [205, 174], [30, 174]];
-    var nodes = pos.map(function (p, i) {
-      var g = s('g', { 'class': 'sc-node' }, svg);
+  // Положение шести узлов (левый верхний угол); центры лежат на маршруте: верхний ряд вправо, правый край вниз, нижний ряд влево.
+  var NODE_POS = [[30, 34], [205, 34], [380, 34], [380, 174], [205, 174], [30, 174]];
+  // Путь через центры только включённых узлов (индексы по порядку): по ряду, на смену ряда через правый край.
+  function routeThrough(idx) {
+    var d = '', prevRow = -1;
+    idx.forEach(function (i, n) {
+      var cx = NODE_POS[i][0] + 75, cy = NODE_POS[i][1] + 32, row = i < 3 ? 0 : 1;
+      if (n === 0) d = 'M' + cx + ' ' + cy;
+      else if (row === prevRow) d += ' H' + cx;
+      else d += ' H455 V' + cy + (cx === 455 ? '' : ' H' + cx);
+      prevRow = row;
+    });
+    return d;
+  }
+  // Один вход статичной схемы: пока блок ниже экрана, узлы ждут (sc-wait), на экране играют один раз (is-in).
+  // Без наблюдателя и при reduced-motion узлы видны сразу; страховочный таймер снимает ожидание.
+  function watchEnter(node) {
+    if (reduced() || !('IntersectionObserver' in root)) return;
+    var io = null, armed = false, guard = 0;
+    function done() {
+      node.classList.remove('sc-wait'); node.classList.add('is-in');
+      if (io && io.disconnect) io.disconnect();
+      io = null;
+      if (guard) root.clearTimeout(guard);
+    }
+    try {
+      io = new root.IntersectionObserver(function (es) {
+        var e = es[es.length - 1];
+        if (e.isIntersecting || (e.boundingClientRect && e.boundingClientRect.top < 0)) { done(); return; }
+        if (!armed) node.classList.add('sc-wait');
+        armed = true;
+      }, { threshold: 0.2 });
+      io.observe(node);
+    } catch (err) { io = null; return; }
+    guard = root.setTimeout(done, SAFETY_MS);
+    if (guard && typeof guard.unref === 'function') guard.unref();
+  }
+
+  // opts.view: { personal, modules } из MF.sceneView (по ответам мастера); без него схема-демонстрация.
+  // opts.compact: уменьшенная статичная схема для плана (без цикла, документов и пакетов); opts.hidden: скрыта от чтеца (описание даёт обёртка).
+  function buildScene(container, opts) {
+    var o = opts || {};
+    var view = o.view || { personal: false, modules: [] };
+    var personal = !!view.personal, compact = !!o.compact;
+    var mods = MF.MODULES || [];
+    var titles = mods.map(function (m) { return MF.t('mod.' + m.id + '.title'); });
+    var litIdx = [];
+    mods.forEach(function (m, i) { if (view.modules.indexOf(m.id) >= 0) litIdx.push(i); });
+    var attrs = { viewBox: compact ? '0 0 560 250' : '0 0 560 400', 'class': 'scene' + (compact ? ' scene-static' : '') };
+    if (o.hidden) attrs['aria-hidden'] = 'true'; else { attrs.role = 'img'; attrs['aria-label'] = MF.sceneAria ? MF.sceneAria(view) : MF.t('scene.aria'); }
+    var svg = s('svg', attrs);
+    var route;
+    if (personal && litIdx.length) {
+      s('path', { 'class': 'sc-track sc-base', d: 'M105 66 H280 H455 V206 H280 H105' }, svg);
+      route = s('path', { 'class': 'sc-track sc-active', d: routeThrough(litIdx) }, svg);
+    } else {
+      route = s('path', { 'class': 'sc-track', d: 'M105 66 H280 H455 V206 H280 H105' }, svg);
+    }
+    var nodes = NODE_POS.map(function (p, i) {
+      var cls = 'sc-node' + (personal ? (litIdx.indexOf(i) >= 0 ? ' is-lit is-sel' : ' is-dim') : '');
+      var g = s('g', { 'class': cls, style: '--i:' + i }, svg);
       s('rect', { x: p[0], y: p[1], width: 150, height: 64, rx: 10 }, g);
       s('circle', { 'class': 'sc-ring', cx: p[0] + 75, cy: p[1] + 32, r: 62 }, g);
       var no = s('text', { 'class': 'sc-no', x: p[0] + 16, y: p[1] + 20 }, g); no.textContent = '0' + (i + 1);
       var t = s('text', { x: p[0] + 16, y: p[1] + 46 }, g); t.textContent = titles[i] || '';
       return g;
     });
+    if (compact) {
+      container.appendChild(svg);
+      watchEnter(svg);
+      return svg;
+    }
     var sheetsG = s('g', { transform: 'translate(240 398)' }, svg);
     var sheets = [];
     for (var i = 0; i < 12; i++) {
@@ -58,45 +154,65 @@
     var pkG = s('g', null, svg), dots = [];
     for (var k = 0; k < 4; k++) dots.push(s('circle', { r: 4.5, 'class': 'sc-pk' }, pkG));
     container.appendChild(svg);
-
-    var len = route.getTotalLength(), N = dots.length;
+    var len = route.getTotalLength(), N = dots.length, pings = [];
+    function clearPings() {
+      pings.forEach(function (id) { root.clearTimeout(id); });
+      pings = [];
+      nodes.forEach(function (n) { n.classList.remove('is-ping'); });
+    }
+    // По ответам узлы горят всегда, а пакеты идут только по выбранным; в демонстрации узлы зажигаются по ходу пакета.
+    function resetNodes() { if (!personal) nodes.forEach(function (n) { n.classList.remove('is-lit'); }); }
     function place(t) {
       dots.forEach(function (d, idx) {
+        if (!len) { d.setAttribute('opacity', '0'); return; }
         var p = (t + idx / N) % 1, pt = route.getPointAtLength(p * len);
         d.setAttribute('cx', pt.x); d.setAttribute('cy', pt.y);
         d.setAttribute('opacity', (0.35 + 0.65 * Math.sin(Math.PI * p)).toFixed(2));
       });
       var head = t % 1, idx2 = Math.min(5, Math.floor(head * 6));
-      nodes.forEach(function (n, i) {
-        if (i <= idx2 && !n.classList.contains('is-lit')) {
-          n.classList.add('is-lit', 'is-ping');
-          root.setTimeout(function () { n.classList.remove('is-ping'); }, 900);
-        }
-      });
+      if (!personal) {
+        nodes.forEach(function (n, i) {
+          if (i <= idx2 && !n.classList.contains('is-lit')) {
+            n.classList.add('is-lit', 'is-ping');
+            pings.push(root.setTimeout(function () { n.classList.remove('is-ping'); }, 900));
+          }
+        });
+      }
       var on = Math.floor(head * 13);
       sheets.forEach(function (sh, i) { sh.classList.toggle('is-on', i < on); });
     }
-    if (reduced()) {
+    // Конечное состояние: модули зажжены (все или выбранные), документы собраны, пакеты стоят.
+    function finalState() {
+      clearPings();
       place(0.25);
-      nodes.forEach(function (n) { n.classList.add('is-lit'); });
+      if (!personal) nodes.forEach(function (n) { n.classList.add('is-lit'); });
       sheets.forEach(function (sh) { sh.classList.add('is-on'); });
-      return svg;
     }
-    // Цикл стоит, пока сцена вне экрана или вкладка скрыта; возвращается с того же места по времени.
-    var t0 = root.performance.now(), cycle = 0, running = true, raf = 0;
+    if (reduced()) { finalState(); return svg; }
+    // Цикл стоит, пока сцена вне экрана, вкладка скрыта или пользователь нажал паузу; возвращается с того же места по времени.
+    var t0 = root.performance.now(), cycle = 0, running = true, raf = 0, paused = userPaused;
     function tick(now) {
       raf = 0;
-      if (!svg.isConnected || !running) return;
+      if (svg.isConnected === false || !running || paused) return;
       var cyc = Math.floor((now - t0) / 9000);
-      if (cyc !== cycle) { cycle = cyc; nodes.forEach(function (n) { n.classList.remove('is-lit'); }); }
+      if (cyc !== cycle) { cycle = cyc; resetNodes(); }
       place(((now - t0) / 9000) % 1);
       raf = root.requestAnimationFrame(tick);
     }
+    function stopLoop() {
+      if (raf) { root.cancelAnimationFrame(raf); raf = 0; }
+      clearPings();
+    }
+    function startLoop() { if (!raf && running && !paused && svg.isConnected !== false) raf = root.requestAnimationFrame(tick); }
     watchVisible(container, function (on) {
       running = on;
-      if (on && !raf && svg.isConnected) raf = root.requestAnimationFrame(tick);
+      if (on) startLoop(); else stopLoop();
     });
-    tick(t0);
+    onPause(container, function (p) {
+      paused = p;
+      if (p) { stopLoop(); finalState(); } else { t0 = root.performance.now(); cycle = 0; resetNodes(); startLoop(); }
+    });
+    if (paused) finalState(); else tick(t0);
     return svg;
   }
 
@@ -104,20 +220,22 @@
   function mountField(canvas) {
     var ctx = canvas.getContext && canvas.getContext('2d');
     if (!ctx) return;
-    var W = 0, H = 0, P = [], dpr = Math.min(root.devicePixelRatio || 1, 1.5), mx = -999, my = -999, run = true, rm = reduced();
+    var weak = weakDevice();
+    var W = 0, H = 0, P = [], dpr = Math.min(root.devicePixelRatio || 1, 1.5), mx = -999, my = -999, rm = reduced();
+    var running = true, paused = userPaused, rafId = 0;
     function size() {
       var r = canvas.getBoundingClientRect();
       W = r.width; H = r.height; canvas.width = Math.max(1, W * dpr); canvas.height = Math.max(1, H * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      var n = Math.round(Math.min(70, W * H / 16000)); P = [];
+      var n = weak ? 25 : Math.round(Math.min(70, W * H / 16000)); P = [];
       for (var i = 0; i < n; i++) P.push({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - 0.5) * 0.25, vy: (Math.random() - 0.5) * 0.25, r: Math.random() * 1.4 + 0.6 });
     }
-    function draw() {
-      if (!canvas.isConnected) return;
+    // Один кадр; advance: двигать ли частицы (при паузе и reduced-motion кадр рисуется без сдвига).
+    function draw(advance) {
       ctx.clearRect(0, 0, W, H);
       for (var i = 0; i < P.length; i++) {
         var a = P[i];
-        if (!rm) {
+        if (advance) {
           a.x += a.vx; a.y += a.vy;
           if (a.x < 0 || a.x > W) a.vx *= -1;
           if (a.y < 0 || a.y > H) a.vy *= -1;
@@ -125,6 +243,7 @@
           if (d < 9000) { a.x += dx * 0.004; a.y += dy * 0.004; }
         }
         ctx.fillStyle = 'rgba(255,106,43,.55)'; ctx.beginPath(); ctx.arc(a.x, a.y, a.r, 0, 6.283); ctx.fill();
+        if (weak) continue;
         for (var j = i + 1; j < P.length; j++) {
           var b = P[j], ex = a.x - b.x, ey = a.y - b.y, dd = ex * ex + ey * ey;
           if (dd < 12100) {
@@ -133,22 +252,25 @@
           }
         }
       }
-      if (!rm && run) root.requestAnimationFrame(draw);
     }
-    size(); draw();
-    function onResize() { if (!canvas.isConnected) { root.removeEventListener('resize', onResize); return; } size(); if (rm) draw(); }
+    // Один цикл rAF: идентификатор хранится, второй не запускается, при остановке цикл отменяется.
+    function frame() {
+      rafId = 0;
+      if (canvas.isConnected === false || !running || paused || rm) return;
+      draw(true);
+      rafId = root.requestAnimationFrame(frame);
+    }
+    function start() { if (!rafId && !rm && running && !paused && canvas.isConnected !== false) rafId = root.requestAnimationFrame(frame); }
+    function stop() { if (rafId) { root.cancelAnimationFrame(rafId); rafId = 0; } }
+    size(); draw(false); start();
+    function onResize() {
+      if (canvas.isConnected === false) { root.removeEventListener('resize', onResize); stop(); return; }
+      size(); if (!rafId) draw(false);
+    }
     root.addEventListener('resize', onResize);
-    canvas.parentNode.addEventListener('pointermove', function (e) { var r = canvas.getBoundingClientRect(); mx = e.clientX - r.left; my = e.clientY - r.top; });
-    if ('IntersectionObserver' in root) {
-      new root.IntersectionObserver(function (es) {
-        var v = es[0].isIntersecting;
-        if (v && !run) { run = true; root.requestAnimationFrame(draw); } else if (!v) run = false;
-      }).observe(canvas.parentNode);
-    }
-    document.addEventListener('visibilitychange', function () {
-      if (!canvas.isConnected) return;
-      if (document.hidden) run = false; else if (!run) { run = true; if (!rm) root.requestAnimationFrame(draw); }
-    });
+    if (canvas.parentNode) canvas.parentNode.addEventListener('pointermove', function (e) { var r = canvas.getBoundingClientRect(); mx = e.clientX - r.left; my = e.clientY - r.top; });
+    watchVisible(canvas.parentNode || canvas, function (on) { running = on; if (on) start(); else stop(); });
+    onPause(canvas, function (p) { paused = p; if (p) { stop(); draw(false); } else start(); });
   }
 
   /* ---------- общие приёмы ---------- */
@@ -197,19 +319,11 @@
     h1.textContent = '';
     words.forEach(function (w, i) {
       var sp = document.createElement('span');
-      // каскад только у первых восьми слов (шаг 70 мс), остальные появляются сразу
-      sp.className = 'w'; sp.textContent = w; sp.style.animationDelay = i < 8 ? (0.08 + i * 0.07).toFixed(2) + 's' : '0s';
+      // каскад: шаг 40 мс с потолком 0,3 с, без сброса на поздних словах
+      sp.className = 'w'; sp.textContent = w; sp.style.animationDelay = Math.min(0.3, i * 0.04).toFixed(2) + 's';
       h1.appendChild(sp);
       if (i < words.length - 1) h1.appendChild(document.createTextNode(' '));
     });
-  }
-  function tilt(box, stage) {
-    if (reduced() || !(root.matchMedia && root.matchMedia('(hover: hover)').matches)) return;
-    box.addEventListener('pointermove', function (e) {
-      var r = stage.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
-      stage.style.transform = 'perspective(1000px) rotateY(' + (x * 6).toFixed(2) + 'deg) rotateX(' + (-y * 5).toFixed(2) + 'deg)';
-    });
-    box.addEventListener('pointerleave', function () { stage.style.transform = ''; });
   }
   function glow(scope) {
     [].forEach.call(scope.querySelectorAll('.result-card'), function (c) {
@@ -220,5 +334,5 @@
     });
   }
 
-  MF.scene = { buildScene: buildScene, mountField: mountField, reveal: reveal, wordsIn: wordsIn, tilt: tilt, glow: glow, reduced: reduced, svg: s };
+  MF.scene = { buildScene: buildScene, mountField: mountField, reveal: reveal, wordsIn: wordsIn, glow: glow, isPaused: isPaused, setPaused: setPaused, reduced: reduced, svg: s };
 })(typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : this));

@@ -20,12 +20,16 @@
     var steps = [1, 2, 3, 4].map(function (n) {
       return el('li', { class: 'how-step' }, [
         el('span', { class: 'how-num', 'aria-hidden': 'true' }, String(n)),
+        el('span', { class: 'how-ring', 'aria-hidden': 'true' }),
         el('h3', { class: 'how-name' }, MF.t('how.' + n + '.title')),
         el('p', { class: 'how-text' }, MF.t('how.' + n + '.text'))
       ]);
     });
     var box = el('section', { class: 'info-block how-block', 'aria-labelledby': 'how-title' },
-      head('how-title', 'how.title', 'how.lead').concat([el('ol', { class: 'how-steps', 'aria-label': MF.t('how.aria') }, steps)]));
+      head('how-title', 'how.title', 'how.lead').concat([el('div', { class: 'how-wrap' }, [
+        el('ol', { class: 'how-steps', 'aria-label': MF.t('how.aria') }, steps),
+        el('span', { class: 'how-progress', 'aria-hidden': 'true' })
+      ])]));
     container.appendChild(box);
     return box;
   };
@@ -230,7 +234,11 @@
       if (on) button.setAttribute('inert', ''); else button.removeAttribute('inert');
     }
     function stopTimer() { if (timer !== null) { root.clearTimeout(timer); timer = null; } }
-    function onLoad() { loaded = true; stopTimer(); status.hidden = true; body.setAttribute('aria-busy', 'false'); }
+    function onLoad() {
+      loaded = true; stopTimer(); status.hidden = true; body.setAttribute('aria-busy', 'false');
+      // Окно чата проявляется за 160 мс (css .chat-frame.is-ready), белого прямоугольника нет.
+      if (frame && frame.classList) frame.classList.add('is-ready');
+    }
     // Чат не загрузился за отведённое время: сообщение и, если задан бот, ссылка на Telegram.
     function onSlow() {
       timer = null;
@@ -279,12 +287,20 @@
         a.cancel();
       };
     }
+    // Два кадра подряд: анимация панели уже началась. Без rAF адрес ставится сразу.
+    function afterAnimStart(fn) {
+      if (typeof root.requestAnimationFrame === 'function') root.requestAnimationFrame(function () { root.requestAnimationFrame(fn); });
+      else fn();
+    }
     function open() {
       if (opened) return;
       opened = true;
       if (!frame) {
-        frame = el('iframe', { class: 'chat-frame', src: link.href + 'chat', title: MF.t('agent.chatTitle'), sandbox: 'allow-scripts allow-same-origin allow-forms', referrerpolicy: 'no-referrer', on: { load: onLoad } });
+        frame = el('iframe', { class: 'chat-frame', title: MF.t('agent.chatTitle'), sandbox: 'allow-scripts allow-same-origin allow-forms', referrerpolicy: 'no-referrer', on: { load: onLoad } });
         body.appendChild(frame);
+        // iframe создаётся при первом открытии, а адрес ему даётся после старта анимации панели (второй кадр), чтобы загрузка не мешала входу окна.
+        var f0 = frame;
+        afterAnimStart(function () { if (frame === f0) f0.setAttribute('src', link.href + 'chat'); });
         timer = root.setTimeout(onSlow, LOAD_WAIT_MS);
         if (timer && typeof timer.unref === 'function') timer.unref();
       }

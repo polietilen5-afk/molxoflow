@@ -6,55 +6,34 @@
   var ui = MF.ui, el = ui.el;
 
   var SC = function () { return MF.scene; };
+  // Картинки блоков: обычные <img> с ленивой загрузкой; размеры заданы, чтобы страница не прыгала.
+  var PICS = {
+    schema: ['flow-schema.webp', 524, 480],
+    docs: ['docs-stack.webp', 900, 675],
+    effect: ['effect.webp', 720, 720],
+    privacy: ['flow-privacy.webp', 797, 560]
+  };
+  function img(kind, alt) {
+    var p = PICS[kind];
+    return el('img', { src: 'img/' + p[0], alt: alt || '', width: p[1], height: p[2], loading: 'lazy', decoding: 'async' });
+  }
   function pic(kind) {
-    var sc = SC();
-    if (!sc) return null;
-    var s = sc.svg, box = el('div', { class: 'result-pic pic-' + kind, 'aria-hidden': 'true' });
-    var svg;
-    if (kind === 'schema') {
-      svg = s('svg', { viewBox: '0 0 280 104' });
-      [['M40 52 H100', 0], ['M140 52 H200', 0.3], ['M220 52 Q250 52 250 80', 0.6]].forEach(function (p) {
-        var path = s('path', { 'class': 'rp-line', d: p[0] }, svg); path.style.animationDelay = p[1] + 's';
-      });
-      [[28, 52, 13], [120, 52, 13], [212, 52, 13], [250, 88, 9]].forEach(function (c) { s('circle', { 'class': 'rp-node', cx: c[0], cy: c[1], r: c[2] }, svg); });
-    } else if (kind === 'effect') {
-      svg = s('svg', { viewBox: '0 0 180 104' });
-      [[22, 58, 30], [54, 40, 48], [86, 48, 40], [118, 22, 66]].forEach(function (b, i) {
-        var r = s('rect', { 'class': 'rp-bar', x: b[0], y: b[1], width: 22, height: b[2], rx: 3 }, svg); r.style.setProperty('--i', i);
-      });
-      s('path', { d: 'M16 90 H150', stroke: 'rgba(255,255,255,.16)' }, svg);
-    } else {
-      svg = s('svg', { viewBox: '0 0 180 104' });
-      var g = s('g', { transform: 'translate(90 96)' }, svg);
-      for (var i = 0; i < 12; i++) {
-        var q = s('rect', { 'class': 'rp-sheet', x: -16, y: -70, width: 32, height: 64, rx: 3 }, g);
-        q.style.setProperty('--i', i); q.style.setProperty('--r', ((i - 5.5) * 7) + 'deg');
-      }
-    }
-    box.appendChild(svg);
-    return box;
+    return el('div', { class: 'result-pic pic-' + kind, 'aria-hidden': 'true' }, img(kind, ''));
   }
 
-  function devicePic() {
-    var sc = SC();
-    if (!sc) return null;
-    var s = sc.svg;
-    var svg = s('svg', { viewBox: '0 0 300 260', 'class': 'dev-pic', role: 'img', 'aria-label': MF.t('home.device.aria') });
-    s('rect', { x: 40, y: 40, width: 220, height: 150, rx: 14, fill: '#13161B', stroke: 'rgba(255,255,255,.16)', 'stroke-width': 1.5 }, svg);
-    s('rect', { x: 20, y: 196, width: 260, height: 10, rx: 5, fill: '#1A1E25', stroke: 'rgba(255,255,255,.12)' }, svg);
-    s('circle', { cx: 150, cy: 130, r: 62, fill: 'none', stroke: 'rgba(255,255,255,.08)', 'stroke-dasharray': '3 7' }, svg);
-    s('circle', { cx: 150, cy: 130, r: 40, fill: 'none', stroke: 'rgba(255,255,255,.08)', 'stroke-dasharray': '3 7' }, svg);
-    var o1 = s('g', { 'class': 'orbit' }, svg);
-    s('circle', { cx: 212, cy: 130, r: 5, fill: '#FF6A2B' }, o1); s('circle', { cx: 88, cy: 130, r: 4, fill: '#FF6A2B', opacity: '.6' }, o1);
-    var o2 = s('g', { 'class': 'orbit2' }, svg);
-    s('circle', { cx: 150, cy: 90, r: 4, fill: '#FF6A2B', opacity: '.8' }, o2); s('circle', { cx: 150, cy: 170, r: 3.5, fill: '#FF6A2B', opacity: '.5' }, o2);
-    s('path', { d: 'M150 108 l18 7 v14 c0 11 -8 19 -18 23 c-10 -4 -18 -12 -18 -23 v-14 z', fill: 'rgba(255,106,43,.16)', stroke: '#FF6A2B', 'stroke-width': 1.6 }, svg);
-    s('path', { d: 'M143 131 l5 5 9 -10', fill: 'none', stroke: '#FF6A2B', 'stroke-width': 1.8, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, svg);
-    return svg;
+  // Поле «Опишите задачу своими словами»: текст попадает в ответ business мастера (цель по умолчанию routine) и ведёт на шаг,
+  // где он виден и правится. Пустое поле: ничего не пишется, фокус остаётся в поле. Текст идёт только через value.
+  function submitFree(field) {
+    var text = String(field.value || '').trim();
+    if (!text) { field.focus(); return; }
+    var w = ui.getWizard ? ui.getWizard() : MF.emptyWizard();
+    if (w.demo) w = MF.emptyWizard();
+    var n = w.goal ? w : MF.setWizardGoal(w, 'routine');
+    n = MF.setWizardAnswer(n, 'business', text);
+    n = MF.setWizardStep(n, 1);
+    if (ui.saveWizard) ui.saveWizard(n);
+    ui.go('start');
   }
-
-  // Ступень появления: --i не больше 5, дальше без задержки (шаг --stagger задан в css).
-  function stagger(k) { return '--i:' + Math.min(k, 5); }
 
   function renderHome(container, ctx) {
     function start() { ui.go('start'); }
@@ -75,30 +54,56 @@
     var prices = (MF.CONFIG && MF.CONFIG.prices) || {};
     var hasPrice = ['start', 'grow', 'scale'].some(function (l) { return !!MF.formatPrice(prices[l]); });
     var title = el('h1', { class: 'hero-title' }, MF.t('home.title'));
+
+    // Одна строка ввода: поле и вторичная кнопка; главное действие первого экрана остаётся «Начать».
+    var freeField = el('input', {
+      type: 'text', id: 'hero-free', class: 'hero-free-input', name: 'task', autocomplete: 'off', maxlength: '2000',
+      'aria-label': MF.t('home.free.label'), placeholder: MF.t('home.free.label')
+    });
+    var freeForm = el('form', { class: 'hero-free', novalidate: true, on: { submit: function (e) { e.preventDefault(); submitFree(freeField); } } }, [
+      freeField,
+      el('button', { type: 'submit', class: 'btn btn-secondary' }, MF.t('home.free.cta'))
+    ]);
+
+    var sc0 = SC();
+    var pauseBtn = null;
+    if (sc0 && !(sc0.reduced && sc0.reduced())) {
+      pauseBtn = el('button', { type: 'button', class: 'link-btn pause-btn', 'aria-pressed': sc0.isPaused() ? 'true' : 'false', on: { click: function () {
+        var next = !sc0.isPaused();
+        sc0.setPaused(next);
+        pauseBtn.setAttribute('aria-pressed', next ? 'true' : 'false');
+      } } }, MF.t('scene.pause'));
+    }
+
     var hero = el('div', { class: 'hero-text' }, [
       el('p', { class: 'mono-label hero-label' }, [el('span', { class: 'led', 'aria-hidden': 'true' }), 'Molxo Flow']),
       title,
       el('p', { class: 'hero-sub' }, MF.t(hasPrice ? 'home.sub' : 'home.subNoPrice')),
-      // Один главный путь: «Начать». ТЗ, демо и квиз вторичными ссылками.
+      el('p', { class: 'hero-stack' }, MF.t('home.stack')),
+      // Один главный путь: «Начать». ТЗ, демо и проверка готовности собраны в одну строку ниже целей.
       el('div', { class: 'hero-actions' }, el('button', { type: 'button', class: 'btn btn-primary btn-large', on: { click: start } }, MF.t('home.final.cta'))),
+      el('h2', { class: 'home-question' }, MF.t('home.question')),
+      goalCards,
+      freeForm,
       el('p', { class: 'hero-links' }, [
+        el('span', { class: 'hero-links-label' }, MF.t('home.knowLabel')),
         el('a', { href: '#/interview', class: 'link-btn' }, MF.t('home.secondary')),
         el('button', { type: 'button', class: 'link-btn', on: { click: toDemo } }, MF.t('home.demoLink')),
         el('a', { href: '#/quiz', class: 'link-btn' }, MF.t('home.quizLink'))
       ]),
-      el('h2', { class: 'home-question' }, MF.t('home.question')),
-      goalCards,
-      el('p', { class: 'hero-micro' }, MF.t('home.micro')),
-      el('p', { class: 'hero-hint' }, MF.t('home.hint'))
+      el('p', { class: 'hero-hint' }, MF.t('home.micro') + ' ' + MF.t('home.hint'))
     ]);
     // Бот и веб-чат: один блок «Задать вопрос ассистенту».
     if (ui.renderAssistant) ui.renderAssistant(hero);
+    if (pauseBtn) hero.appendChild(pauseBtn);
 
+    // Схема читает сохранённый мастер: модули плана горят, остальные приглушены; без законченного мастера это демонстрация.
+    // Экран перерисовывается при каждом возврате на главную, поэтому схема всегда строится по свежему состоянию.
+    var sceneView = MF.sceneView ? MF.sceneView(ui.getWizard ? ui.getWizard() : null) : null;
     var sceneBox = el('div', { class: 'scene-box' });
     var stage = el('section', { class: 'stage', 'aria-label': MF.t('home.stage.title') }, [
-      el('p', { class: 'stage-title', 'aria-hidden': 'true' }, [el('span', null, MF.t('home.stage.title')), el('em', null, MF.t('home.stage.tag'))]),
-      sceneBox,
-      el('p', { class: 'stage-note' }, MF.t('home.stage.note'))
+      el('p', { class: 'stage-title', 'aria-hidden': 'true' }, [el('span', null, MF.t('home.stage.title')), el('em', null, MF.t(sceneView && sceneView.personal ? 'scene.cap.personal' : 'home.stage.tag'))]),
+      sceneBox
     ]);
 
     var canvas = el('canvas', { class: 'hero-field', 'aria-hidden': 'true' });
@@ -107,85 +112,78 @@
       el('div', { class: 'wrap' }, el('div', { class: 'hero' }, [hero, stage]))
     ]);
 
-    // 02. «Как это работает» (общий блок с планом): линия-шина.
-    var howBox = el('section', { class: 'home-section home-how' }, el('div', { class: 'wrap info-wrap' }));
-    ui.renderHow(howBox.firstChild);
+    // «О Molxo» и доказательства: только заполненное владельцем в MF.CONFIG; пусто: раздела нет (процесс ниже и так на странице).
+    var whoWrap = el('div', { class: 'wrap info-wrap rv' });
+    ui.renderTrust(whoWrap);
+    if (ui.renderAbout) ui.renderAbout(whoWrap);
+    var who = whoWrap.children && whoWrap.children.length ? el('section', { class: 'home-section home-who' }, whoWrap) : null;
 
-    // 03. «Что вы получите»: бенто. Схема на две строки, рядом ТЗ и расчёт эффекта; вся ячейка — ссылка со стрелкой.
-    function resultCard(href, title, text, kind, k) {
-      return el('li', { class: 'rv', style: stagger(k) }, el('a', { href: href, class: 'card result-card' }, [
+    // «Что вы получите»: бенто. Схема на две строки, рядом ТЗ и расчёт эффекта; вся ячейка: ссылка.
+    function resultCard(href, title, text, kind) {
+      return el('li', null, el('a', { href: href, class: 'card result-card' }, [
         pic(kind),
         el('span', { class: 'result-title' }, title),
-        el('span', { class: 'result-text' }, text),
-        el('span', { class: 'result-more', 'aria-hidden': 'true' }, '↗')
+        el('span', { class: 'result-text' }, text)
       ]));
     }
-    var results = el('section', { class: 'home-section', 'aria-labelledby': 'res-title' }, el('div', { class: 'wrap' }, [
-      el('h2', { id: 'res-title', class: 'section-title rv' }, MF.t('home.res.title')),
-      el('p', { class: 'section-kicker rv', style: stagger(1) }, MF.t('home.res.lead')),
+    var results = el('section', { class: 'home-section', 'aria-labelledby': 'res-title' }, el('div', { class: 'wrap rv' }, [
+      el('h2', { id: 'res-title', class: 'section-title' }, MF.t('home.res.title')),
+      el('p', { class: 'section-kicker' }, MF.t('home.res.lead')),
       el('ul', { class: 'result-grid', 'aria-label': MF.t('home.res.title') }, [
-        resultCard('#/studio', MF.t('home.res.schema.title'), MF.t('home.res.schema.text'), 'schema', 2),
-        resultCard('#/docs', MF.t('home.res.docs.title'), MF.t('home.res.docs.text'), 'docs', 3),
-        resultCard('#/interview', MF.t('home.res.effect.title'), MF.t('home.res.effect.text'), 'effect', 4)
+        resultCard('#/studio', MF.t('home.res.schema.title'), MF.t('home.res.schema.text'), 'schema'),
+        resultCard('#/docs', MF.t('home.res.docs.title'), MF.t('home.res.docs.text'), 'docs'),
+        resultCard('#/interview', MF.t('home.res.effect.title'), MF.t('home.res.effect.text'), 'effect')
       ])
     ]));
 
-    // 04. «Примеры»: три демо — строки-ссылки; шесть отраслей — две колонки текстовых ссылок. Данные демо вымышленные, это сказано в каждой строке.
+    // «Как это работает» (общий блок с планом): линия-шина.
+    var howBox = el('section', { class: 'home-section home-how' }, el('div', { class: 'wrap info-wrap rv' }));
+    ui.renderHow(howBox.firstChild);
+
+    // «Примеры»: три демо: строки-ссылки; шесть отраслей: две колонки текстовых ссылок. Что данные вымышленные, сказано один раз, в подзаголовке.
     var langSuffix = MF.LANG === 'uk' || MF.LANG === 'en' ? '.' + MF.LANG : '';
     var INDUSTRY_PAGES = ['real-estate', 'auto', 'trade', 'marketing', 'services', 'logistics'];
-    var examples = el('section', { class: 'home-section', id: 'home-demo', 'aria-labelledby': 'demo-title' }, el('div', { class: 'wrap' }, [
-      el('h2', { id: 'demo-title', class: 'section-title rv' }, MF.t('home.demo.title')),
-      el('p', { class: 'section-kicker rv', style: stagger(1) }, MF.t('home.demo.lead')),
-      el('ul', { class: 'row-list', 'aria-label': MF.t('home.demo.title') }, MF.WIZARD_DEMOS.map(function (d, k) {
-        return el('li', { class: 'rv', style: stagger(k + 2) }, el('a', { href: '#/demo/' + d.id, class: 'row-link' }, [
-          el('span', { class: 'tag-assume' }, MF.t('home.demo.tagShort')),
-          el('span', { class: 'row-link-text' }, [
-            el('span', { class: 'row-link-name' }, MF.t(d.titleKey)),
-            el('span', { class: 'row-link-sub' }, MF.t('home.demo.tag'))
-          ])
-        ]));
+    var examples = el('section', { class: 'home-section', id: 'home-demo', 'aria-labelledby': 'demo-title' }, el('div', { class: 'wrap rv' }, [
+      el('h2', { id: 'demo-title', class: 'section-title' }, MF.t('home.demo.title')),
+      el('p', { class: 'section-kicker' }, MF.t('home.demo.lead')),
+      el('ul', { class: 'row-list', 'aria-label': MF.t('home.demo.title') }, MF.WIZARD_DEMOS.map(function (d) {
+        return el('li', null, el('a', { href: '#/demo/' + d.id, class: 'row-link' }, el('span', { class: 'row-link-text' }, el('span', { class: 'row-link-name' }, MF.t(d.titleKey)))));
       })),
-      el('h3', { id: 'ind-title', class: 'examples-sub rv' }, MF.t('home.ind.title')),
-      el('ul', { class: 'industry-links-grid', 'aria-labelledby': 'ind-title' }, INDUSTRY_PAGES.map(function (id, k) {
-        return el('li', { class: 'rv', style: stagger(k) }, el('a', { href: 'industries/' + id + langSuffix + '.html', class: 'row-link' }, el('span', { class: 'row-link-text' }, [
+      el('h3', { id: 'ind-title', class: 'examples-sub' }, MF.t('home.ind.title')),
+      el('ul', { class: 'industry-links-grid', 'aria-labelledby': 'ind-title' }, INDUSTRY_PAGES.map(function (id) {
+        return el('li', null, el('a', { href: 'industries/' + id + langSuffix + '.html', class: 'row-link' }, el('span', { class: 'row-link-text' }, [
           el('span', { class: 'row-link-name' }, MF.t('industry.' + id + '.title')),
           el('span', { class: 'row-link-sub' }, MF.t('home.ind.' + id))
         ])));
       }))
     ]));
 
-    // 05. «Данные остаются у вас»: приватность и безопасность в одном блоке, справа картинка.
-    var privacyText = el('div', { class: 'rv' }, [
+    // «Данные остаются у вас»: приватность и безопасность в одном блоке, справа картинка.
+    var privacyText = el('div', null, [
       el('h2', { id: 'prv-title', class: 'privacy-big' }, MF.t('home.privacy.big')),
       el('p', null, MF.t('home.privacy.text'))
     ]);
     ui.renderSecurity(privacyText, { bare: true });
-    var privacy = el('section', { class: 'home-section', 'aria-labelledby': 'prv-title' }, el('div', { class: 'wrap privacy' }, [
+    var privacy = el('section', { class: 'home-section', 'aria-labelledby': 'prv-title' }, el('div', { class: 'wrap privacy rv' }, [
       privacyText,
-      el('div', { class: 'rv privacy-pic', style: stagger(2) }, devicePic())
+      el('div', { class: 'privacy-pic' }, img('privacy', MF.t('home.device.aria')))
     ]));
 
-    // 06. «Кто за этим стоит»: только заполненное владельцем в MF.CONFIG; пусто — раздела нет.
-    var whoWrap = el('div', { class: 'wrap info-wrap' });
-    ui.renderTrust(whoWrap);
-    if (ui.renderAbout) ui.renderAbout(whoWrap);
-    var who = whoWrap.children && whoWrap.children.length ? el('section', { class: 'home-section home-who' }, whoWrap) : null;
-
-    // 07. Финал.
+    // Финал.
     var finalBox = el('section', { class: 'home-section' }, el('div', { class: 'wrap' }, el('div', { class: 'final rv' }, [
       el('h2', { class: 'final-title' }, MF.t('home.final.title')),
       el('button', { type: 'button', class: 'btn btn-primary btn-large', on: { click: start } }, MF.t('home.final.cta'))
     ])));
 
-    var page = el('div', { class: 'page home' }, [heroBox, howBox, results, examples, privacy, who, finalBox]);
+    // Порядок: оффер, доказательство, что получите, процесс, примеры и отрасли, безопасность, финальный призыв.
+    var page = el('div', { class: 'page home' }, [heroBox, who, results, howBox, examples, privacy, finalBox]);
     container.appendChild(page);
 
     var sc = SC();
     if (sc) {
       sc.wordsIn(title);
-      sc.buildScene(sceneBox);
+      sc.buildScene(sceneBox, { view: sceneView });
       sc.mountField(canvas);
-      sc.tilt(heroBox, stage);
       sc.reveal(page);
     }
   }

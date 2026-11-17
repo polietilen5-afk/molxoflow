@@ -144,8 +144,8 @@
     // Заголовок не пустой даже до первого показа (его текст подставляет confirmAction).
     var title = el('h2', { id: 'dialog-title', class: 'dialog-title' }, MF.t('shell.confirm'));
     var text = el('p', { id: 'dialog-text', class: 'dialog-text' });
-    var cancel = el('button', { type: 'button', class: 'btn btn-secondary', autofocus: true });
-    var ok = el('button', { type: 'button', class: 'btn btn-danger' });
+    var cancel = el('button', { type: 'button', class: 'btn btn-secondary', autofocus: true }, MF.t('shell.cancel'));
+    var ok = el('button', { type: 'button', class: 'btn btn-danger' }, MF.t('shell.confirm'));
     var dlg = el('dialog', { class: 'dialog', 'aria-labelledby': 'dialog-title', 'aria-describedby': 'dialog-text' }, [
       title, text, el('div', { class: 'dialog-actions' }, [cancel, ok])
     ]);
@@ -399,7 +399,7 @@
     // Шаг мастера входит сам (data-dir ставит мастер до перерисовки).
     var shown = container.children && container.children[0];
     if (!changed && shown && shown.classList && !(shown.getAttribute && shown.getAttribute('data-dir'))) shown.classList.add('no-anim');
-    document.title = route === 'home' ? MF.t('shell.metaTitle') : MF.t('route.' + route) + ' — Molxo Flow';
+    document.title = route === 'home' ? MF.t('shell.metaTitle') : MF.t('route.' + route) + ' | Molxo Flow';
     if (changed && refs.ready) {
       root.scrollTo(0, 0);
       container.focus({ preventScroll: true });
@@ -485,7 +485,7 @@
       el('h1', { id: 'q-title', class: 'question-title' }, q.title),
       el('p', { id: 'q-hint', class: 'hint' }, q.hint),
       area,
-      el('p', { class: 'chips-label' }, 'Примеры — нажмите, чтобы подставить:'),
+      el('p', { class: 'chips-label' }, 'Примеры (нажмите, чтобы подставить):'),
       chips,
       el('div', { class: 'card-actions' }, [back, next])
     ]);

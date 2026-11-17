@@ -436,7 +436,7 @@
     // На первом шаге «Назад» остаётся в Tab (aria-disabled вместо disabled), клик ничего не делает.
     var back = el('button', { type: 'button', class: 'btn btn-ghost' + (index <= 0 ? ' is-disabled' : ''), 'aria-disabled': index <= 0 ? 'true' : null, on: { click: function () { if (index > 0) go(index - 1, true); } } }, MF.t('wizard.back'));
     var skipBtn = step.skippable
-      ? el('button', { type: 'button', class: 'link-btn', on: { click: skip } }, MF.t('wizard.skip'))
+      ? el('button', { type: 'button', class: 'btn btn-ghost', on: { click: skip } }, MF.t('wizard.skip'))
       : null;
     refs.next = el('button', { type: 'button', class: 'btn btn-primary', 'aria-describedby': 'wz-need', on: { click: advance } }, isLast ? MF.t('wizard.finish') : MF.t('wizard.next'));
 
@@ -453,12 +453,13 @@
 
     // Панель-табло над карточкой: шаг и ветка моно-меткой, под ними прогресс 4 px (scaleX через --p).
     var branchName = w.goal ? MF.wizardAnswerText(w, 'goal') : '';
+    var progressText = range ? MF.t('wizard.progressRange', { n: index + 1, min: range.min, max: range.max }) : MF.t('wizard.progress', { n: index + 1, total: steps.length });
     var panel = el('div', { class: 'wizard-panel' }, [
       el('div', { class: 'wizard-meta' }, [
-        el('p', { class: 'eyebrow' }, range ? MF.t('wizard.progressRange', { n: index + 1, min: range.min, max: range.max }) : MF.t('wizard.progress', { n: index + 1, total: steps.length })),
+        el('p', { class: 'eyebrow' }, progressText),
         branchName ? el('p', { class: 'mono-label wizard-branch' }, branchName) : null
       ]),
-      el('div', { class: 'bar wizard-bar', role: 'progressbar', 'aria-valuemin': '1', 'aria-valuemax': String(range ? range.max : steps.length), 'aria-valuenow': String(index + 1), 'aria-label': MF.t('wizard.stepsLabel') },
+      el('div', { class: 'bar wizard-bar', role: 'progressbar', 'aria-valuemin': '1', 'aria-valuemax': String(steps.length), 'aria-valuenow': String(index + 1), 'aria-valuetext': progressText, 'aria-label': MF.t('wizard.stepsLabel') },
         el('div', { class: 'bar-fill', style: '--p:' + ((index + 1) / steps.length).toFixed(3) }))
     ]);
     var card = el('section', { class: 'card wizard-card', 'aria-labelledby': 'wz-title' }, [
@@ -534,8 +535,7 @@
     if (!plan.ready) {
       page.appendChild(el('div', { class: 'plan-empty' }, [
         el('h1', { class: 'page-title' }, MF.t('plan.title')),
-        el('p', { class: 'lead' }, MF.t('plan.empty')),
-        el('a', { href: '#/start', class: 'btn btn-primary' }, MF.t('plan.toStart'))
+        ui.empty({ pic: 'schema', text: MF.t('plan.empty'), actions: [el('a', { href: '#/start', class: 'btn btn-primary btn-large' }, MF.t('plan.toStart'))] })
       ]));
       return;
     }
@@ -588,6 +588,18 @@
       el('h2', { id: 'pl-opps', class: 'section-sub' }, MF.t('plan.opportunities')),
       el('ol', { class: 'opp-list plan-opps' }, opps)
     ]));
+
+    /* схема решения: те же модули, что на главной, уменьшенно и статично; описание для чтеца перечисляет включённые модули */
+    var sceneView = MF.sceneView ? MF.sceneView(w, { any: true }) : null;
+    if (sceneView && sceneView.personal) {
+      var sceneBox = el('div', { class: 'plan-scene-box', role: 'img', 'aria-label': MF.sceneAria(sceneView) });
+      if (MF.scene && MF.scene.buildScene) MF.scene.buildScene(sceneBox, { view: sceneView, compact: true, hidden: true });
+      page.appendChild(el('section', { class: 'plan-section plan-scene', 'aria-labelledby': 'pl-scene' }, [
+        el('h2', { id: 'pl-scene', class: 'section-sub' }, MF.t('plan.scene.title')),
+        el('p', { class: 'plan-scene-lead muted' }, MF.t('plan.scene.lead')),
+        sceneBox
+      ]));
+    }
 
     /* START / GROW / SCALE */
     var anyPrice = ['start', 'grow', 'scale'].some(function (l) { return !!(plan.prices && plan.prices[l]); });
@@ -724,7 +736,11 @@
       });
     }
     // История планов на устройстве: запись добавляется, когда клиент готовит заявку.
-    function remember() { if (ui.saveToCabinet) ui.saveToCabinet(ui.wizard, MF.buildPlan(ui.wizard, ui.state.assumptions)); }
+    var remembered = false;
+    function remember() {
+      if (remembered || !ui.saveToCabinet) return;
+      remembered = !!ui.saveToCabinet(ui.wizard, MF.buildPlan(ui.wizard, ui.state.assumptions));
+    }
     var offer;
     if (link.kind === 'none') {
       // Канал связи не задан: заявку можно только скопировать, рядом видна заглушка для владельца.
@@ -782,6 +798,7 @@
       // Скрыта, пока блок заявки на экране (и до первого ответа наблюдателя); без наблюдателя остаётся видимой. Скрытая — inert.
       var hasObserver = typeof root.IntersectionObserver === 'function';
       var cta = el('div', { class: 'plan-cta-bar', 'data-hidden': hasObserver ? 'true' : 'false', inert: hasObserver }, el('button', { type: 'button', class: 'btn btn-primary', 'aria-label': MF.t('plan.getOffer') + ': ' + MF.t('plan.requestTitle'), on: { click: function () {
+        remember();
         if (requestBox.scrollIntoView) requestBox.scrollIntoView({ block: 'start' });
         offer.focus();
       } } }, MF.t('plan.getOffer')));

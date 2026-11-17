@@ -483,6 +483,49 @@
     return plan;
   };
 
+  /* ---------- схема по ответам: какие модули схемы соответствуют плану ---------- */
+  // Явная таблица: решение из MF.SOLUTIONS -> модули схемы из MF.MODULES (input, analysis, decision, execution, check, result).
+  // Правило: input, если решение принимает данные или сообщения; analysis, если разбирает смысл; decision, если выбирает действие;
+  // execution, если вызывает сервисы и выполняет шаги; check, если последнее слово за человеком; result, если отдаёт итог людям.
+  // Модулей у решения два или три, поэтому у разных целей подсвечены разные наборы.
+  MF.SCENE_MAP = {
+    'process-automation': ['decision', 'execution'],
+    'service-integration': ['input', 'execution'],
+    'ai-agent': ['analysis', 'decision'],
+    'chatbot': ['input', 'execution'],
+    'parser-scraper': ['input', 'analysis'],
+    'monitoring-alerts': ['analysis', 'result'],
+    'website': ['input', 'result'],
+    'portal-cabinet': ['input', 'check', 'result'],
+    'crm': ['input', 'decision', 'result'],
+    'internal-system': ['decision', 'check'],
+    'analytics-reports': ['analysis', 'result'],
+    'custom-software': ['decision', 'execution', 'check']
+  };
+  // Схема по ответам клиента: { personal, modules, solutions }. personal только при выбранной цели и законченном мастере
+  // (opts.any: достаточно выбранной цели, это план). modules идут в порядке MF.MODULES. Текста клиента здесь нет, только идентификаторы.
+  MF.sceneView = function (w, opts) {
+    var out = { personal: false, modules: [], solutions: [] };
+    if (!isWizard(w) || !w.goal || !byId(MF.GOALS, w.goal)) return out;
+    if (!(opts && opts.any) && w.done !== true) return out;
+    var plan;
+    try { plan = MF.buildPlan(w); } catch (e) { return out; }
+    if (!plan.ready) return out;
+    var on = {};
+    plan.opportunities.forEach(function (o) {
+      out.solutions.push(o.solutionId);
+      (MF.SCENE_MAP[o.solutionId] || []).forEach(function (m) { on[m] = true; });
+    });
+    out.modules = (MF.MODULES || []).map(function (m) { return m.id; }).filter(function (id) { return on[id]; });
+    out.personal = out.modules.length > 0;
+    return out;
+  };
+  // Текстовое описание схемы для чтеца экрана: перечень включённых модулей на языке интерфейса.
+  MF.sceneAria = function (view) {
+    var names = (view && view.modules || []).map(function (id) { return MF.t('mod.' + id + '.title'); });
+    return MF.t(view && view.personal ? 'scene.ariaPersonal' : 'scene.aria', { modules: names.join(', ') });
+  };
+
   // Уровень (start, grow, scale), подходящий под бюджет клиента, или null. Подсветка только при однозначном совпадении:
   // заданы цены владельца, бюджет выбран из диапазонов и ровно одна цена уровня попадает в выбранный диапазон.
   var BUDGET_RANGES = { lt1k: [0, 1000], '1k-5k': [1000, 5000], '5k-15k': [5000, 15000], gt15k: [15000, Infinity] };
