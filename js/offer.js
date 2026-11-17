@@ -39,14 +39,12 @@
     lines.push('', MF.t('offer.scope'));
     var prices = pl.prices || {};
     var anyPrice = false;
+    ['start', 'grow', 'scale'].forEach(function (l) { if (prices[l]) anyPrice = true; });
+    // Цен нет вовсе: «стоимость уточним» стоит один раз (price.unknown ниже), а не в каждой строке уровня.
     ['start', 'grow', 'scale'].forEach(function (l) {
-      var price = prices[l];
-      if (price) anyPrice = true;
-      lines.push(MF.t('offer.tier', {
-        level: MF.t('tier.' + l + '.title'),
-        price: price || MF.t('offer.priceTbd'),
-        items: (pl.tiers[l] || []).map(function (k) { return MF.t(k); }).join('; ')
-      }));
+      var items = (pl.tiers[l] || []).map(function (k) { return MF.t(k); }).join('; ');
+      if (!anyPrice) lines.push(MF.t('offer.tierNoPrice', { level: MF.t('tier.' + l + '.title'), items: items }));
+      else lines.push(MF.t('offer.tier', { level: MF.t('tier.' + l + '.title'), price: prices[l] || MF.t('offer.priceTbd'), items: items }));
     });
     if (!anyPrice) lines.push('', MF.t('price.unknown') + '.');
     if (pl.intelligenceNotice) lines.push('', MF.t('notice.intelligence'));

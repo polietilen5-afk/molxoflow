@@ -389,7 +389,7 @@ a.lang-btn { text-decoration: none; }
   .app-header { position: static; }
   html { scroll-padding-top: 0; }
 }
-@media (max-width: 600px) {
+@media (max-width: 720px) {
   html { scroll-padding-top: 0; }
   .app-header { position: relative; z-index: 30; background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; }
   .header-inner { flex-wrap: nowrap; gap: var(--s-2); padding: 6px var(--gutter); }
@@ -765,3 +765,51 @@ a, button, summary, [role="button"], .chip, .goal-card { touch-action: manipulat
 @media (max-width: 480px) {
   .home-other-links { flex-direction: column; align-items: flex-start; }
 }
+
+/* Пятый круг критики: видимые границы, второй признак выбора, спокойные ссылки, подписи схемы, нейтральные статусы */
+.chip { box-shadow: inset 0 0 0 1px var(--line-strong); }
+@media (hover: hover) and (pointer: fine) { .chip:hover { box-shadow: inset 0 0 0 1px var(--muted); } }
+.chip[aria-pressed="true"], .chip.is-on { box-shadow: inset 0 0 0 2px var(--accent); }
+.goal-card, .row-link { border-bottom: 1px solid var(--line-strong); }
+.goal-grid { border-top-color: var(--line-strong); }
+.goal-card[aria-pressed="true"], .goal-card.is-selected { box-shadow: inset 0 0 0 2px var(--accent); }
+.pw { border-color: var(--line-strong); }
+.pw-tabs { border-bottom-color: var(--line-strong); }
+.pw-tab { border-bottom-width: 2px; }
+.pw-bar { border-bottom-color: var(--line-strong); }
+/* Панели окна продукта в одной ячейке сетки: высота окна равна самой высокой панели на любом языке и ширине, вкладки не прыгают (CLS).
+   Скрытые панели остаются в потоке, но невидимы и недоступны (visibility: hidden). */
+.pw-panels { display: grid; min-height: 0; }
+.pw-panel { grid-area: 1 / 1; min-width: 0; }
+.pw-panel.is-off { visibility: hidden; }
+/* «Далее» без ответа: пунктирная рамка без заливки, текст читается (≥ 4.5:1) */
+.btn.is-disabled, .btn[aria-disabled="true"] { background: transparent; color: var(--muted); box-shadow: none; border: 1px dashed var(--line-strong); }
+@media (hover: hover) and (pointer: fine) { .btn.is-disabled:hover, .btn[aria-disabled="true"]:hover { background: transparent; color: var(--muted); box-shadow: none; } }
+/* Переключатель языка: активный — подчёркивание 2 px и вес 600; подписи ≥ 14 px */
+.lang-btn { font-size: 14px; }
+.lang-btn[aria-pressed="true"], .lang-btn[aria-current="true"] { font-weight: 600; }
+.lang-btn[aria-pressed="true"]::after, .lang-btn[aria-current="true"]::after { height: 2px; bottom: 8px; }
+/* Подпись схемы: две строки, ≥ 13 px */
+.stage-title { flex-direction: column; justify-content: flex-start; gap: 2px; margin-bottom: var(--s-3); font: 400 var(--fs-small)/1.4 var(--font); }
+.stage-title span { color: var(--text); }
+.stage-title em { font-size: var(--fs-label); font-family: var(--mono); }
+/* Ссылки «Другие способы начать» и пауза: один спокойный стиль */
+.home-other-links .link-btn, .pause-btn, .call-toggle {
+  color: var(--text); font-size: var(--fs-small); font-weight: 500; text-decoration: underline; text-decoration-thickness: 1px; text-decoration-color: var(--line-strong); text-underline-offset: 5px; gap: var(--s-2);
+}
+.home-other-links .link-btn { padding-right: var(--s-1); }
+.home-other-links .link-btn::after { content: "\2192"; color: var(--accent-text); text-decoration: none; display: inline-block; }
+@media (hover: hover) and (pointer: fine) { .home-other-links .link-btn:hover, .pause-btn:hover, .call-toggle:hover { text-decoration-color: var(--accent); } }
+.stage-tools { justify-content: flex-start; padding: 0 var(--s-1); margin-top: var(--s-2); }
+.home-other-links { gap: var(--s-1) var(--s-6); }
+/* Герой: строка факта вместо метки */
+.hero-label { margin: 0 0 var(--s-4); font: 400 var(--fs-body)/1.4 var(--font); color: var(--muted); }
+.hero-label::before { content: ""; display: inline-block; width: 18px; height: 2px; margin: 0 var(--s-2) 3px 0; background: var(--accent); vertical-align: middle; }
+/* Статусы: зелёного нет, индикаторы нейтральные; красный только у ошибки ввода */
+.led.is-ok, .save-status.is-saved::before, .copy-status:not(:empty)::before, .security-item::before { background: var(--muted); }
+.led.is-ok { color: var(--muted); }
+.tag-0, .tag-4 { background: transparent; color: var(--muted); border-color: var(--line-strong); }
+.btn-danger { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1px var(--line-strong); }
+.plan-next { font-size: var(--fs-small); line-height: 1.5; }
+.plan-next strong { color: var(--text); font-weight: 600; }
+.nav-link { white-space: nowrap; }

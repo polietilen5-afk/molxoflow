@@ -189,8 +189,8 @@
           el('div', null, [el('p', { class: 'quiz-idea-title' }, MF.t(s.titleKey)), el('p', { class: 'quiz-idea-text' }, MF.t(s.changesKey))])
         ]);
       });
+      // Число в кружке сразу итоговое (без «набегания»): иначе при снимке посреди счёта оно расходится с текстом «N из M».
       var scoreNum = el('span', { class: 'cnt' }, String(res.score));
-      if (focus && ui.countUp) ui.countUp(scoreNum, res.score, String);
       var toWizard = '#/start' + (res.goal ? '/' + res.goal + (res.industry ? '/' + res.industry : '') : '');
       var resultCard = el('section', { class: 'quiz-result', 'aria-labelledby': 'quiz-res-title' }, [
         title,
@@ -409,8 +409,7 @@
     // Оговорки отдельным блоком, не внутри текста предложения.
     page.appendChild(el('div', { class: 'note is-warn offer-terms', role: 'note' }, [
       el('p', { class: 'mono-label' }, MF.t('offer.terms')),
-      el('p', null, MF.t('offer.prelim')),
-      plan.intelligenceNotice ? el('p', null, MF.t('notice.intelligence')) : null
+      el('p', null, MF.t('offer.prelim'))
     ]));
     function current() { return MF.buildOffer(ui.getWizard(), MF.buildPlan(ui.getWizard(), ui.state.assumptions)).text; }
     page.appendChild(el('section', { class: 'offer-text', role: 'region', tabindex: '0', 'aria-label': MF.t('offer.title') }, current()));
@@ -466,7 +465,7 @@
     var topic = el('input', { id: 'call-topic', type: 'text', class: 'answer field-input', maxlength: '300', value: call.topic, autocomplete: 'off' });
     topic.addEventListener('input', function () { call.topic = topic.value; refresh(); });
     var c = copier(text, 'call.copied');
-    // Форма звонка свёрнута: на странице плана главный призыв один, «Подготовить заявку».
+    // Форма звонка свёрнута: на странице плана главный призыв один, «Отправить заявку по этому плану».
     var panel = el('div', { id: 'call-panel', class: 'card call-panel', 'aria-labelledby': 'call-title', hidden: true }, [
       el('h2', { id: 'call-title', class: 'card-title' }, MF.t('call.title')),
       el('p', { class: 'muted' }, MF.t('call.lead')),
@@ -484,7 +483,7 @@
       link.kind === 'telegram' ? el('p', { class: 'request-hint small muted', role: 'note' }, MF.t('call.telegramHint')) : null,
       c.status, c.manualNote, c.manual
     ]);
-    var toggle = el('button', { type: 'button', class: 'btn btn-secondary call-toggle', 'aria-expanded': 'false', 'aria-controls': 'call-panel', on: { click: function () {
+    var toggle = el('button', { type: 'button', class: 'link-btn call-toggle', 'aria-expanded': 'false', 'aria-controls': 'call-panel', on: { click: function () {
       var open = panel.hidden;
       panel.hidden = !open;
       toggle.setAttribute('aria-expanded', open ? 'true' : 'false');

@@ -477,7 +477,7 @@
       panel,
       card,
       actions,
-      el('p', { class: 'muted small wizard-rules' }, MF.t('wizard.rules')),
+      index === 0 ? el('p', { class: 'muted small wizard-rules' }, MF.t('wizard.rules')) : null,
       el('div', { class: 'wizard-foot' }, [statusNode, clearBtn])
     ]);
     // Фокус на заголовок шага ставит go() сразу, не дожидаясь конца входа.
@@ -572,9 +572,8 @@
         return el('div', { class: 'plan-fact' }, [el('dt', null, MF.t(f[0])), el('dd', null, f[1])]);
       })) : null
     ]));
-    // Блок заявки с единственной главной кнопкой стоит сразу под шапкой (сам блок собирается ниже).
+    // Блок заявки с единственной главной кнопкой стоит после плана (место занимается ниже, после оценки эффекта).
     var requestSlot = el('div', { class: 'plan-request-slot' });
-    page.appendChild(requestSlot);
 
     /* возможности */
     var names = [];
@@ -630,7 +629,7 @@
     });
     page.appendChild(el('section', { class: 'plan-section', 'aria-labelledby': 'pl-tiers' }, [
       el('h2', { id: 'pl-tiers', class: 'section-sub' }, MF.t('plan.tiers')),
-      anyPrice ? null : el('p', { class: 'plan-price-note muted' }, MF.t('price.later')),
+      el('p', { class: 'plan-price-note muted' }, MF.t('price.later')),
       el('div', { class: 'tiers plan-tiers' }, tierCards),
       names.length ? el('p', { class: 'tier-additional muted' }, MF.t('plan.additional', { names: names.join(', ') })) : null
     ]));
@@ -654,7 +653,7 @@
       });
       input.addEventListener('change', function () { refreshAll(true); });
       return el('div', { class: 'assume-row' }, [
-        el('label', { 'for': 'pa-' + key, class: 'assume-label' }, [label, el('span', { class: 'tag-assume' }, MF.t('assume.tag'))]),
+        el('label', { 'for': 'pa-' + key, class: 'assume-label' }, [label, ' ', el('span', { class: 'tag-assume' }, MF.t('assume.tag'))]),
         el('span', { class: 'assume-field' }, [input, el('span', { class: 'assume-unit' }, unit)])
       ]);
     }
@@ -726,6 +725,8 @@
       page.appendChild(el('aside', { class: 'card plan-notice', role: 'note' }, el('p', null, MF.t('notice.intelligence'))));
     }
 
+    // Заявка после плана: что будет дальше, главная кнопка и вторичный звонок.
+    page.appendChild(requestSlot);
     // Абзац про законные источники данных показан один раз: выше, в блоке notice.intelligence.
     ui.renderSecurity(page);
     ui.renderTrust(page);
@@ -782,6 +783,8 @@
     var requestBox = el('section', { class: 'card plan-request', 'aria-labelledby': 'pl-req' }, [
       el('h2', { id: 'pl-req', class: 'card-title' }, MF.t('plan.requestTitle')),
       el('p', { class: 'muted' }, MF.t('plan.requestLead')),
+      el('p', { class: 'plan-next muted' }, [el('strong', null, MF.t('plan.next.title') + '. '), MF.t('plan.next.text')]),
+      el('p', { class: 'small muted' }, MF.t('wizard.rules')),
       el('div', { class: 'plan-actions' }, offer),
       requestHint,
       contactMissing,

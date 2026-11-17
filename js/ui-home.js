@@ -36,7 +36,6 @@
     var opps = plan.opportunities.map(function (o) {
       var sol = MF.SOLUTIONS.filter(function (x) { return x.id === o.solutionId; })[0];
       return el('li', { class: 'pw-opp' }, [
-        el('span', { class: 'pw-dir' }, MF.t('dir.' + o.direction + '.title')),
         el('span', { class: 'pw-opp-title' }, MF.t(sol.titleKey)),
         el('span', { class: 'pw-opp-text' }, MF.t(sol.changesKey))
       ]);
@@ -72,7 +71,10 @@
       btns.forEach(function (b, k) {
         b.setAttribute('aria-selected', k === i ? 'true' : 'false');
         b.setAttribute('tabindex', k === i ? '0' : '-1');
-        panels[k].hidden = k !== i;
+        // Не hidden: скрытая панель остаётся в сетке (css grid-stack), чтобы окно не меняло высоту; невидима и недоступна (is-off, inert).
+        panels[k].className = 'pw-panel' + (k === i ? '' : ' is-off');
+        if (k === i) panels[k].removeAttribute('inert'); else panels[k].setAttribute('inert', '');
+        panels[k].setAttribute('aria-hidden', k === i ? 'false' : 'true');
       });
       if (focus) btns[i].focus();
     }
@@ -97,7 +99,7 @@
 
     return el('div', { class: 'pw-wrap' }, [
       el('div', { class: 'pw' }, [
-        el('div', { class: 'pw-bar', 'aria-hidden': 'true' }, [el('i'), el('i'), el('i'), el('span', { class: 'pw-name-bar' }, 'Molxo Flow')]),
+        el('div', { class: 'pw-bar', 'aria-hidden': 'true' }, el('span', { class: 'pw-name-bar' }, 'Molxo Flow')),
         el('div', { class: 'pw-tabs', role: 'tablist', 'aria-label': MF.t('home.live.tabs') }, btns),
         el('div', { class: 'pw-panels' }, panels)
       ]),
@@ -139,7 +141,7 @@
     }
 
     var hero = el('div', { class: 'hero-text' }, [
-      el('p', { class: 'mono-label hero-label' }, [el('span', { class: 'led', 'aria-hidden': 'true' }), 'Molxo Flow']),
+      el('p', { class: 'hero-label' }, MF.t('home.eyebrow')),
       title,
       el('p', { class: 'hero-sub' }, MF.t(hasPrice ? 'home.sub' : 'home.subNoPrice')),
       // Один вход: «Начать», одна мелкая строка и пять целей. ТЗ, демо, проверка готовности и ассистент ушли в блок «Другие способы» под героем.
@@ -192,8 +194,6 @@
     }
     var results = el('section', { class: 'home-section', 'aria-labelledby': 'res-title' }, el('div', { class: 'wrap rv' }, [
       el('h2', { id: 'res-title', class: 'section-title' }, MF.t('home.res.title')),
-      el('p', { class: 'section-kicker' }, MF.t('home.res.lead')),
-      el('p', { class: 'home-stack' }, MF.t('home.stack')),
       renderProductWindow(),
       el('ul', { class: 'result-grid', 'aria-label': MF.t('home.res.title') }, [
         resultCard('#/studio', MF.t('home.res.schema.title'), MF.t('home.res.schema.text')),
@@ -277,6 +277,8 @@
     var rateText = MF.formatNumberLang(a.hourlyRate);
     // Единица в подписи допущения: «валюта/ч»; без валюты владельца число стоит без единицы (подпись и так говорит о цене часа).
     var rateUnit = MF.t('assume.unit.rub');
+    // Валюта не задана и язык не русский: числа стоимости часа без единицы нет, показывать нечего.
+    var noRate = MF.LANG !== 'ru' && !(MF.CONFIG && typeof MF.CONFIG.currency === 'string' && MF.CONFIG.currency.trim());
     container.appendChild(el('div', { class: 'page narrow method' }, [
       ui.pageHead(ui.routeLabel('method'), MF.t('method.title'), MF.t('method.lead')),
       el('ol', { class: 'method-steps' }, [
@@ -297,12 +299,12 @@
           el('p', null, MF.t('method.ready.text', { count: count }))
         ]),
         step(5, MF.t('method.potential.title'), [
-          el('p', null, MF.t('method.potential.text1', { minutes: a.minutesPerRun, share: Math.round(a.automationShare * 100), rate: rateText })),
+          el('p', null, noRate ? MF.t('method.potential.text1.norate', { minutes: a.minutesPerRun, share: Math.round(a.automationShare * 100) }) : MF.t('method.potential.text1', { minutes: a.minutesPerRun, share: Math.round(a.automationShare * 100), rate: rateText })),
           el('p', null, MF.t('method.potential.text2')),
           el('dl', { class: 'method-facts' }, [
             fact(MF.t('method.fact.minutes'), a.minutesPerRun + ' ' + MF.t('assume.unit.min')),
             fact(MF.t('method.fact.share'), Math.round(a.automationShare * 100) + MF.t('assume.unit.pct')),
-            fact(MF.t('method.fact.rate'), rateUnit.charAt(0) === '/' ? rateText : rateText + ' ' + rateUnit)
+            noRate ? null : fact(MF.t('method.fact.rate'), rateUnit.charAt(0) === '/' ? rateText : rateText + ' ' + rateUnit)
           ])
         ]),
         step(6, MF.t('method.docs.title'), [

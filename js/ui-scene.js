@@ -254,63 +254,6 @@
     return svg;
   }
 
-  /* ---------- поле частиц за заголовком ---------- */
-  function mountField(canvas) {
-    var ctx = canvas.getContext && canvas.getContext('2d');
-    if (!ctx) return;
-    var weak = weakDevice();
-    var W = 0, H = 0, P = [], dpr = Math.min(root.devicePixelRatio || 1, 1.5), mx = -999, my = -999, rm = reduced();
-    var running = true, paused = userPaused, rafId = 0;
-    function size() {
-      var r = canvas.getBoundingClientRect();
-      W = r.width; H = r.height; canvas.width = Math.max(1, W * dpr); canvas.height = Math.max(1, H * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      var n = weak ? 25 : Math.round(Math.min(70, W * H / 16000)); P = [];
-      for (var i = 0; i < n; i++) P.push({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - 0.5) * 0.25, vy: (Math.random() - 0.5) * 0.25, r: Math.random() * 1.4 + 0.6 });
-    }
-    // Один кадр; advance: двигать ли частицы (при паузе и reduced-motion кадр рисуется без сдвига).
-    function draw(advance) {
-      ctx.clearRect(0, 0, W, H);
-      for (var i = 0; i < P.length; i++) {
-        var a = P[i];
-        if (advance) {
-          a.x += a.vx; a.y += a.vy;
-          if (a.x < 0 || a.x > W) a.vx *= -1;
-          if (a.y < 0 || a.y > H) a.vy *= -1;
-          var dx = a.x - mx, dy = a.y - my, d = dx * dx + dy * dy;
-          if (d < 9000) { a.x += dx * 0.004; a.y += dy * 0.004; }
-        }
-        ctx.fillStyle = 'rgba(255,106,43,.55)'; ctx.beginPath(); ctx.arc(a.x, a.y, a.r, 0, 6.283); ctx.fill();
-        if (weak) continue;
-        for (var j = i + 1; j < P.length; j++) {
-          var b = P[j], ex = a.x - b.x, ey = a.y - b.y, dd = ex * ex + ey * ey;
-          if (dd < 12100) {
-            ctx.strokeStyle = 'rgba(255,106,43,' + (0.16 * (1 - dd / 12100)).toFixed(3) + ')';
-            ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
-          }
-        }
-      }
-    }
-    // Один цикл rAF: идентификатор хранится, второй не запускается, при остановке цикл отменяется.
-    function frame() {
-      rafId = 0;
-      if (canvas.isConnected === false || !running || paused || rm) return;
-      draw(true);
-      rafId = root.requestAnimationFrame(frame);
-    }
-    function start() { if (!rafId && !rm && running && !paused && canvas.isConnected !== false) rafId = root.requestAnimationFrame(frame); }
-    function stop() { if (rafId) { root.cancelAnimationFrame(rafId); rafId = 0; } }
-    size(); draw(false); start();
-    function onResize() {
-      if (canvas.isConnected === false) { root.removeEventListener('resize', onResize); stop(); return; }
-      size(); if (!rafId) draw(false);
-    }
-    root.addEventListener('resize', onResize);
-    if (canvas.parentNode) canvas.parentNode.addEventListener('pointermove', function (e) { var r = canvas.getBoundingClientRect(); mx = e.clientX - r.left; my = e.clientY - r.top; });
-    watchVisible(canvas.parentNode || canvas, function (on) { running = on; if (on) start(); else stop(); });
-    onPause(canvas, function (p) { paused = p; if (p) { stop(); draw(false); } else start(); });
-  }
-
   /* ---------- общие приёмы ---------- */
   // Появление блоков при прокрутке. Начальное состояние видимое: скрываются (класс rv-wait) только блоки ниже линии просмотра
   // и только после того, как IntersectionObserver подтвердил запуск (первый вызов). Быстрая прокрутка, якорь и восстановление
@@ -372,5 +315,5 @@
     });
   }
 
-  MF.scene = { buildScene: buildScene, mountField: mountField, reveal: reveal, wordsIn: wordsIn, glow: glow, isPaused: isPaused, setPaused: setPaused, reduced: reduced, svg: s };
+  MF.scene = { buildScene: buildScene, reveal: reveal, wordsIn: wordsIn, glow: glow, isPaused: isPaused, setPaused: setPaused, reduced: reduced, svg: s };
 })(typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : this));

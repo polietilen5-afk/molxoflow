@@ -252,6 +252,25 @@
       return o ? tr(o.labelKey) : id;
     }).filter(function (x) { return x !== ''; });
   }
+  // Текстовый шаг с подсказками-чипами: фраза чипа дописывается в текст на языке выбора. При показе фраза, целиком совпавшая с
+  // подписью варианта каталога на любом языке, выводится на заданном (или текущем) языке; остальное остаётся как ввёл пользователь.
+  var HINT_LANGS = ['ru', 'uk', 'en'];
+  function localizeHints(w, stepId, text, lang) {
+    if (!text) return text;
+    var opts = MF.wizardOptions(w, stepId);
+    if (!opts || !opts.length) return text;
+    var tr = tfor(lang);
+    return text.split(/\s*;\s*/).map(function (part) {
+      var bare = part.replace(/[\s.]+$/, '').toLowerCase();
+      if (!bare) return part;
+      for (var i = 0; i < opts.length; i++) {
+        for (var k = 0; k < HINT_LANGS.length; k++) {
+          if (MF.tIn(HINT_LANGS[k], opts[i].labelKey).toLowerCase() === bare) return tr(opts[i].labelKey);
+        }
+      }
+      return part;
+    }).join('; ');
+  }
   // Ответ шага одной строкой для сводки и заявки; пустая строка: нет ответа или пропуск.
   MF.wizardAnswerText = function (w, stepId, lang) {
     var pk = typeof stepId === 'string' ? parseKey(stepId) : null;
@@ -270,7 +289,7 @@
       var g = byId(MF.GOALS, w.goal);
       return g ? tfor(lang)(g.titleKey) : '';
     }
-    if (st.kind === 'text') return textOf(w, stepId);
+    if (st.kind === 'text') return localizeHints(w, stepId, textOf(w, stepId), lang);
     return selectedLabels(w, stepId, lang).join(', ');
   };
 
@@ -288,6 +307,17 @@
     var t = String(s || '').replace(/\s+/g, ' ').trim().replace(/[\s.;,!?\u2026]+$/, '');
     return t.length > RECAP_MAX ? t.slice(0, RECAP_MAX - 1).replace(/\s+$/, '') + '\u2026' : t;
   }
+  // Перечень «а, б и в»: связка берётся из словаря (list.and); один элемент без связки.
+  MF.joinList = function (items) {
+    var list = (items || []).filter(function (x) { return !!x; });
+    if (list.length < 2) return list.join('');
+    return list.slice(0, -1).join(', ') + MF.t('list.and') + list[list.length - 1];
+  };
+  function recapItems(w, id) {
+    var st = stepDef(id);
+    if (st && st.kind === 'text') return MF.wizardAnswerText(w, id).split(/\s*;\s*/).map(function (x) { return recapPart(x); });
+    return selectedLabels(w, id).map(function (x) { return recapPart(x); });
+  }
   MF.planRecap = function (w) {
     var out = { named: '', need: '' };
     if (!isWizard(w) || !w.goal) return out;
@@ -296,11 +326,10 @@
     (hunt ? ['find'] : ['pain', 'tools']).forEach(function (id) {
       var sel = selectedIds(w, id);
       if (id === 'tools' && sel.length === 1 && sel[0] === 'none') return;
-      var t = recapPart(MF.wizardAnswerText(w, id));
-      if (t) named.push(t);
+      named = named.concat(recapItems(w, id));
     });
-    out.named = named.join(', ');
-    if (!hunt) out.need = recapPart(MF.wizardAnswerText(w, 'result'));
+    out.named = recapPart(MF.joinList(named));
+    if (!hunt) out.need = recapPart(MF.joinList(recapItems(w, 'result')));
     return out;
   };
 
