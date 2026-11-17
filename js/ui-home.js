@@ -53,16 +53,17 @@
     return svg;
   }
 
-  function renderHome(container, ctx) {
-    var r = MF.readiness(ctx.state.answers);
+  // Ступень появления: --i не больше 5, дальше без задержки (шаг --stagger задан в css).
+  function stagger(k) { return '--i:' + Math.min(k, 5); }
 
+  function renderHome(container, ctx) {
     function start() { ui.go('start'); }
     function toDemo() {
       var box = document.getElementById('home-demo');
       if (box && box.scrollIntoView) box.scrollIntoView({ behavior: SC() && SC().reduced && SC().reduced() ? 'auto' : 'smooth', block: 'start' });
     }
 
-    // Пять целей: каждая карточка ведёт в мастер на свою ветку.
+    // Пять целей: каждая строка ведёт в мастер на свою ветку.
     var goalCards = el('ul', { class: 'goal-grid goal-grid-home', 'aria-label': MF.t('home.goalsLabel') }, MF.GOALS.map(function (g) {
       return el('li', null, el('a', { href: '#/start/' + g.id, class: 'goal-card' }, [
         el('span', { class: 'goal-title' }, MF.t(g.titleKey)),
@@ -75,6 +76,7 @@
     var hasPrice = ['start', 'grow', 'scale'].some(function (l) { return !!MF.formatPrice(prices[l]); });
     var title = el('h1', { class: 'hero-title' }, MF.t('home.title'));
     var hero = el('div', { class: 'hero-text' }, [
+      el('p', { class: 'mono-label hero-label' }, [el('span', { class: 'led', 'aria-hidden': 'true' }), 'Molxo Flow']),
       title,
       el('p', { class: 'hero-sub' }, MF.t(hasPrice ? 'home.sub' : 'home.subNoPrice')),
       // Один главный путь: «Начать». ТЗ, демо и квиз вторичными ссылками.
@@ -89,128 +91,93 @@
       el('p', { class: 'hero-micro' }, MF.t('home.micro')),
       el('p', { class: 'hero-hint' }, MF.t('home.hint'))
     ]);
-    ui.renderBotCard(hero);
-    if (ui.renderAgentWeb) ui.renderAgentWeb(hero);
+    // Бот и веб-чат: один блок «Задать вопрос ассистенту».
+    if (ui.renderAssistant) ui.renderAssistant(hero);
 
     var sceneBox = el('div', { class: 'scene-box' });
-    var stage = el('section', { class: 'stage', 'aria-labelledby': 'rd-title' }, [
+    var stage = el('section', { class: 'stage', 'aria-label': MF.t('home.stage.title') }, [
       el('p', { class: 'stage-title', 'aria-hidden': 'true' }, [el('span', null, MF.t('home.stage.title')), el('em', null, MF.t('home.stage.tag'))]),
       sceneBox,
-      el('div', { class: 'readiness' }, [
-        el('div', { class: 'readiness-row' }, [
-          el('h2', { id: 'rd-title', class: 'readiness-title' }, MF.t('home.stage.ready')),
-          el('p', { class: 'readiness-value' }, [String(r.percent), el('span', { class: 'readiness-pct' }, '%')])
-        ]),
-        el('div', { class: 'bar', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-valuenow': String(r.percent), 'aria-label': MF.t('home.stage.readyAria') },
-          el('div', { class: 'bar-fill', style: 'width:' + r.percent + '%' })),
-        el('p', { class: 'muted small' }, MF.t('home.stage.label', { n: r.filled, total: r.total }))
-      ]),
       el('p', { class: 'stage-note' }, MF.t('home.stage.note'))
     ]);
 
     var canvas = el('canvas', { class: 'hero-field', 'aria-hidden': 'true' });
     var heroBox = el('div', { class: 'hero-box' }, [
-      canvas, el('div', { class: 'hero-glow', 'aria-hidden': 'true' }),
+      canvas,
       el('div', { class: 'wrap' }, el('div', { class: 'hero' }, [hero, stage]))
     ]);
 
-    // Три демо: вымышленные данные, каждая карточка открывает «Ваш план».
-    var demos = el('section', { class: 'home-section', id: 'home-demo', 'aria-labelledby': 'demo-title' }, el('div', { class: 'wrap' }, [
-      el('h2', { id: 'demo-title', class: 'section-title rv' }, MF.t('home.demo.title')),
-      el('p', { class: 'section-kicker rv', style: '--d:.08s' }, MF.t('home.demo.lead')),
-      el('ul', { class: 'demo-grid', 'aria-label': MF.t('home.demo.title') }, MF.WIZARD_DEMOS.map(function (d, k) {
-        return el('li', { class: 'rv', style: '--d:' + (0.1 + k * 0.1) + 's' }, el('a', { href: '#/demo/' + d.id, class: 'card demo-card' }, [
-          el('span', { class: 'tag-assume' }, MF.t('home.demo.tag')),
-          el('span', { class: 'result-title' }, MF.t(d.titleKey)),
-          el('span', { class: 'result-more', 'aria-hidden': 'true' }, MF.t('home.demo.open'))
-        ]));
-      }))
-    ]));
+    // 02. «Как это работает» (общий блок с планом): линия-шина.
+    var howBox = el('section', { class: 'home-section home-how' }, el('div', { class: 'wrap info-wrap' }));
+    ui.renderHow(howBox.firstChild);
 
-    // Отраслевые страницы лежат отдельными файлами по языкам: real-estate.html, real-estate.uk.html, real-estate.en.html.
-    var langSuffix = MF.LANG === 'uk' || MF.LANG === 'en' ? '.' + MF.LANG : '';
-    var industries = el('section', { class: 'home-section', 'aria-labelledby': 'ind-title' }, el('div', { class: 'wrap' }, [
-      el('h2', { id: 'ind-title', class: 'section-title rv' }, MF.t('home.ind.title')),
-      el('p', { class: 'section-kicker rv', style: '--d:.08s' }, MF.t('home.ind.lead')),
-      el('ul', { class: 'industry-links-grid', 'aria-label': MF.t('home.ind.title') }, [
-        el('li', { class: 'rv', style: '--d:.1s' }, el('a', { href: 'industries/real-estate' + langSuffix + '.html', class: 'card demo-card' }, [
-          el('span', { class: 'result-title' }, MF.t('industry.real-estate.title')),
-          el('span', { class: 'result-text' }, MF.t('home.ind.real-estate'))
-        ])),
-        el('li', { class: 'rv', style: '--d:.2s' }, el('a', { href: 'industries/auto' + langSuffix + '.html', class: 'card demo-card' }, [
-          el('span', { class: 'result-title' }, MF.t('industry.auto.title')),
-          el('span', { class: 'result-text' }, MF.t('home.ind.auto'))
-        ])),
-        el('li', { class: 'rv', style: '--d:.3s' }, el('a', { href: 'industries/trade' + langSuffix + '.html', class: 'card demo-card' }, [
-          el('span', { class: 'result-title' }, MF.t('industry.trade.title')),
-          el('span', { class: 'result-text' }, MF.t('home.ind.trade'))
-        ])),
-        el('li', { class: 'rv', style: '--d:.4s' }, el('a', { href: 'industries/marketing' + langSuffix + '.html', class: 'card demo-card' }, [
-          el('span', { class: 'result-title' }, MF.t('industry.marketing.title')),
-          el('span', { class: 'result-text' }, MF.t('home.ind.marketing'))
-        ])),
-        el('li', { class: 'rv', style: '--d:.5s' }, el('a', { href: 'industries/services' + langSuffix + '.html', class: 'card demo-card' }, [
-          el('span', { class: 'result-title' }, MF.t('industry.services.title')),
-          el('span', { class: 'result-text' }, MF.t('home.ind.services'))
-        ])),
-        el('li', { class: 'rv', style: '--d:.6s' }, el('a', { href: 'industries/logistics' + langSuffix + '.html', class: 'card demo-card' }, [
-          el('span', { class: 'result-title' }, MF.t('industry.logistics.title')),
-          el('span', { class: 'result-text' }, MF.t('home.ind.logistics'))
-        ]))
-      ])
-    ]));
-
-    function resultCard(href, title, text, kind, d) {
-      return el('li', { class: 'rv', style: '--d:' + d + 's' }, el('a', { href: href, class: 'card result-card' }, [
+    // 03. «Что вы получите»: бенто. Схема на две строки, рядом ТЗ и расчёт эффекта; вся ячейка — ссылка со стрелкой.
+    function resultCard(href, title, text, kind, k) {
+      return el('li', { class: 'rv', style: stagger(k) }, el('a', { href: href, class: 'card result-card' }, [
         pic(kind),
         el('span', { class: 'result-title' }, title),
         el('span', { class: 'result-text' }, text),
-        el('span', { class: 'result-more', 'aria-hidden': 'true' }, MF.t('home.res.open'))
+        el('span', { class: 'result-more', 'aria-hidden': 'true' }, '↗')
       ]));
     }
     var results = el('section', { class: 'home-section', 'aria-labelledby': 'res-title' }, el('div', { class: 'wrap' }, [
       el('h2', { id: 'res-title', class: 'section-title rv' }, MF.t('home.res.title')),
-      el('p', { class: 'section-kicker rv', style: '--d:.08s' }, MF.t('home.res.lead')),
+      el('p', { class: 'section-kicker rv', style: stagger(1) }, MF.t('home.res.lead')),
       el('ul', { class: 'result-grid', 'aria-label': MF.t('home.res.title') }, [
-        resultCard('#/studio', MF.t('home.res.schema.title'), MF.t('home.res.schema.text'), 'schema', 0.1),
-        resultCard('#/interview', MF.t('home.res.effect.title'), MF.t('home.res.effect.text'), 'effect', 0.2),
-        resultCard('#/docs', MF.t('home.res.docs.title'), MF.t('home.res.docs.text'), 'docs', 0.3)
+        resultCard('#/studio', MF.t('home.res.schema.title'), MF.t('home.res.schema.text'), 'schema', 2),
+        resultCard('#/docs', MF.t('home.res.docs.title'), MF.t('home.res.docs.text'), 'docs', 3),
+        resultCard('#/interview', MF.t('home.res.effect.title'), MF.t('home.res.effect.text'), 'effect', 4)
       ])
     ]));
 
-    var blocks = el('section', { class: 'home-section', 'aria-labelledby': 'blk-title' }, el('div', { class: 'wrap' }, [
-      el('h2', { id: 'blk-title', class: 'section-title rv' }, MF.t('home.blocks.title')),
-      el('p', { class: 'section-kicker rv', style: '--d:.08s' }, MF.t('home.blocks.lead')),
-      // Названия блоков конструктора ТЗ только на русском: на uk и en вместо списка короткая пометка.
-      MF.LANG === 'ru'
-        ? el('ol', { class: 'blocks-line', 'aria-label': MF.t('home.blocks.aria') }, MF.SECTIONS.map(function (sec, k) {
-          return el('li', { style: '--k:' + k }, el('b', null, sec.title));
-        }))
-        : el('p', { class: 'muted rv', style: '--d:.12s' }, MF.t('home.blocks.ruOnly'))
+    // 04. «Примеры»: три демо — строки-ссылки; шесть отраслей — две колонки текстовых ссылок. Данные демо вымышленные, это сказано в каждой строке.
+    var langSuffix = MF.LANG === 'uk' || MF.LANG === 'en' ? '.' + MF.LANG : '';
+    var INDUSTRY_PAGES = ['real-estate', 'auto', 'trade', 'marketing', 'services', 'logistics'];
+    var examples = el('section', { class: 'home-section', id: 'home-demo', 'aria-labelledby': 'demo-title' }, el('div', { class: 'wrap' }, [
+      el('h2', { id: 'demo-title', class: 'section-title rv' }, MF.t('home.demo.title')),
+      el('p', { class: 'section-kicker rv', style: stagger(1) }, MF.t('home.demo.lead')),
+      el('ul', { class: 'row-list', 'aria-label': MF.t('home.demo.title') }, MF.WIZARD_DEMOS.map(function (d, k) {
+        return el('li', { class: 'rv', style: stagger(k + 2) }, el('a', { href: '#/demo/' + d.id, class: 'row-link' }, [
+          el('span', { class: 'tag-assume' }, MF.t('home.demo.tagShort')),
+          el('span', { class: 'row-link-text' }, [
+            el('span', { class: 'row-link-name' }, MF.t(d.titleKey)),
+            el('span', { class: 'row-link-sub' }, MF.t('home.demo.tag'))
+          ])
+        ]));
+      })),
+      el('h3', { id: 'ind-title', class: 'examples-sub rv' }, MF.t('home.ind.title')),
+      el('ul', { class: 'industry-links-grid', 'aria-labelledby': 'ind-title' }, INDUSTRY_PAGES.map(function (id, k) {
+        return el('li', { class: 'rv', style: stagger(k) }, el('a', { href: 'industries/' + id + langSuffix + '.html', class: 'row-link' }, el('span', { class: 'row-link-text' }, [
+          el('span', { class: 'row-link-name' }, MF.t('industry.' + id + '.title')),
+          el('span', { class: 'row-link-sub' }, MF.t('home.ind.' + id))
+        ])));
+      }))
     ]));
 
+    // 05. «Данные остаются у вас»: приватность и безопасность в одном блоке, справа картинка.
+    var privacyText = el('div', { class: 'rv' }, [
+      el('h2', { id: 'prv-title', class: 'privacy-big' }, MF.t('home.privacy.big')),
+      el('p', null, MF.t('home.privacy.text'))
+    ]);
+    ui.renderSecurity(privacyText, { bare: true });
     var privacy = el('section', { class: 'home-section', 'aria-labelledby': 'prv-title' }, el('div', { class: 'wrap privacy' }, [
-      el('div', { class: 'rv' }, [
-        el('h2', { id: 'prv-title', class: 'privacy-big' }, MF.t('home.privacy.big')),
-        el('p', null, MF.t('home.privacy.text'))
-      ]),
-      el('div', { class: 'rv privacy-pic', style: '--d:.15s' }, devicePic())
+      privacyText,
+      el('div', { class: 'rv privacy-pic', style: stagger(2) }, devicePic())
     ]));
 
-    // Общие блоки: те же, что на странице «Ваш план».
-    var infoBox = el('section', { class: 'home-section home-info' }, el('div', { class: 'wrap info-wrap' }));
-    var infoWrap = infoBox.firstChild;
-    ui.renderHow(infoWrap);
-    ui.renderSecurity(infoWrap);
-    ui.renderTrust(infoWrap);
-    if (ui.renderAbout) ui.renderAbout(infoWrap);
+    // 06. «Кто за этим стоит»: только заполненное владельцем в MF.CONFIG; пусто — раздела нет.
+    var whoWrap = el('div', { class: 'wrap info-wrap' });
+    ui.renderTrust(whoWrap);
+    if (ui.renderAbout) ui.renderAbout(whoWrap);
+    var who = whoWrap.children && whoWrap.children.length ? el('section', { class: 'home-section home-who' }, whoWrap) : null;
 
+    // 07. Финал.
     var finalBox = el('section', { class: 'home-section' }, el('div', { class: 'wrap' }, el('div', { class: 'final rv' }, [
       el('h2', { class: 'final-title' }, MF.t('home.final.title')),
       el('button', { type: 'button', class: 'btn btn-primary btn-large', on: { click: start } }, MF.t('home.final.cta'))
     ])));
 
-    var page = el('div', { class: 'page home' }, [heroBox, demos, industries, results, infoBox, blocks, privacy, finalBox]);
+    var page = el('div', { class: 'page home' }, [heroBox, howBox, results, examples, privacy, who, finalBox]);
     container.appendChild(page);
 
     var sc = SC();
@@ -220,53 +187,72 @@
       sc.mountField(canvas);
       sc.tilt(heroBox, stage);
       sc.reveal(page);
-      sc.glow(page);
     }
   }
 
+  // Методика: семь нумерованных шагов без рамок; три допущения крупно, с меткой «допущение»; вопросы конструктора в свёрнутом блоке.
   function renderMethod(container, ctx) {
     var a = MF.DEFAULT_ASSUMPTIONS;
     var groups = MF.SECTIONS.map(function (s) {
       var qs = MF.QUESTIONS.filter(function (q) { return q.section === s.id; });
       return el('li', null, [el('strong', null, s.title + ': '), qs.map(function (q) { return q.n + '. ' + q.title; }).join(' ')]);
     });
-    function block(title, kids) {
-      return el('section', { class: 'card method-block' }, [el('h2', { class: 'card-title' }, title)].concat(kids));
+    function step(n, title, kids) {
+      return el('li', null, [
+        el('span', { class: 'num method-no', 'aria-hidden': 'true' }, (n < 10 ? '0' : '') + n),
+        el('div', { class: 'method-body' }, [el('h2', { class: 'block-title' }, title)].concat(kids))
+      ]);
+    }
+    function fact(label, value) {
+      return el('div', null, [
+        el('dt', null, [label, ' ', el('span', { class: 'tag-assume' }, MF.t('assume.tag'))]),
+        el('dd', { class: 'num' }, value)
+      ]);
     }
     var count = MF.QUESTIONS.length;
     // Стоимость часа: на ru валюта «₽» стоит в самом тексте (допущение принято владельцем), на uk и en {currency} берётся из MF.CONFIG.currency.
     var rateText = MF.formatNumberLang(a.hourlyRate);
+    // Единица в подписи допущения: «валюта/ч»; без валюты владельца число стоит без единицы (подпись и так говорит о цене часа).
+    var rateUnit = MF.t('assume.unit.rub');
     container.appendChild(el('div', { class: 'page narrow method' }, [
-      el('h1', { class: 'page-title' }, MF.t('method.title')),
-      el('p', { class: 'lead' }, MF.t('method.lead')),
-      block(MF.t('method.wizard.title'), [
-        el('p', null, MF.t('method.wizard.text1')),
-        el('p', null, MF.t('method.wizard.text2'))
-      ]),
-      block(MF.t('method.collect.title'), [
-        el('p', null, MF.t('method.collect.text', { count: count }))
-      ]),
-      // Вопросы конструктора ТЗ только на русском: на uk и en список заменён пометкой.
-      block(MF.t('method.questions.title', { count: count }), [
-        MF.LANG === 'ru' ? el('ul', { class: 'method-list' }, groups) : el('p', null, MF.t('method.questions.ruOnly'))
-      ]),
-      block(MF.t('method.ready.title'), [
-        el('p', null, MF.t('method.ready.text', { count: count }))
-      ]),
-      block(MF.t('method.potential.title'), [
-        el('p', null, MF.t('method.potential.text1', { minutes: a.minutesPerRun, share: Math.round(a.automationShare * 100), rate: rateText })),
-        el('p', null, MF.t('method.potential.text2'))
-      ]),
-      block(MF.t('method.docs.title'), [
-        el('p', null, MF.t('method.docs.text'))
-      ]),
-      block(MF.t('method.privacy.title'), [
-        el('p', null, MF.t('method.privacy'))
+      ui.pageHead(ui.routeLabel('method'), MF.t('method.title'), MF.t('method.lead')),
+      el('ol', { class: 'method-steps' }, [
+        step(1, MF.t('method.wizard.title'), [
+          el('p', null, MF.t('method.wizard.text1')),
+          el('p', null, MF.t('method.wizard.text2'))
+        ]),
+        step(2, MF.t('method.collect.title'), [
+          el('p', null, MF.t('method.collect.text', { count: count }))
+        ]),
+        // Вопросы конструктора ТЗ только на русском: на uk и en список заменён пометкой.
+        step(3, MF.t('method.questions.title', { count: count }), [
+          MF.LANG === 'ru'
+            ? el('details', { class: 'block-more method-more' }, [el('summary', null, MF.t('method.questions.show')), el('ul', { class: 'method-list block-more-body' }, groups)])
+            : el('p', null, MF.t('method.questions.ruOnly'))
+        ]),
+        step(4, MF.t('method.ready.title'), [
+          el('p', null, MF.t('method.ready.text', { count: count }))
+        ]),
+        step(5, MF.t('method.potential.title'), [
+          el('p', null, MF.t('method.potential.text1', { minutes: a.minutesPerRun, share: Math.round(a.automationShare * 100), rate: rateText })),
+          el('p', null, MF.t('method.potential.text2')),
+          el('dl', { class: 'method-facts' }, [
+            fact(MF.t('method.fact.minutes'), a.minutesPerRun + ' ' + MF.t('assume.unit.min')),
+            fact(MF.t('method.fact.share'), Math.round(a.automationShare * 100) + MF.t('assume.unit.pct')),
+            fact(MF.t('method.fact.rate'), rateUnit.charAt(0) === '/' ? rateText : rateText + ' ' + rateUnit)
+          ])
+        ]),
+        step(6, MF.t('method.docs.title'), [
+          el('p', null, MF.t('method.docs.text'))
+        ]),
+        step(7, MF.t('method.privacy.title'), [
+          el('p', null, MF.t('method.privacy'))
+        ])
       ]),
       el('div', { class: 'method-actions' }, [
         el('a', { href: '#/start', class: 'btn btn-primary' }, MF.t('home.final.cta')),
         el('a', { href: '#/interview', class: 'btn btn-secondary' }, ctx.state.demo ? MF.t('method.toInterview.demo') : MF.t('method.toInterview')),
-        el('a', { href: '#/', class: 'btn btn-secondary' }, MF.t('demo.home'))
+        el('a', { href: '#/', class: 'link-btn' }, MF.t('demo.home'))
       ])
     ]));
   }

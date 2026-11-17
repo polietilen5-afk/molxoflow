@@ -9,9 +9,10 @@
 .module-btn {
   display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 8px 14px; text-align: left;
   background: var(--card-2); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; min-width: 0;
-  transition: background-color .2s ease, border-color .2s ease, transform .3s var(--ease);
+  transition: transform var(--t-press) var(--ease-out), background-color var(--t-hover) var(--ease-out), border-color var(--t-hover) var(--ease-out);
 }
-.module-btn:hover { background: var(--card-3); border-color: var(--muted); }
+.module-btn:active { transform: scale(.98); }
+@media (hover: hover) and (pointer: fine) { .module-btn:hover { background: var(--card-3); border-color: var(--muted); } }
 .module-btn.is-selected { background: var(--accent-soft); border-color: var(--accent); color: var(--text); }
 .module-num {
   flex: none; width: 30px; height: 30px; border-radius: 8px; background: var(--card-3); color: var(--accent-text);
@@ -24,13 +25,15 @@
 .module-link { position: relative; height: 32px; width: 0; margin: 0 auto; border-left: 2px dashed var(--line-strong); }
 .flow-dot {
   position: absolute; left: 50%; top: 0; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%;
-  background: var(--accent); box-shadow: 0 0 4px rgba(255, 106, 43, .5); animation: flow-down 1.8s ease-in-out infinite;
+  background: var(--accent); box-shadow: 0 0 4px rgba(255, 106, 43, .5); animation: flow-down 1.8s var(--ease-in-out) infinite;
 }
 .module-item:nth-child(4n+3) + .module-link .flow-dot { animation-delay: .3s; }
 @keyframes flow-down { 0% { transform: translateY(-4px); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(26px); opacity: 0; } }
-@keyframes flow-right { 0% { left: 0; opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { left: calc(100% - 10px); opacity: 0; } }
+/* точка бежит по линии только через transform: длина линии берётся из container-типа звена (cqw) */
+@keyframes flow-right { 0% { transform: translateX(0); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateX(calc(100cqw - 10px)); opacity: 0; } }
 
-.module-detail { min-height: 150px; }
+/* до 1000 px деталь модуля — карточка, шире — открытая секция под цепочкой с волосяной линией */
+.module-detail { min-height: 150px; padding: var(--s-5); background: var(--card); border-radius: var(--r-lg); box-shadow: var(--edge), var(--gloss); min-width: 0; }
 .module-role { font-size: var(--fs-card); margin-bottom: 12px; overflow-wrap: anywhere; }
 .tag-list { margin: 0; }
 
@@ -52,11 +55,12 @@
 .doc-btn {
   display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 6px 12px; text-align: left;
   background: var(--card-2); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); cursor: pointer; min-width: 0;
-  transition: background-color .2s ease, border-color .2s ease;
+  transition: transform var(--t-press) var(--ease-out), background-color var(--t-hover) var(--ease-out), border-color var(--t-hover) var(--ease-out);
 }
-.doc-btn:hover { background: var(--card-3); border-color: var(--muted); }
+.doc-btn:active { transform: scale(.98); }
+@media (hover: hover) and (pointer: fine) { .doc-btn:hover { background: var(--card-3); border-color: var(--muted); } }
 .doc-btn.is-selected { background: var(--accent-soft); border-color: var(--accent); color: var(--text); font-weight: 600; }
-.doc-num { flex: none; font: 700 13px/1 var(--mono); color: var(--accent-text); }
+.doc-num { flex: none; font: 700 13px/1 var(--mono); font-variant-numeric: tabular-nums; color: var(--muted); }
 .doc-name { overflow-wrap: anywhere; min-width: 0; }
 .docs-zip { margin-top: 16px; display: flex; }
 .docs-zip .btn { flex: 1 1 auto; }
@@ -81,9 +85,18 @@
   .module-item { flex: 0 1 auto; display: flex; }
   .module-link { align-self: center; }
   .module-btn { flex-direction: column; justify-content: center; text-align: center; min-height: 92px; padding: 10px 12px; width: 140px; max-width: 100%; }
-  .module-link { flex: 1 1 24px; height: 0; width: auto; min-width: 20px; margin: 0; border-left: 0; border-top: 2px dashed var(--line-strong); }
+  .module-link { flex: 1 1 24px; height: 0; width: auto; min-width: 20px; margin: 0; border-left: 0; border-top: 2px dashed var(--line-strong); container-type: inline-size; }
+  .module-detail { min-height: 0; padding: var(--s-5) 0 0; background: none; box-shadow: none; border-top: 1px solid var(--line); border-radius: 0; }
   .flow-dot { top: -4px; left: 0; margin-left: 0; animation-name: flow-right; }
 }
 @media (prefers-reduced-motion: reduce) {
   .flow-dot { animation: none !important; opacity: 1; left: 50%; margin-left: -5px; top: 50%; margin-top: -5px; }
 }
+
+/* Интервью: одна полоска прогресса и число «07 / 15»; метка вопроса — моно-метка */
+.q-progress { display: flex; align-items: center; gap: var(--s-3); margin-bottom: var(--s-3); }
+.q-progress .bar { flex: 1; margin: 0; }
+.q-count { flex: none; font-size: 13px; color: var(--muted); }
+.question-card .mono-label { display: flex; }
+.module-detail .mono-label { display: flex; margin-bottom: var(--s-2); }
+.empty-docs { margin-top: var(--s-4); }

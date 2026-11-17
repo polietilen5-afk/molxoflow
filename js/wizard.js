@@ -483,6 +483,24 @@
     return plan;
   };
 
+  // Уровень (start, grow, scale), подходящий под бюджет клиента, или null. Подсветка только при однозначном совпадении:
+  // заданы цены владельца, бюджет выбран из диапазонов и ровно одна цена уровня попадает в выбранный диапазон.
+  var BUDGET_RANGES = { lt1k: [0, 1000], '1k-5k': [1000, 5000], '5k-15k': [5000, 15000], gt15k: [15000, Infinity] };
+  MF.matchTier = function (w) {
+    if (!isWizard(w)) return null;
+    var picked = selectedIds(w, 'budgetTime.budget');
+    if (picked.length !== 1 || !Object.prototype.hasOwnProperty.call(BUDGET_RANGES, picked[0])) return null;
+    var range = BUDGET_RANGES[picked[0]];
+    var prices = (MF.CONFIG && MF.CONFIG.prices) || {};
+    var currency = MF.CONFIG && typeof MF.CONFIG.currency === 'string' ? MF.CONFIG.currency.trim() : '';
+    if (!currency) return null;
+    var hits = ['start', 'grow', 'scale'].filter(function (l) {
+      var p = prices[l];
+      return typeof p === 'number' && isFinite(p) && p > 0 && p >= range[0] && p < range[1];
+    });
+    return hits.length === 1 ? hits[0] : null;
+  };
+
   /* ---------- текст заявки и ссылка для связи ---------- */
   function titleOf(solutionId, lang) { return tfor(lang)(byId(MF.SOLUTIONS, solutionId).titleKey); }
 

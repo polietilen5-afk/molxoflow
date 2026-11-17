@@ -16,6 +16,22 @@
     return n;
   }
 
+  // Следит, видна ли сцена: на экране и вкладка не скрыта. cb(true/false) вызывается при каждой смене; класс is-off ставит css-паузу циклов.
+  function watchVisible(node, cb) {
+    var inView = true, tabOn = !document.hidden, last = true;
+    function apply() {
+      var on = inView && tabOn;
+      if (on === last) return;
+      last = on;
+      if (node.classList) node.classList.toggle('is-off', !on);
+      cb(on);
+    }
+    if ('IntersectionObserver' in root) {
+      try { new root.IntersectionObserver(function (es) { inView = es[es.length - 1].isIntersecting; apply(); }).observe(node); } catch (e) { /* без наблюдателя сцена идёт всегда */ }
+    }
+    document.addEventListener('visibilitychange', function () { tabOn = !document.hidden; apply(); });
+  }
+
   /* ---------- схема: шесть модулей, пакеты по маршруту, документы веером ---------- */
   function buildScene(container) {
     var titles = (MF.MODULES || []).map(function (m) { return MF.t('mod.' + m.id + '.title'); });
@@ -66,14 +82,21 @@
       sheets.forEach(function (sh) { sh.classList.add('is-on'); });
       return svg;
     }
-    var t0 = root.performance.now(), cycle = 0;
-    (function tick(now) {
-      if (!svg.isConnected) return;
+    // Цикл стоит, пока сцена вне экрана или вкладка скрыта; возвращается с того же места по времени.
+    var t0 = root.performance.now(), cycle = 0, running = true, raf = 0;
+    function tick(now) {
+      raf = 0;
+      if (!svg.isConnected || !running) return;
       var cyc = Math.floor((now - t0) / 9000);
       if (cyc !== cycle) { cycle = cyc; nodes.forEach(function (n) { n.classList.remove('is-lit'); }); }
       place(((now - t0) / 9000) % 1);
-      root.requestAnimationFrame(tick);
-    })(t0);
+      raf = root.requestAnimationFrame(tick);
+    }
+    watchVisible(container, function (on) {
+      running = on;
+      if (on && !raf && svg.isConnected) raf = root.requestAnimationFrame(tick);
+    });
+    tick(t0);
     return svg;
   }
 
@@ -129,20 +152,53 @@
   }
 
   /* ---------- общие приёмы ---------- */
+  // Появление блоков при прокрутке. Начальное состояние видимое: скрываются (класс rv-wait) только блоки ниже линии просмотра
+  // и только после того, как IntersectionObserver подтвердил запуск (первый вызов). Быстрая прокрутка, якорь и восстановление
+  // позиции не оставляют скрытого: обработчик прокрутки и hashchange показывают всё, что оказалось выше нижнего края окна
+  // (boundingClientRect.top < 0 — блок уже проскочили); страховочный таймер через 2,5 с показывает всё, если наблюдатель молчит,
+  // иначе делает ту же проверку. При prefers-reduced-motion и без IntersectionObserver блоки показаны сразу.
+  var SAFETY_MS = 2500;
   function reveal(scope) {
-    var els = [].slice.call(scope.querySelectorAll('.rv, .blocks-line, .result-grid'));
-    if (!('IntersectionObserver' in root) || reduced()) { els.forEach(function (e) { e.classList.add('is-in'); }); return; }
+    var els = [].slice.call(scope.querySelectorAll('.rv, .result-grid'));
+    function show(e) { e.classList.add('is-in'); e.classList.remove('rv-wait'); }
+    if (!('IntersectionObserver' in root) || reduced()) { els.forEach(show); return; }
+    var armed = false, waiting = [], ticking = false;
+    function viewport() { return root.innerHeight || (document.documentElement && document.documentElement.clientHeight) || 0; }
+    function seen(e) { return e.isIntersecting || (e.boundingClientRect && e.boundingClientRect.top < 0) || (e.boundingClientRect && e.boundingClientRect.top < viewport()); }
     var io = new root.IntersectionObserver(function (es) {
-      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } });
-    }, { threshold: 0.18 });
+      es.forEach(function (e) {
+        var t = e.target;
+        if (seen(e)) { show(t); io.unobserve(t); return; }
+        // Первый вызов подтверждает, что наблюдатель работает: только теперь блоки ниже окна прячутся до прокрутки.
+        if (!armed && t.classList.contains('rv')) { t.classList.add('rv-wait'); waiting.push(t); }
+      });
+      armed = true;
+    }, { threshold: 0 });
+    function sweep() {
+      ticking = false;
+      waiting = waiting.filter(function (e) {
+        var top = e.getBoundingClientRect().top;
+        if (top < viewport()) { show(e); io.unobserve(e); return false; }
+        return true;
+      });
+      if (!waiting.length) { root.removeEventListener('scroll', onScroll); root.removeEventListener('hashchange', sweep); }
+    }
+    function onScroll() { if (!ticking) { ticking = true; root.requestAnimationFrame(sweep); } }
+    root.addEventListener('scroll', onScroll, { passive: true });
+    root.addEventListener('hashchange', sweep);
     els.forEach(function (e) { io.observe(e); });
+    var guard = root.setTimeout(function () {
+      if (!armed) { els.forEach(show); waiting = []; if (io.disconnect) io.disconnect(); } else sweep();
+    }, SAFETY_MS);
+    if (guard && typeof guard.unref === 'function') guard.unref();
   }
   function wordsIn(h1) {
     var words = h1.textContent.split(' ');
     h1.textContent = '';
     words.forEach(function (w, i) {
       var sp = document.createElement('span');
-      sp.className = 'w'; sp.textContent = w; sp.style.animationDelay = (0.1 + i * 0.09) + 's';
+      // каскад только у первых восьми слов (шаг 70 мс), остальные появляются сразу
+      sp.className = 'w'; sp.textContent = w; sp.style.animationDelay = i < 8 ? (0.08 + i * 0.07).toFixed(2) + 's' : '0s';
       h1.appendChild(sp);
       if (i < words.length - 1) h1.appendChild(document.createTextNode(' '));
     });

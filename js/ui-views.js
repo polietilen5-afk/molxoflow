@@ -24,7 +24,7 @@
     ui.renderConstructorTabs(container, 'studio');
     var modules = MF.MODULES;
     var buttons = [];
-    var roleBox = el('div', { class: 'module-detail card', 'aria-live': 'polite' });
+    var roleBox = el('div', { class: 'module-detail', 'aria-live': 'polite' });
 
     function showModule(i) {
       selectedModule = i;
@@ -35,7 +35,7 @@
       });
       var m = modules[i];
       ui.clear(roleBox);
-      roleBox.appendChild(el('p', { class: 'eyebrow' }, 'МОДУЛЬ ' + (i + 1) + ' ИЗ ' + modules.length));
+      roleBox.appendChild(el('p', { class: 'mono-label' }, 'МОДУЛЬ ' + (i + 1) + ' ИЗ ' + modules.length));
       roleBox.appendChild(el('h2', { class: 'card-title' }, m.title));
       roleBox.appendChild(el('p', { class: 'module-role' }, m.role));
       roleBox.appendChild(el('ul', { class: 'tag-list', 'aria-label': 'Теги модуля' },
@@ -57,8 +57,7 @@
       MF.MODULE_TAGS.map(function (t, k) { return el('li', { class: 'tag tag-' + k }, t); }));
 
     container.appendChild(el('div', { class: 'page studio' }, [
-      el('h1', { class: 'page-title' }, 'Студия'),
-      el('p', { class: 'lead' }, 'Так процесс проходит через шесть модулей: от входных данных до результата. Выберите модуль, чтобы увидеть его роль.'),
+      ui.pageHead(ui.routeLabel('studio'), 'Студия', 'Так процесс проходит через шесть модулей: от входных данных до результата. Выберите модуль, чтобы увидеть его роль.'),
       el('div', { class: 'card studio-card' }, [
         el('ol', { class: 'module-chain', 'aria-label': 'Цепочка модулей' }, chain)
       ]),
@@ -112,20 +111,23 @@
       return el('li', null, b);
     }));
 
-    var zipBtn = el('button', { type: 'button', class: 'btn btn-primary', on: { click: function () {
+    var pendingCount = docs.filter(function (d) { return d.content.indexOf(MF.PENDING_MARK) >= 0; }).length;
+    // Ни одного ответа: пустое состояние с одной главной кнопкой «К интервью», «Скачать всё» тогда второстепенная.
+    var nothingYet = pendingCount === docs.length;
+    var zipBtn = el('button', { type: 'button', class: 'btn ' + (nothingYet ? 'btn-secondary' : 'btn-primary'), on: { click: function () {
       // Пакет «Для разработчика»: сводка 00-svodka-dlya-centr.md и 12 документов.
       var wizard = typeof ui.getWizard === 'function' ? ui.getWizard() : MF.emptyWizard();
       var bytes = MF.buildZip(MF.devFiles(ui.state, wizard));
       download('molxo-flow-tz.zip', bytes, 'application/zip');
     } } }, 'Скачать всё (ZIP)');
 
-    var pendingCount = docs.filter(function (d) { return d.content.indexOf(MF.PENDING_MARK) >= 0; }).length;
-
     container.appendChild(el('div', { class: 'page docs' }, [
-      el('h1', { class: 'page-title' }, 'Документы'),
-      el('p', { class: 'lead' }, 'Двенадцать файлов технического задания в формате Markdown. Выберите файл для предпросмотра, скачайте его или весь пакет.'),
-      el('p', { class: 'muted small docs-zip-note' }, MF.t('docs.zipNote')),
-      pendingCount ? el('p', { class: 'pending docs-pending' }, 'В ' + pendingCount + ' из ' + docs.length + ' документов есть пометки «' + MF.PENDING_MARK + '»: ответьте на вопросы, и они пропадут.') : null,
+      ui.pageHead(ui.routeLabel('docs'), 'Документы', 'Двенадцать файлов технического задания в формате Markdown. Выберите файл для предпросмотра, скачайте его или весь пакет.'),
+      el('p', { class: 'note docs-zip-note' }, MF.t('docs.zipNote')),
+      nothingYet ? ui.empty({ pic: 'docs', title: 'Документы появятся после ответов', text: 'Пока на вопросы нет ответов, и в каждом документе стоят пометки «' + MF.PENDING_MARK + '». Ответьте на вопросы, и пометки пропадут.', actions: [
+        el('a', { href: '#/interview', class: 'btn btn-primary' }, 'К интервью')
+      ] }) : null,
+      pendingCount && !nothingYet ? el('p', { class: 'note is-warn docs-pending' }, 'В ' + pendingCount + ' из ' + docs.length + ' документов есть пометки «' + MF.PENDING_MARK + '»: ответьте на вопросы, и они пропадут.') : null,
       el('div', { class: 'docs-layout' }, [
         el('div', { class: 'card docs-side' }, [list, el('div', { class: 'docs-zip' }, zipBtn)]),
         el('div', { class: 'card docs-main' }, [

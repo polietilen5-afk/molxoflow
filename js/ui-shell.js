@@ -60,6 +60,33 @@
   ui.el = el;
   ui.svg = svg;
   ui.clear = clear;
+  // Заполнение полосы прогресса: доля 0..1 в --p, css масштабирует scaleX (анимируется только transform).
+  ui.setProgress = function (node, fraction) {
+    var v = String(Math.max(0, Math.min(1, fraction)));
+    if (node.style && typeof node.style.setProperty === 'function') node.style.setProperty('--p', v); else if (node.style) node.style['--p'] = v;
+  };
+
+  // Единый заголовок экрана: моно-метка, h1, подзаголовок (порядок строго такой); метка «NN / РАЗДЕЛ» берётся из ключей route.*
+  var ROUTE_NO = { start: '01', quiz: '02', demos: '03', method: '04', cabinet: '05', offer: '06', interview: '07', studio: '08', docs: '09' };
+  ui.routeLabel = function (route) { return (ROUTE_NO[route] || '00') + ' / ' + MF.t('route.' + route); };
+  ui.pageHead = function (label, title, lead) {
+    return el('header', { class: 'page-head' }, [
+      label ? el('p', { class: 'mono-label' }, label) : null,
+      el('h1', { class: 'page-title' }, title),
+      lead ? el('p', { class: 'lead' }, lead) : null
+    ]);
+  };
+  // Пустое состояние: картинка (pic: privacy | docs | schema), заголовок, текст и действия (одна главная кнопка, остальное ссылки).
+  ui.empty = function (o) {
+    return el('div', { class: 'empty' }, [
+      el('div', { class: 'empty-pic is-' + o.pic, 'aria-hidden': 'true' }),
+      el('div', { class: 'empty-body' }, [
+        o.title ? el('h2', { class: 'empty-title' }, o.title) : null,
+        o.text ? el('p', { class: 'empty-text' }, o.text) : null,
+        el('div', { class: 'empty-actions' }, o.actions || [])
+      ])
+    ]);
+  };
 
   function logo() {
     return svg('svg', { viewBox: '0 0 32 32', width: '32', height: '32', 'aria-hidden': 'true', focusable: 'false', 'class': 'logo' }, [
@@ -255,7 +282,8 @@
     var buttons = (MF.LANGS || ['ru']).map(function (code) {
       return el('button', {
         type: 'button', class: 'lang-btn', 'data-lang': code, lang: code, 'aria-pressed': MF.LANG === code ? 'true' : 'false',
-        'aria-label': MF.langName(code), title: MF.langName(code),
+        // Видимый текст «UK» входит в доступное имя: «UK, Українська».
+        'aria-label': code.toUpperCase() + ', ' + MF.langName(code), title: MF.langName(code),
         on: { click: function () { if (MF.LANG !== code && MF.setLang) { pendingLangFocus = code; MF.setLang(code); } } }
       }, code.toUpperCase());
     });
@@ -267,7 +295,11 @@
     clear(f);
     f.appendChild(el('div', { class: 'footer-inner' }, [
       el('p', { class: 'footer-note' }, MF.t('footer.note')),
-      el('button', { type: 'button', class: 'btn btn-secondary btn-small', id: 'clear-data', on: { click: clearProject } }, MF.t('shell.clear.button'))
+      el('nav', { class: 'footer-links', 'aria-label': MF.t('footer.linksAria') }, [
+        el('a', { href: '#/method' }, MF.t('route.method')),
+        el('a', { href: '#/interview' }, MF.t('route.interview'))
+      ]),
+      el('button', { type: 'button', class: 'clear-link', id: 'clear-data', on: { click: clearProject } }, MF.t('shell.clear.button'))
     ]));
   }
 
@@ -345,6 +377,8 @@
     var container = refs.view;
     clear(container);
     ui.setBodyFlag('actionbar', false);
+    // Маршрут на body: стили скрывают плавающий чат на шагах мастера (#/start/...), чат остаётся в плане и в шапке.
+    if (document.body && document.body.setAttribute) document.body.setAttribute('data-route', route);
     ui.closeNav();
     // Конструктор ТЗ остаётся русским: на другом языке интерфейса содержимое помечено lang="ru" для чтеца экрана.
     if (CONSTRUCTOR_ROUTES[route] && MF.LANG !== 'ru') container.setAttribute('lang', 'ru'); else container.removeAttribute('lang');
@@ -361,6 +395,10 @@
       ]));
       if (root.console && root.console.warn) root.console.warn('Molxo Flow: ошибка показа раздела', e);
     }
+    // Вход экрана только при смене маршрута: перерисовка того же (ответ на вопрос, язык, автосохранение) не мигает.
+    // Шаг мастера входит сам (data-dir ставит мастер до перерисовки).
+    var shown = container.children && container.children[0];
+    if (!changed && shown && shown.classList && !(shown.getAttribute && shown.getAttribute('data-dir'))) shown.classList.add('no-anim');
     document.title = route === 'home' ? MF.t('shell.metaTitle') : MF.t('route.' + route) + ' — Molxo Flow';
     if (changed && refs.ready) {
       root.scrollTo(0, 0);
@@ -370,9 +408,11 @@
 
   function renderNotFound(container) {
     container.appendChild(el('section', { class: 'page narrow notfound' }, [
-      el('h1', { class: 'page-title' }, MF.t('route.notfound')),
-      el('p', { class: 'lead' }, MF.t('notfound.text')),
-      el('a', { href: '#/', class: 'btn btn-primary' }, MF.t('demo.home'))
+      ui.pageHead('404', MF.t('route.notfound'), MF.t('notfound.text')),
+      ui.empty({ pic: 'schema', actions: [
+        el('a', { href: '#/', class: 'btn btn-primary' }, MF.t('demo.home')),
+        el('a', { href: '#/start', class: 'link-btn' }, MF.t('route.start'))
+      ] })
     ]));
   }
 
@@ -433,8 +473,15 @@
         focusAnswerNext = true; ui.setState(MF.setCurrent(ui.state, state.current + 1));
       } } }, 'Следующий вопрос');
 
+    // Прогресс: одна полоска на все вопросы и число «07 / 15»; метка вопроса и раздел — в моно-метке
+    var qFill = el('div', { class: 'bar-fill' });
+    ui.setProgress(qFill, q.n / total);
     var card = el('section', { class: 'card question-card', 'aria-labelledby': 'q-title' }, [
-      el('p', { class: 'eyebrow' }, ['ВОПРОС ' + pad2(q.n) + ' / ' + total, el('span', { class: 'eyebrow-section' }, ' · ' + sectionOf(q).title)]),
+      el('div', { class: 'q-progress' }, [
+        el('div', { class: 'bar', role: 'progressbar', 'aria-valuemin': '1', 'aria-valuemax': String(total), 'aria-valuenow': String(q.n), 'aria-label': 'Вопрос ' + q.n + ' из ' + total }, qFill),
+        el('span', { class: 'num q-count' }, pad2(q.n) + ' / ' + total)
+      ]),
+      el('p', { class: 'mono-label' }, 'ВОПРОС · ' + sectionOf(q).title),
       el('h1', { id: 'q-title', class: 'question-title' }, q.title),
       el('p', { id: 'q-hint', class: 'hint' }, q.hint),
       area,
@@ -464,8 +511,16 @@
       el('ul', { class: 'qnav-list' }, navGroups)
     ]);
 
+    // Готовность требований живёт на экране конструктора; конструктор русский, подписи берутся из русского словаря.
+    var rdValue = el('p', { class: 'readiness-value' });
+    var rdBar = el('div', { class: 'bar', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-label': MF.tIn('ru', 'home.stage.readyAria') }, el('div', { class: 'bar-fill' }));
+    var rdLabel = el('p', { class: 'muted small' });
+    var readiness = el('section', { class: 'card readiness-card', 'aria-labelledby': 'rd-title' }, el('div', { class: 'readiness' }, [
+      el('div', { class: 'readiness-row' }, [el('h2', { id: 'rd-title', class: 'readiness-title' }, MF.tIn('ru', 'home.stage.ready')), rdValue]),
+      rdBar, rdLabel
+    ]));
     var side = el('aside', { class: 'workspace-side', 'aria-label': 'Живая схема' });
-    var main = el('div', { class: 'workspace-main' }, [card, navigator]);
+    var main = el('div', { class: 'workspace-main' }, [card, readiness, navigator]);
     container.appendChild(el('div', { class: 'page workspace' }, [main, side]));
     MF.ui.renderSidebar(side);
 
@@ -478,6 +533,13 @@
         b.setAttribute('aria-label', 'Вопрос ' + x.n + ': ' + x.title + (filled ? ', есть ответ' : ', без ответа'));
         if (cur) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
       });
+      var r = MF.readiness(ui.state.answers);
+      rdValue.textContent = '';
+      rdValue.appendChild(document.createTextNode(String(r.percent)));
+      rdValue.appendChild(el('span', { class: 'readiness-pct' }, '%'));
+      rdBar.setAttribute('aria-valuenow', String(r.percent));
+      ui.setProgress(rdBar.firstChild, r.percent / 100);
+      rdLabel.textContent = MF.tIn('ru', 'home.stage.label', { n: r.filled, total: r.total });
       MF.ui.updateSidebar();
     }
     refreshLive();
@@ -579,7 +641,7 @@
 
     sb.core.textContent = sum.core.label;
     sb.coreBar.setAttribute('aria-valuenow', String(sum.core.ready));
-    sb.coreBar.firstChild.style.width = Math.round(sum.core.ready / sum.core.total * 100) + '%';
+    ui.setProgress(sb.coreBar.firstChild, sum.core.ready / sum.core.total);
     listInto(sb.integrations, sum.integrations);
     listInto(sb.users, sum.users);
     sb.result.textContent = sum.result;

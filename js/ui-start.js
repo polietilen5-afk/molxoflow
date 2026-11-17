@@ -11,6 +11,14 @@
     for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
     return null;
   }
+  // Выбор — строка-опция: маркер-круг (один ответ) или маркер-квадрат (несколько); выбранная получает is-on.
+  function chipCls(on, multi, choice) { return 'chip' + (choice === false ? '' : ' chip-choice') + (multi ? ' chip-multi' : '') + (on ? ' is-on' : ''); }
+  // От 768 px короткие ответы (меньше 28 знаков) идут в две колонки; длинный текст (на uk чаще) — в одну.
+  var SHORT_LABEL = 28;
+  function chipsCls(labels, extra) {
+    var short = labels.length > 3 && labels.every(function (t) { return t.length < SHORT_LABEL; });
+    return 'chips' + (extra ? ' ' + extra : '') + (short ? ' chips-2' : '');
+  }
 
   /* ---------- состояние мастера и сохранение ---------- */
   var wstore = null;
@@ -127,6 +135,10 @@
     return { min: min, max: max };
   }
 
+  // Предел текста шага и порог, с которого показывается счётчик (совпадает с MAX_TEXT в wizard.js).
+  var TEXT_MAX = 2000;
+  var COUNT_FROM = 200;
+
   // Не больше четырёх видимых вариантов в группе шага pair; остальные («Пока не знаю», «Другое») раскрываются кнопкой.
   var GROUP_VISIBLE = 4;
 
@@ -143,7 +155,10 @@
       } else {
         // «#/start/s<номер>»: шаг из истории браузера («Назад» и «Вперёд»), нужен выбранная цель.
         var m = /^s(\d+)$/.exec(parts[1]);
-        if (m && w.goal && w.step !== Number(m[1]) - 1) w = saveWizard(MF.setWizardStep(w, Number(m[1]) - 1));
+        if (m && w.goal && w.step !== Number(m[1]) - 1) {
+          ui.wizardDir = Number(m[1]) - 1 < w.step ? 'back' : 'fwd';
+          w = saveWizard(MF.setWizardStep(w, Number(m[1]) - 1));
+        }
       }
     }
 
@@ -157,6 +172,8 @@
     var range = w.goal ? null : stepRange();
 
     function go(i, focus) {
+      // Направление запоминается до перерисовки: вход нового шага идёт оттуда, куда пользователь двигался (css по data-dir).
+      ui.wizardDir = i < index ? 'back' : 'fwd';
       saveWizard(MF.setWizardStep(ui.wizard, i));
       pushStep(i);
       ui.render();
@@ -171,9 +188,7 @@
       // Кнопка не disabled (иначе она выпадает из Tab), поэтому ответ проверяется здесь: причина показывается рядом.
       if (!MF.wizardAnswered(ui.wizard, step.id)) {
         if (refs.need) {
-          // Попытка пойти дальше без ответа: подсказка озвучивается сразу (alert), текст перезаписывается для чтеца экрана.
-          refs.need.hidden = false;
-          refs.need.setAttribute('role', 'alert');
+          // Попытка пойти дальше без ответа: текст постоянной live-области перезаписывается, чтец экрана озвучивает его снова.
           refs.need.textContent = '';
           refs.need.textContent = MF.t('wizard.needAnswer');
         }
@@ -188,7 +203,10 @@
         refs.next.setAttribute('aria-disabled', answered ? 'false' : 'true');
         refs.next.className = 'btn btn-primary' + (answered ? '' : ' is-disabled');
       }
-      if (refs.need) refs.need.hidden = answered;
+      if (refs.need) {
+        var want = answered ? '' : MF.t('wizard.needAnswer');
+        if (refs.need.textContent !== want) refs.need.textContent = want;
+      }
       if (refs.skipped) refs.skipped.hidden = !stepSkipped(cur, step);
     }
     function skip() {
@@ -224,14 +242,34 @@
       })));
     } else if (step.kind === 'text') {
       var area = el('textarea', {
-        id: 'wz-answer', class: 'answer' + (step.id === 'volume' ? ' answer-short' : ''), rows: step.id === 'volume' ? '2' : '5', maxlength: '2000',
-        placeholder: MF.t('wizard.placeholder'), 'aria-labelledby': 'wz-title', 'aria-describedby': 'wz-hint', value: textOf(w, step.id)
+        id: 'wz-answer', class: 'answer' + (step.id === 'volume' ? ' answer-short' : ''), rows: step.id === 'volume' ? '2' : '5', maxlength: String(TEXT_MAX),
+        placeholder: MF.t('wizard.placeholder'), 'aria-labelledby': 'wz-title', 'aria-describedby': 'wz-hint wz-count', value: textOf(w, step.id)
       });
+      // Счётчик знаков показывается, когда до предела остаётся мало; текст не обрезается молча.
+      var counter = el('p', { id: 'wz-count', class: 'char-count small muted', 'aria-live': 'polite' });
+      var chipButtons = [];
+      var updateCounter = function (note) {
+        var left = TEXT_MAX - area.value.length;
+        var text = note || (left <= 0 ? MF.t('wizard.limit', { max: TEXT_MAX }) : (left <= COUNT_FROM ? MF.t('wizard.counter', { left: left }) : ''));
+        if (counter.textContent !== text) counter.textContent = text;
+      };
+      var hasPhrase = function (label) { return area.value.toLowerCase().indexOf(label.toLowerCase()) >= 0; };
+      var refreshChips = function () {
+        chipButtons.forEach(function (b) {
+          var on = hasPhrase(b.label);
+          b.node.setAttribute('aria-pressed', on ? 'true' : 'false');
+          b.node.className = chipCls(on, true, false);
+        });
+      };
       area.addEventListener('input', function () {
         saveWizard(MF.setWizardAnswer(ui.wizard, step.id, area.value));
         refreshNav();
+        updateCounter();
+        refreshChips();
       });
       body.appendChild(area);
+      body.appendChild(counter);
+      updateCounter();
 
       var chipBox = null;
       if (step.id === 'business') {
@@ -240,11 +278,12 @@
           indButtons.forEach(function (b) {
             var on = ui.wizard.industry === b.id;
             b.node.setAttribute('aria-pressed', on ? 'true' : 'false');
-            b.node.className = 'chip chip-choice' + (on ? ' is-on' : '');
+            b.node.className = chipCls(on, false);
           });
         };
-        chipBox = el('ul', { class: 'chips', 'aria-label': MF.t('wizard.industryLabel') }, MF.wizardOptions(w, 'business').map(function (o) {
-          var b = el('button', { type: 'button', class: 'chip chip-choice', 'aria-pressed': 'false', on: { click: function () {
+        var indOpts = MF.wizardOptions(w, 'business');
+        chipBox = el('ul', { class: chipsCls(indOpts.map(function (o) { return MF.t(o.labelKey); })), 'aria-label': MF.t('wizard.industryLabel') }, indOpts.map(function (o) {
+          var b = el('button', { type: 'button', class: chipCls(false, false), 'aria-pressed': 'false', on: { click: function () {
             var cur = ui.wizard;
             saveWizard(MF.setWizardIndustry(cur, cur.industry === o.id ? null : o.id));
             refreshIndustry();
@@ -260,14 +299,22 @@
         var hints = MF.wizardOptions(w, step.id);
         if (hints.length) {
           body.appendChild(el('p', { class: 'chips-label' }, MF.t('wizard.chipsLabel')));
-          body.appendChild(el('ul', { class: 'chips', 'aria-label': MF.t('wizard.chipsLabel') }, hints.map(function (o) {
-            return el('li', null, el('button', { type: 'button', class: 'chip', on: { click: function () {
-              var label = MF.t(o.labelKey);
-              area.value = MF.isFilled(area.value) ? area.value.replace(/\s+$/, '') + '; ' + label : label;
-              area.dispatchEvent(new Event('input'));
+          body.appendChild(el('ul', { class: chipsCls(hints.map(function (o) { return MF.t(o.labelKey); })), 'aria-label': MF.t('wizard.chipsLabel') }, hints.map(function (o) {
+            var label = MF.t(o.labelKey);
+            var b = el('button', { type: 'button', class: chipCls(false, true, false), 'aria-pressed': 'false', on: { click: function () {
+              // Та же фраза повторно не дописывается; не влезающая в предел подсказка не добавляется молча.
+              if (!hasPhrase(label)) {
+                var next = MF.isFilled(area.value) ? area.value.replace(/\s+$/, '') + '; ' + label : label;
+                if (next.length > TEXT_MAX) { updateCounter(MF.t('wizard.chipTooLong', { max: TEXT_MAX })); area.focus(); return; }
+                area.value = next;
+                area.dispatchEvent(new Event('input'));
+              }
               area.focus();
-            } } }, MF.t(o.labelKey)));
+            } } }, label);
+            chipButtons.push({ label: label, node: b });
+            return el('li', null, b);
           })));
+          refreshChips();
         }
       }
     } else if (step.kind === 'pair') {
@@ -286,12 +333,16 @@
           var sel = selectedOf(ui.wizard, key);
           // Выбранный скрытый вариант раскрывает список сам: ответ не прячется.
           if (sel.some(function (id) { return gExtraIds.indexOf(id) >= 0; })) gExpanded = true;
-          gExtra.forEach(function (li) { li.hidden = !gExpanded; });
+          gExtra.forEach(function (li) {
+            // Раскрытие по нажатию «Ещё» показывается мягко; уже выбранный скрытый вариант открывается сразу.
+            if (li.hidden && gExpanded && gMore && gMore.hidden === false) li.classList.add('is-revealed');
+            li.hidden = !gExpanded;
+          });
           if (gMore) gMore.hidden = gExpanded;
           gButtons.forEach(function (b) {
             var on = sel.indexOf(b.id) >= 0;
             b.node.setAttribute('aria-pressed', on ? 'true' : 'false');
-            b.node.className = 'chip chip-choice' + (on ? ' is-on' : '');
+            b.node.className = chipCls(on, false);
           });
           if (gOtherRow) gOtherRow.hidden = sel.indexOf('other') < 0;
         };
@@ -304,8 +355,8 @@
         };
         var groupBox = el('div', { class: 'wizard-group', role: 'group', 'aria-labelledby': 'wz-group-' + g }, [
           el('h2', { id: 'wz-group-' + g, class: 'group-title' }, MF.t('group.' + g)),
-          el('ul', { class: 'chips wizard-options', 'aria-label': MF.t('group.' + g) }, gOpts.map(function (o, k) {
-            var b = el('button', { type: 'button', class: 'chip chip-choice', 'aria-pressed': 'false', on: { click: function () { gToggle(o.id); } } }, MF.t(o.labelKey));
+          el('ul', { class: chipsCls(gOpts.map(function (o) { return MF.t(o.labelKey); }), 'wizard-options'), 'aria-label': MF.t('group.' + g) }, gOpts.map(function (o, k) {
+            var b = el('button', { type: 'button', class: chipCls(false, false), 'aria-pressed': 'false', on: { click: function () { gToggle(o.id); } } }, MF.t(o.labelKey));
             gButtons.push({ id: o.id, node: b });
             var li = el('li', null, b);
             if (k >= GROUP_VISIBLE) { gExtra.push(li); gExtraIds.push(o.id); }
@@ -345,7 +396,7 @@
         optButtons.forEach(function (b) {
           var on = sel.indexOf(b.id) >= 0;
           b.node.setAttribute('aria-pressed', on ? 'true' : 'false');
-          b.node.className = 'chip chip-choice' + (on ? ' is-on' : '');
+          b.node.className = chipCls(on, step.kind === 'multi');
         });
         if (otherRow) otherRow.hidden = sel.indexOf('other') < 0;
       };
@@ -358,8 +409,8 @@
         refreshNav();
         if (id === 'other' && otherRow && !otherRow.hidden) otherInput.focus();
       };
-      body.appendChild(el('ul', { class: 'chips wizard-options', 'aria-label': MF.t('wizard.optionsLabel') }, opts.map(function (o) {
-        var b = el('button', { type: 'button', class: 'chip chip-choice', 'aria-pressed': 'false', on: { click: function () { toggle(o.id); } } }, MF.t(o.labelKey));
+      body.appendChild(el('ul', { class: chipsCls(opts.map(function (o) { return MF.t(o.labelKey); }), 'wizard-options'), 'aria-label': MF.t('wizard.optionsLabel') }, opts.map(function (o) {
+        var b = el('button', { type: 'button', class: chipCls(false, step.kind === 'multi'), 'aria-pressed': 'false', on: { click: function () { toggle(o.id); } } }, MF.t(o.labelKey));
         optButtons.push({ id: o.id, node: b });
         return el('li', null, b);
       })));
@@ -380,10 +431,12 @@
 
     /* --- кнопки --- */
     refs.skipped = el('p', { class: 'wizard-skipped muted small', role: 'status', 'aria-live': 'polite' }, MF.t('wizard.skipped'));
+    // Подсказка о недостающем ответе: постоянная live-область (role не меняется), без ответа в ней текст, с ответом пусто.
     refs.need = el('p', { id: 'wz-need', class: 'wizard-need small', role: 'status', 'aria-live': 'polite' }, MF.t('wizard.needAnswer'));
-    var back = el('button', { type: 'button', class: 'btn btn-secondary', disabled: index <= 0, on: { click: function () { go(index - 1, true); } } }, MF.t('wizard.back'));
+    // На первом шаге «Назад» остаётся в Tab (aria-disabled вместо disabled), клик ничего не делает.
+    var back = el('button', { type: 'button', class: 'btn btn-ghost' + (index <= 0 ? ' is-disabled' : ''), 'aria-disabled': index <= 0 ? 'true' : null, on: { click: function () { if (index > 0) go(index - 1, true); } } }, MF.t('wizard.back'));
     var skipBtn = step.skippable
-      ? el('button', { type: 'button', class: 'btn btn-secondary', on: { click: skip } }, MF.t('wizard.skip'))
+      ? el('button', { type: 'button', class: 'link-btn', on: { click: skip } }, MF.t('wizard.skip'))
       : null;
     refs.next = el('button', { type: 'button', class: 'btn btn-primary', 'aria-describedby': 'wz-need', on: { click: advance } }, isLast ? MF.t('wizard.finish') : MF.t('wizard.next'));
 
@@ -398,24 +451,37 @@
       });
     } } }, MF.t('wizard.clear'));
 
-    var card = el('section', { class: 'card wizard-card', 'aria-labelledby': 'wz-title' }, [
-      el('p', { class: 'eyebrow' }, range ? MF.t('wizard.progressRange', { n: index + 1, min: range.min, max: range.max }) : MF.t('wizard.progress', { n: index + 1, total: steps.length })),
+    // Панель-табло над карточкой: шаг и ветка моно-меткой, под ними прогресс 4 px (scaleX через --p).
+    var branchName = w.goal ? MF.wizardAnswerText(w, 'goal') : '';
+    var panel = el('div', { class: 'wizard-panel' }, [
+      el('div', { class: 'wizard-meta' }, [
+        el('p', { class: 'eyebrow' }, range ? MF.t('wizard.progressRange', { n: index + 1, min: range.min, max: range.max }) : MF.t('wizard.progress', { n: index + 1, total: steps.length })),
+        branchName ? el('p', { class: 'mono-label wizard-branch' }, branchName) : null
+      ]),
       el('div', { class: 'bar wizard-bar', role: 'progressbar', 'aria-valuemin': '1', 'aria-valuemax': String(range ? range.max : steps.length), 'aria-valuenow': String(index + 1), 'aria-label': MF.t('wizard.stepsLabel') },
-        el('div', { class: 'bar-fill', style: 'width:' + Math.round((index + 1) / steps.length * 100) + '%' })),
+        el('div', { class: 'bar-fill', style: '--p:' + ((index + 1) / steps.length).toFixed(3) }))
+    ]);
+    var card = el('section', { class: 'card wizard-card', 'aria-labelledby': 'wz-title' }, [
       title,
       el('p', { id: 'wz-hint', class: 'hint' }, MF.t(step.hintKey)),
       demoNote,
       body,
       refs.skipped,
-      refs.need,
-      el('div', { class: 'card-actions wizard-actions' }, [back, el('span', { class: 'wizard-actions-end' }, [skipBtn, refs.next])])
+      refs.need
     ]);
+    var actions = el('div', { class: 'wizard-actions' }, [back, el('span', { class: 'wizard-actions-end' }, [skipBtn, refs.next])]);
 
-    container.appendChild(el('div', { class: 'page narrow wizard' }, [
+    var wizardPage = el('div', { class: 'page narrow wizard' }, [
+      panel,
       card,
+      actions,
       el('p', { class: 'muted small wizard-rules' }, MF.t('wizard.rules')),
       el('div', { class: 'wizard-foot' }, [statusNode, clearBtn])
-    ]));
+    ]);
+    // Фокус на заголовок шага ставит go() сразу, не дожидаясь конца входа.
+    if (ui.wizardDir) wizardPage.setAttribute('data-dir', ui.wizardDir);
+    ui.wizardDir = '';
+    container.appendChild(wizardPage);
     updateStatus();
     refreshNav();
     // Нижняя панель «Назад | Далее» на телефоне: плавающий чат поднимается над ней.
@@ -448,6 +514,12 @@
   ui.copyText = copyText;
 
   /* ---------- «Ваш план» ---------- */
+  // Бюджет и срок только из ответов клиента; «пока не знаю» не показывается. Пустая строка: ответа нет.
+  function shownAnswer(w, key) {
+    var ids = selectedOf(w, key);
+    return ids.length && ids[0] !== 'unknown' ? MF.wizardAnswerText(w, key) : '';
+  }
+
   function leaveDemo() {
     clearWizardData();
     ui.go('start');
@@ -475,41 +547,60 @@
       ]));
     }
 
-    var goalLine = MF.t('req.goal', { name: MF.wizardAnswerText(w, 'goal') });
     var industry = byId(MF.INDUSTRIES, w.industry);
     // Слова клиента одной строкой: только из его ответов, текстом на языке интерфейса.
     var recap = MF.planRecap ? MF.planRecap(w) : { named: '', need: '' };
     var recapText = recap.named && recap.need ? MF.t('plan.recap', recap) : (recap.named ? MF.t('plan.recap.named', recap) : (recap.need ? MF.t('plan.recap.need', recap) : ''));
+    // Ответы клиента как показания: цель, отрасль, бюджет, срок; пустые не выводятся.
+    var facts = [
+      ['plan.fact.goal', MF.wizardAnswerText(w, 'goal')],
+      ['plan.fact.industry', industry ? MF.t(industry.titleKey) : ''],
+      ['plan.fact.budget', shownAnswer(w, 'budgetTime.budget')],
+      ['plan.fact.deadline', shownAnswer(w, 'budgetTime.deadline')]
+    ].filter(function (f) { return !!f[1]; });
     page.appendChild(el('header', { class: 'plan-head' }, [
-      el('h1', { class: 'page-title' }, MF.t('plan.title')),
-      recapText ? el('p', { class: 'plan-recap' }, recapText) : null,
-      el('p', { class: 'plan-meta muted' }, goalLine + (industry ? ' · ' + MF.t('req.industry', { name: MF.t(industry.titleKey) }) : '')),
-      el('p', { class: 'plan-prelim' }, MF.t('plan.preliminary'))
+      el('div', { class: 'plan-head-main' }, [
+        el('p', { class: 'plan-prelim' }, MF.t('plan.preliminary')),
+        el('h1', { class: 'page-title' }, MF.t('plan.title')),
+        recapText ? el('p', { class: 'plan-recap' }, recapText) : null
+      ]),
+      facts.length ? el('dl', { class: 'plan-facts' }, facts.map(function (f) {
+        return el('div', { class: 'plan-fact' }, [el('dt', null, MF.t(f[0])), el('dd', null, f[1])]);
+      })) : null
     ]));
+    // Блок заявки с единственной главной кнопкой стоит сразу под шапкой (сам блок собирается ниже).
+    var requestSlot = el('div', { class: 'plan-request-slot' });
+    page.appendChild(requestSlot);
 
     /* возможности */
     var names = [];
     var opps = plan.opportunities.map(function (o, i) {
       var s = byId(MF.SOLUTIONS, o.solutionId);
       if (i > 0) names.push(MF.t(s.titleKey));
-      return el('li', { class: 'card opp-card' }, [
+      return el('li', null, el('div', { class: 'card opp-card' }, [
         el('span', { class: 'tag opp-dir dir-' + o.direction }, MF.t('dir.' + o.direction + '.title')),
         el('h3', { class: 'opp-title' }, MF.t(s.titleKey)),
         el('p', { class: 'opp-changes' }, [el('span', { class: 'opp-label' }, MF.t('plan.changes') + ': '), MF.t(s.changesKey)]),
         el('ul', { class: 'opp-reasons small muted', 'aria-label': MF.t('plan.reasons') }, o.reasons.map(function (r) { return el('li', null, MF.t(r)); }))
-      ]);
+      ]));
     });
     page.appendChild(el('section', { class: 'plan-section', 'aria-labelledby': 'pl-opps' }, [
       el('h2', { id: 'pl-opps', class: 'section-sub' }, MF.t('plan.opportunities')),
-      el('ol', { class: 'opp-list' }, opps)
+      el('ol', { class: 'opp-list plan-opps' }, opps)
     ]));
 
     /* START / GROW / SCALE */
     var anyPrice = ['start', 'grow', 'scale'].some(function (l) { return !!(plan.prices && plan.prices[l]); });
-    var tierCards = ['start', 'grow', 'scale'].map(function (l) {
+    // Подсветка уровня по бюджету клиента: только при однозначном совпадении с ценами владельца.
+    var fit = MF.matchTier ? MF.matchTier(w) : null;
+    var tierCards = ['start', 'grow', 'scale'].map(function (l, level) {
       var price = plan.prices && plan.prices[l];
-      return el('section', { class: 'card tier-card tier-' + l, 'aria-labelledby': 'tier-' + l }, [
-        el('h3', { id: 'tier-' + l, class: 'tier-title' }, MF.t('tier.' + l + '.title')),
+      // Шкала мощности: 1, 2 или 3 сегмента из трёх; только декор, чтец экрана её не читает.
+      var power = el('span', { class: 'tier-power', 'aria-hidden': 'true' }, [0, 1, 2].map(function (k) { return el('i', { class: k <= level ? 'is-on' : '' }); }));
+      return el('section', { class: 'tier-card tier-' + l + (fit === l ? ' is-fit' : ''), 'aria-labelledby': 'tier-' + l }, [
+        power,
+        fit === l ? el('p', { class: 'tier-fit' }, MF.t('plan.tier.fit')) : null,
+        ui.tierTitle(l, 'tier-' + l, 'h3'),
         el('p', { class: 'tier-lead muted' }, MF.t('tier.' + l + '.lead')),
         el('ul', { class: 'tier-items' }, plan.tiers[l].map(function (k) { return el('li', null, MF.t(k)); })),
         // Цен нет вовсе: фраза стоит один раз над уровнями, на карточках без повтора.
@@ -519,7 +610,7 @@
     page.appendChild(el('section', { class: 'plan-section', 'aria-labelledby': 'pl-tiers' }, [
       el('h2', { id: 'pl-tiers', class: 'section-sub' }, MF.t('plan.tiers')),
       anyPrice ? null : el('p', { class: 'plan-price-note muted' }, MF.t('price.later')),
-      el('div', { class: 'tiers' }, tierCards),
+      el('div', { class: 'tiers plan-tiers' }, tierCards),
       names.length ? el('p', { class: 'tier-additional muted' }, MF.t('plan.additional', { names: names.join(', ') })) : null
     ]));
 
@@ -529,6 +620,7 @@
     var hunt = w.goal === 'opportunities';
     var volumeText = hunt ? (typeof w.answers.huntVolume === 'string' ? w.answers.huntVolume.trim() : '') : MF.wizardAnswerText(w, 'volume');
     var effLines = el('ul', { class: 'potential-lines' });
+    var effectCounted = false;
     var assumeInputs = {};
     function assumption(key, label, unit, min, max, stepVal) {
       var input = el('input', { type: 'number', inputmode: 'decimal', min: min, max: max, step: stepVal, class: 'assume-input', id: 'pa-' + key });
@@ -546,6 +638,14 @@
       ]);
     }
     var effectBox = null;
+    // Возврат к шагу про частоту задачи: мастер открывается на нём.
+    function goToVolume() {
+      var list = MF.wizardSteps(ui.wizard);
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].id === 'volume') { saveWizard(MF.setWizardStep(ui.wizard, i)); break; }
+      }
+      ui.go('start');
+    }
     // Для цели «выгодные предложения» число обращений в месяц спрашивается здесь, необязательным полем (шагов мастера не добавляется).
     var huntInput = null;
     if (hunt) {
@@ -587,8 +687,9 @@
       } else {
         effectBox = el('section', { class: 'card plan-effect', 'aria-labelledby': 'pl-eff' }, [
           el('h2', { id: 'pl-eff', class: 'card-title' }, MF.t('plan.effect')),
-          el('p', { class: 'pending' }, MF.t(hunt ? 'plan.huntVolume.unclear' : 'plan.effectUnclear')),
-          huntAsk
+          el('p', { class: hunt ? 'pending' : 'muted' }, MF.t(hunt ? 'plan.huntVolume.unclear' : 'plan.effectUnclear')),
+          huntAsk,
+          hunt ? null : el('button', { type: 'button', class: 'btn btn-secondary btn-small plan-effect-fix', on: { click: goToVolume } }, MF.t('plan.effectFix'))
         ]);
       }
       page.appendChild(effectBox);
@@ -603,24 +704,13 @@
     ui.renderTrust(page);
     if (ui.renderAbout) ui.renderAbout(page);
 
-    /* заявка */
+    /* заявка: одна главная кнопка, вторичный звонок, остальное свёрнуто в «Другие действия» */
     function currentText() { return MF.planText(ui.wizard, MF.buildPlan(ui.wizard, ui.state.assumptions)); }
     var link = MF.contactLink(currentText());
-    var offer;
-    if (link.kind === 'none') {
-      offer = el('button', { type: 'button', class: 'btn btn-primary', disabled: true }, MF.t('plan.getOffer'));
-    } else {
-      offer = el('a', { href: link.href, class: 'btn btn-primary', on: { click: function () {
-        // История планов на устройстве: запись добавляется при «Отправить заявку».
-        if (ui.saveToCabinet) ui.saveToCabinet(ui.wizard, MF.buildPlan(ui.wizard, ui.state.assumptions));
-      } } }, MF.t('plan.getOffer'));
-    }
-    var contactMissing = link.kind === 'none' ? el('p', { class: 'contact-missing', role: 'note' }, MF.t('plan.contactMissing')) : null;
-    var telegramHint = link.kind === 'telegram' ? el('p', { class: 'telegram-hint', role: 'note' }, MF.t('plan.telegramHint')) : null;
     var copyStatus = el('p', { class: 'copy-status small', role: 'status', 'aria-live': 'polite' });
     var manualNote = el('p', { class: 'pending small', hidden: true }, MF.t('plan.copyManual'));
     var manual = el('textarea', { class: 'answer plan-manual', rows: '10', readonly: true, hidden: true, 'aria-label': MF.t('plan.requestText') });
-    var copyBtn = el('button', { type: 'button', class: 'btn btn-secondary', on: { click: function () {
+    function doCopy() {
       var text = currentText();
       copyText(text, function () {
         copyStatus.textContent = MF.t('plan.copied');
@@ -632,60 +722,102 @@
         manual.focus();
         manual.select();
       });
-    } } }, MF.t('plan.copy'));
-    var zipBtn = el('button', { type: 'button', class: 'btn btn-secondary', on: { click: function () {
-      if (!ui.download) return;
-      ui.download('molxo-flow-tz.zip', MF.buildZip(MF.devFiles(ui.state, ui.wizard)), 'application/zip');
-    } } }, MF.t('plan.zip'));
+    }
+    // История планов на устройстве: запись добавляется, когда клиент готовит заявку.
+    function remember() { if (ui.saveToCabinet) ui.saveToCabinet(ui.wizard, MF.buildPlan(ui.wizard, ui.state.assumptions)); }
+    var offer;
+    if (link.kind === 'none') {
+      // Канал связи не задан: заявку можно только скопировать, рядом видна заглушка для владельца.
+      offer = el('button', { type: 'button', class: 'btn btn-primary', on: { click: function () { doCopy(); remember(); } } }, MF.t('plan.copyOnly'));
+    } else {
+      // Ссылка открывает канал связи; для Telegram текст заявки копируется тем же нажатием (Telegram сам его не подставит).
+      offer = el('a', { href: link.href, class: 'btn btn-primary', on: { click: function () {
+        remember();
+        if (link.kind === 'telegram') doCopy();
+      } } }, MF.t('plan.getOffer'));
+    }
+    var contactMissing = link.kind === 'none' ? el('p', { class: 'contact-missing', role: 'note' }, MF.t('plan.contactMissing')) : null;
+    var requestHint = link.kind === 'telegram' ? el('p', { class: 'request-hint small muted' }, MF.t('plan.telegramHint'))
+      : (link.kind === 'mailto' ? el('p', { class: 'request-hint small muted' }, MF.t('plan.mailHint')) : null);
 
-    page.appendChild(el('section', { class: 'card plan-request', 'aria-labelledby': 'pl-req' }, [
+    var requestBox = el('section', { class: 'card plan-request', 'aria-labelledby': 'pl-req' }, [
       el('h2', { id: 'pl-req', class: 'card-title' }, MF.t('plan.requestTitle')),
       el('p', { class: 'muted' }, MF.t('plan.requestLead')),
-      el('div', { class: 'plan-actions' }, [offer, copyBtn, zipBtn]),
+      el('div', { class: 'plan-actions' }, offer),
+      requestHint,
       contactMissing,
-      telegramHint,
       copyStatus,
       manualNote,
-      manual,
-      el('p', { class: 'small muted' }, MF.t('plan.sendNote')),
-      el('p', { class: 'small muted' }, MF.t('plan.zipNote'))
-    ]));
+      manual
+    ]);
+    requestSlot.appendChild(requestBox);
+    // Вторичное действие: «Договориться о звонке» (форма свёрнута).
+    if (ui.renderCallBlock) ui.renderCallBlock(requestBox);
 
-    // Липкая полоса на телефоне: длинный план не прячет главную кнопку; пока блок заявки на экране, полоса скрыта.
-    var requestBox = page.lastChild;
+    // «Другие действия»: файл для разработчиков, копирование текста, коммерческое предложение, конструктор ТЗ, правка ответов. Закрыто по умолчанию.
+    var moreItems = [
+      el('button', { type: 'button', class: 'row-action', on: { click: function () {
+        if (!ui.download) return;
+        ui.download('molxo-flow-tz.zip', MF.buildZip(MF.devFiles(ui.state, ui.wizard)), 'application/zip');
+      } } }, MF.t('plan.zip')),
+      el('p', { class: 'small muted' }, MF.t('plan.zipNote')),
+      link.kind === 'none' ? null : el('button', { type: 'button', class: 'row-action', on: { click: doCopy } }, MF.t('plan.copy')),
+      el('a', { href: '#/offer', class: 'row-action' }, MF.t('plan.toOffer')),
+      el('a', { href: '#/interview', class: 'row-action' }, MF.t('plan.toTz')),
+      el('a', { href: '#/start', class: 'row-action' }, MF.t('plan.edit'))
+    ];
+    // Раскрытие без скачка: обёртка с grid-template-rows 0fr → 1fr (css .reveal-box); закрытое содержимое inert (Tab и чтец внутрь не заходят).
+    var moreIn = el('div', { class: 'reveal-in plan-more-panel', inert: true }, moreItems);
+    var morePanel = el('div', { id: 'plan-more', class: 'reveal-box', 'data-open': 'false' }, moreIn);
+    var moreToggle = el('button', { type: 'button', class: 'btn btn-secondary plan-more-toggle', 'aria-expanded': 'false', 'aria-controls': 'plan-more', on: { click: function () {
+      var open = morePanel.getAttribute('data-open') !== 'true';
+      morePanel.setAttribute('data-open', open ? 'true' : 'false');
+      if (open) moreIn.removeAttribute('inert'); else moreIn.setAttribute('inert', '');
+      moreToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    } } }, MF.t('plan.more'));
+    page.appendChild(el('section', { class: 'plan-more' }, [moreToggle, morePanel]));
+
+    // Липкая полоса на телефоне: длинный план не прячет главную кнопку; пока блок заявки на экране, полоса скрыта. Без канала связи полосы нет.
     if (link.kind !== 'none') {
-      var cta = el('div', { class: 'plan-cta-bar' }, el('button', { type: 'button', class: 'btn btn-primary', 'aria-label': MF.t('plan.getOffer') + ': ' + MF.t('plan.requestTitle'), on: { click: function () {
-        if (requestBox && requestBox.scrollIntoView) requestBox.scrollIntoView({ block: 'start' });
+      // Скрыта, пока блок заявки на экране (и до первого ответа наблюдателя); без наблюдателя остаётся видимой. Скрытая — inert.
+      var hasObserver = typeof root.IntersectionObserver === 'function';
+      var cta = el('div', { class: 'plan-cta-bar', 'data-hidden': hasObserver ? 'true' : 'false', inert: hasObserver }, el('button', { type: 'button', class: 'btn btn-primary', 'aria-label': MF.t('plan.getOffer') + ': ' + MF.t('plan.requestTitle'), on: { click: function () {
+        if (requestBox.scrollIntoView) requestBox.scrollIntoView({ block: 'start' });
         offer.focus();
       } } }, MF.t('plan.getOffer')));
       // Вне .page: у страницы после анимации остаётся transform, и position: fixed считался бы от неё.
       container.appendChild(cta);
       ui.setBodyFlag('actionbar', true);
-      if (typeof root.IntersectionObserver === 'function' && requestBox) {
+      if (hasObserver) {
         try {
           new root.IntersectionObserver(function (entries) {
-            cta.setAttribute('data-hidden', entries[0] && entries[0].isIntersecting ? 'true' : 'false');
+            var hide = !!(entries[0] && entries[0].isIntersecting);
+            cta.setAttribute('data-hidden', hide ? 'true' : 'false');
+            if (hide) cta.setAttribute('inert', ''); else cta.removeAttribute('inert');
           }).observe(requestBox);
-        } catch (e) { /* без наблюдателя полоса остаётся видимой */ }
+        } catch (e) { cta.setAttribute('data-hidden', 'false'); cta.removeAttribute('inert'); }
       }
     }
 
-    if (ui.renderCallBlock) ui.renderCallBlock(page);
-    ui.renderBotCard(page, { code: MF.botStartCode ? MF.botStartCode(ui.wizard) : '' });
-    if (ui.renderAgentWeb) ui.renderAgentWeb(page);
-
-    page.appendChild(el('div', { class: 'plan-links' }, [
-      el('a', { href: '#/start', class: 'btn btn-secondary' }, MF.t('plan.edit')),
-      el('a', { href: '#/offer', class: 'btn btn-secondary' }, MF.t('plan.toOffer')),
-      el('a', { href: '#/interview', class: 'btn btn-secondary' }, MF.t('plan.toTz'))
-    ]));
+    // Бот и веб-чат: один блок «Задать вопрос ассистенту» с двумя ссылками.
+    if (ui.renderAssistant) ui.renderAssistant(page, { code: MF.botStartCode ? MF.botStartCode(ui.wizard) : '' });
 
     // Обновляет оценку эффекта и ссылку заявки при правке допущений.
     function refreshAll(force) {
       var cur = MF.buildPlan(ui.wizard, ui.state.assumptions);
       if (effectBox && cur.effect) {
         ui.clear(effLines);
-        MF.effectLines(cur.effect).forEach(function (l) { effLines.appendChild(el('li', null, l)); });
+        var ef = cur.effect, efValues = [ef.runs, ef.hoursPerMonth, ef.savedHours, ef.savedCost, ef.costPerYear];
+        MF.effectLines(ef).forEach(function (l, k) {
+          // Число в строке — отдельный span: при первом показе оно «набегает» до итога (ui.countUp); правка допущений числа не анимирует.
+          var num = typeof efValues[k] === 'number' && MF.formatNumberLang ? MF.formatNumberLang(efValues[k]) : '';
+          var at = num ? l.indexOf(num) : -1;
+          if (at < 0) { effLines.appendChild(el('li', null, l)); return; }
+          var cnt = el('span', { class: 'cnt' }, num);
+          effLines.appendChild(el('li', null, [l.slice(0, at), cnt, l.slice(at + num.length)]));
+          if (!effectCounted && ui.countUp) ui.countUp(cnt, efValues[k], MF.formatNumberLang);
+        });
+        effectCounted = true;
         var a = ui.state.assumptions;
         [['minutesPerRun', a.minutesPerRun], ['automationShare', Math.round(a.automationShare * 100)], ['hourlyRate', a.hourlyRate]].forEach(function (p) {
           var input = assumeInputs[p[0]];
@@ -710,7 +842,7 @@
       return;
     }
     page.appendChild(el('p', { class: 'lead' }, MF.t('demo.loading')));
-    ui.renderBotCard(page);
+    if (ui.renderAssistant) ui.renderAssistant(page);
 
     page.appendChild(el('div', { class: 'plan-links' }, [
       el('a', { href: '#/plan', class: 'btn btn-primary' }, MF.t('demo.openPlan')),

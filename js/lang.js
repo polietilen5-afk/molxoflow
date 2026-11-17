@@ -75,7 +75,26 @@
     };
   };
 
+  // Строка адреса без параметра lang (остальные параметры сохраняются): '?lang=uk&a=1' даёт '?a=1', единственный lang даёт ''.
+  MF.stripLangParam = function (search) {
+    if (typeof search !== 'string') return '';
+    var kept = search.replace(/^\?/, '').split('&').filter(function (part) { return part !== '' && !/^lang(=|$)/.test(part); });
+    return kept.length ? '?' + kept.join('&') : '';
+  };
+
+  // ?lang= применяется один раз и убирается из адреса: перезагрузка или переход по ссылке без параметра не перебьёт
+  // выбор, сделанный переключателем (он хранится в localStorage). Адрес меняется без новой записи в истории.
+  function dropLangParam() {
+    try {
+      if (typeof location === 'undefined' || !location || typeof history === 'undefined' || !history || typeof history.replaceState !== 'function') return;
+      var search = String(location.search || '');
+      if (!/[?&]lang=/.test(search)) return;
+      history.replaceState(history.state || null, '', String(location.pathname || '') + MF.stripLangParam(search) + String(location.hash || ''));
+    } catch (e) { /* адрес останется прежним */ }
+  }
+
   // Читает адрес, хранилище и язык браузера (каждый источник отдельно защищён) и ставит язык без записи в хранилище.
+  // Язык из ?lang= после применения убирается из адреса (dropLangParam).
   MF.initLang = function () {
     var env = { search: '', saved: '', browser: '' };
     try { if (typeof location !== 'undefined' && location) env.search = String(location.search || ''); } catch (e) { /* нет адреса */ }
@@ -83,6 +102,7 @@
     try { if (typeof navigator !== 'undefined' && navigator) env.browser = String(navigator.language || ''); } catch (e) { /* нет языка браузера */ }
     var code = MF.detectLang(env);
     apply(code);
+    if (fromSearch(env.search)) dropLangParam();
     return code;
   };
 
