@@ -63,7 +63,7 @@
     ]);
 
     var defs = [
-      { id: 'plan', label: MF.t('plan.title'), body: planPanel },
+      { id: 'plan', label: MF.t('plan.demoTitle'), body: planPanel },
       { id: 'scene', label: MF.t('plan.scene.title'), body: scenePanel },
       { id: 'docs', label: MF.t('home.live.docsTab'), body: docsPanel }
     ];
@@ -105,20 +105,6 @@
     ]);
   }
 
-  // Поле «Опишите задачу своими словами»: текст попадает в ответ business мастера (цель по умолчанию routine) и ведёт на шаг,
-  // где он виден и правится. Пустое поле: ничего не пишется, фокус остаётся в поле. Текст идёт только через value.
-  function submitFree(field) {
-    var text = String(field.value || '').trim();
-    if (!text) { field.focus(); return; }
-    var w = ui.getWizard ? ui.getWizard() : MF.emptyWizard();
-    if (w.demo) w = MF.emptyWizard();
-    var n = w.goal ? w : MF.setWizardGoal(w, 'routine');
-    n = MF.setWizardAnswer(n, 'business', text);
-    n = MF.setWizardStep(n, 1);
-    if (ui.saveWizard) ui.saveWizard(n);
-    ui.go('start');
-  }
-
   function renderHome(container, ctx) {
     function start() { ui.go('start'); }
     function toDemo() {
@@ -139,60 +125,57 @@
     var hasPrice = ['start', 'grow', 'scale'].some(function (l) { return !!MF.formatPrice(prices[l]); });
     var title = el('h1', { class: 'hero-title' }, MF.t('home.title'));
 
-    // Одна строка ввода: поле и вторичная кнопка; главное действие первого экрана остаётся «Начать».
-    var freeField = el('input', {
-      type: 'text', id: 'hero-free', class: 'hero-free-input', name: 'task', autocomplete: 'off', maxlength: '2000',
-      'aria-label': MF.t('home.free.label'), placeholder: MF.t('home.free.label')
-    });
-    var freeForm = el('form', { class: 'hero-free', novalidate: true, on: { submit: function (e) { e.preventDefault(); submitFree(freeField); } } }, [
-      freeField,
-      el('button', { type: 'submit', class: 'btn btn-secondary' }, MF.t('home.free.cta'))
-    ]);
-
+    // Пауза схемы стоит рядом со схемой; подпись «Пауза анимации» меняется на «Продолжить анимацию», aria-pressed повторяет состояние.
     var sc0 = SC();
     var pauseBtn = null;
+    function pauseLabel(on) { return MF.t(on ? 'scene.resume' : 'scene.pause'); }
     if (sc0 && !(sc0.reduced && sc0.reduced())) {
       pauseBtn = el('button', { type: 'button', class: 'link-btn pause-btn', 'aria-pressed': sc0.isPaused() ? 'true' : 'false', on: { click: function () {
         var next = !sc0.isPaused();
         sc0.setPaused(next);
         pauseBtn.setAttribute('aria-pressed', next ? 'true' : 'false');
-      } } }, MF.t('scene.pause'));
+        pauseBtn.textContent = pauseLabel(next);
+      } } }, pauseLabel(sc0.isPaused()));
     }
 
     var hero = el('div', { class: 'hero-text' }, [
       el('p', { class: 'mono-label hero-label' }, [el('span', { class: 'led', 'aria-hidden': 'true' }), 'Molxo Flow']),
       title,
       el('p', { class: 'hero-sub' }, MF.t(hasPrice ? 'home.sub' : 'home.subNoPrice')),
-      el('p', { class: 'hero-stack' }, MF.t('home.stack')),
-      // Один главный путь: «Начать». ТЗ, демо и проверка готовности собраны в одну строку ниже целей.
+      // Один вход: «Начать», одна мелкая строка и пять целей. ТЗ, демо, проверка готовности и ассистент ушли в блок «Другие способы» под героем.
       el('div', { class: 'hero-actions' }, el('button', { type: 'button', class: 'btn btn-primary btn-large', on: { click: start } }, MF.t('home.final.cta'))),
+      el('p', { class: 'hero-hint' }, MF.t('home.micro') + ' ' + MF.t('home.hint')),
       el('h2', { class: 'home-question' }, MF.t('home.question')),
-      goalCards,
-      freeForm,
-      el('p', { class: 'hero-links' }, [
-        el('span', { class: 'hero-links-label' }, MF.t('home.knowLabel')),
-        el('a', { href: '#/interview', class: 'link-btn' }, MF.t('home.secondary')),
-        el('button', { type: 'button', class: 'link-btn', on: { click: toDemo } }, MF.t('home.demoLink')),
-        el('a', { href: '#/quiz', class: 'link-btn' }, MF.t('home.quizLink'))
-      ]),
-      el('p', { class: 'hero-hint' }, MF.t('home.micro') + ' ' + MF.t('home.hint'))
+      goalCards
     ]);
-    // Бот и веб-чат: один блок «Задать вопрос ассистенту».
-    if (ui.renderAssistant) ui.renderAssistant(hero);
-    if (pauseBtn) hero.appendChild(pauseBtn);
 
     // Схема читает сохранённый мастер: модули плана горят, остальные приглушены; без законченного мастера это демонстрация.
     // Экран перерисовывается при каждом возврате на главную, поэтому схема всегда строится по свежему состоянию.
-    var sceneView = MF.sceneView ? MF.sceneView(ui.getWizard ? ui.getWizard() : null) : null;
+    var ownWizard = ui.getWizard ? ui.getWizard() : null;
+    // Подпись «по вашим ответам» только у схемы по собственному законченному мастеру; демо-мастер и пустой мастер дают схему по умолчанию.
+    var sceneView = MF.sceneView ? MF.sceneView(ownWizard && ownWizard.demo ? null : ownWizard) : null;
     var sceneBox = el('div', { class: 'scene-box' });
     var stage = el('section', { class: 'stage', 'aria-label': MF.t('home.stage.title') }, [
       el('p', { class: 'stage-title', 'aria-hidden': 'true' }, [el('span', null, MF.t('home.stage.title')), el('em', null, MF.t(sceneView && sceneView.personal ? 'scene.cap.personal' : 'home.stage.tag'))]),
-      sceneBox
+      sceneBox,
+      pauseBtn ? el('div', { class: 'stage-tools' }, pauseBtn) : null
     ]);
 
     var heroBox = el('div', { class: 'hero-box' }, [
       el('div', { class: 'wrap' }, el('div', { class: 'hero' }, [hero, stage]))
     ]);
+
+    // «Другие способы начать»: спокойная строка ссылок сразу под героем (ТЗ, демо, проверка готовности) и ассистент, если он настроен.
+    var otherWrap = el('div', { class: 'wrap home-other-inner' }, [
+      el('h2', { class: 'home-other-title' }, MF.t('home.other.title')),
+      el('div', { class: 'home-other-links' }, [
+        el('a', { href: '#/interview', class: 'link-btn' }, MF.t('home.secondary')),
+        el('button', { type: 'button', class: 'link-btn', on: { click: toDemo } }, MF.t('home.demoLink')),
+        el('a', { href: '#/quiz', class: 'link-btn' }, MF.t('home.quizLink'))
+      ])
+    ]);
+    if (ui.renderAssistant) ui.renderAssistant(otherWrap);
+    var other = el('section', { class: 'home-other', 'aria-label': MF.t('home.other.title') }, otherWrap);
 
     // «О Molxo» и доказательства: только заполненное владельцем в MF.CONFIG; пусто: раздела нет (процесс ниже и так на странице).
     var whoWrap = el('div', { class: 'wrap info-wrap rv' });
@@ -210,6 +193,7 @@
     var results = el('section', { class: 'home-section', 'aria-labelledby': 'res-title' }, el('div', { class: 'wrap rv' }, [
       el('h2', { id: 'res-title', class: 'section-title' }, MF.t('home.res.title')),
       el('p', { class: 'section-kicker' }, MF.t('home.res.lead')),
+      el('p', { class: 'home-stack' }, MF.t('home.stack')),
       renderProductWindow(),
       el('ul', { class: 'result-grid', 'aria-label': MF.t('home.res.title') }, [
         resultCard('#/studio', MF.t('home.res.schema.title'), MF.t('home.res.schema.text')),
@@ -258,7 +242,7 @@
     ])));
 
     // Порядок: оффер, доказательство, что получите, процесс, примеры и отрасли, безопасность, финальный призыв.
-    var page = el('div', { class: 'page home' }, [heroBox, who, results, howBox, examples, privacy, finalBox]);
+    var page = el('div', { class: 'page home' }, [heroBox, other, who, results, howBox, examples, privacy, finalBox]);
     container.appendChild(page);
 
     var sc = SC();

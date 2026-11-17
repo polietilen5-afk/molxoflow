@@ -59,6 +59,7 @@
     ui.wizard = next;
     lastSaveOk = wizardStore().save(next);
     updateStatus();
+    if (ui.refreshStatus) ui.refreshStatus();
     return next;
   }
   // Стирает данные мастера: используется кнопкой «Очистить» и общей очисткой проекта.
@@ -521,14 +522,17 @@
     return ids.length && ids[0] !== 'unknown' ? MF.wizardAnswerText(w, key) : '';
   }
 
+  // Демо не трогает ответы клиента: уходим в мастер, ничего не стирая.
   function leaveDemo() {
-    clearWizardData();
     ui.go('start');
   }
 
-  function renderPlan(container) {
-    var w = ensureWizard();
-    var plan = MF.buildPlan(w, ui.state.assumptions);
+  // demoId: пример плана на вымышленных данных (MF.demoPlan); ответы мастера клиента не читаются и не пишутся.
+  function renderPlan(container, demoId) {
+    var demoMode = !!demoId;
+    var demoData = demoMode ? MF.demoPlan(demoId) : null;
+    var w = demoMode ? demoData.wizard : ensureWizard();
+    var plan = demoMode ? demoData.plan : MF.buildPlan(w, ui.state.assumptions);
     var page = el('div', { class: 'page plan' });
     container.appendChild(page);
 
@@ -540,7 +544,7 @@
       return;
     }
 
-    if (w.demo) {
+    if (demoMode) {
       page.appendChild(el('div', { class: 'plan-demo', role: 'note' }, [
         el('p', { class: 'plan-demo-text' }, MF.t('plan.demoBanner')),
         el('button', { type: 'button', class: 'btn btn-secondary btn-small', on: { click: leaveDemo } }, MF.t('plan.demoReset'))
@@ -549,8 +553,8 @@
 
     var industry = byId(MF.INDUSTRIES, w.industry);
     // Слова клиента одной строкой: только из его ответов, текстом на языке интерфейса.
-    var recap = MF.planRecap ? MF.planRecap(w) : { named: '', need: '' };
-    var recapText = recap.named && recap.need ? MF.t('plan.recap', recap) : (recap.named ? MF.t('plan.recap.named', recap) : (recap.need ? MF.t('plan.recap.need', recap) : ''));
+    var recap = MF.planRecap && !demoMode ? MF.planRecap(w) : { named: '', need: '' };
+    var recapText = demoMode ? MF.t('demo.' + demoId + '.business') : recap.named && recap.need ? MF.t('plan.recap', recap) : (recap.named ? MF.t('plan.recap.named', recap) : (recap.need ? MF.t('plan.recap.need', recap) : ''));
     // Ответы клиента как показания: цель, отрасль, бюджет, срок; пустые не выводятся.
     var facts = [
       ['plan.fact.goal', MF.wizardAnswerText(w, 'goal')],
@@ -561,7 +565,7 @@
     page.appendChild(el('header', { class: 'plan-head' }, [
       el('div', { class: 'plan-head-main' }, [
         el('p', { class: 'plan-prelim' }, MF.t('plan.preliminary')),
-        el('h1', { class: 'page-title' }, MF.t('plan.title')),
+        el('h1', { class: 'page-title' }, MF.t(demoMode ? 'plan.demoTitle' : 'plan.title')),
         recapText ? el('p', { class: 'plan-recap' }, recapText) : null
       ]),
       facts.length ? el('dl', { class: 'plan-facts' }, facts.map(function (f) {
@@ -574,14 +578,19 @@
 
     /* возможности */
     var names = [];
+    // Причины, одинаковые у всех карточек, не повторяются: остаются только различающиеся.
+    var sharedReasons = plan.opportunities.length > 1 ? plan.opportunities[0].reasons.filter(function (r) {
+      return plan.opportunities.every(function (o) { return o.reasons.indexOf(r) >= 0; });
+    }) : [];
     var opps = plan.opportunities.map(function (o, i) {
+      var ownReasons = o.reasons.filter(function (r) { return sharedReasons.indexOf(r) < 0; });
       var s = byId(MF.SOLUTIONS, o.solutionId);
       if (i > 0) names.push(MF.t(s.titleKey));
       return el('li', null, el('div', { class: 'card opp-card' }, [
         el('span', { class: 'tag opp-dir dir-' + o.direction }, MF.t('dir.' + o.direction + '.title')),
         el('h3', { class: 'opp-title' }, MF.t(s.titleKey)),
         el('p', { class: 'opp-changes' }, [el('span', { class: 'opp-label' }, MF.t('plan.changes') + ': '), MF.t(s.changesKey)]),
-        el('ul', { class: 'opp-reasons small muted', 'aria-label': MF.t('plan.reasons') }, o.reasons.map(function (r) { return el('li', null, MF.t(r)); }))
+        ownReasons.length ? el('ul', { class: 'opp-reasons small muted', 'aria-label': MF.t('plan.reasons') }, ownReasons.map(function (r) { return el('li', null, MF.t(r)); })) : null
       ]));
     });
     page.appendChild(el('section', { class: 'plan-section', 'aria-labelledby': 'pl-opps' }, [
@@ -604,7 +613,7 @@
     /* START / GROW / SCALE */
     var anyPrice = ['start', 'grow', 'scale'].some(function (l) { return !!(plan.prices && plan.prices[l]); });
     // Подсветка уровня по бюджету клиента: только при однозначном совпадении с ценами владельца.
-    var fit = MF.matchTier ? MF.matchTier(w) : null;
+    var fit = MF.matchTier && !demoMode ? MF.matchTier(w) : null;
     var tierCards = ['start', 'grow', 'scale'].map(function (l, level) {
       var price = plan.prices && plan.prices[l];
       // Шкала мощности: 1, 2 или 3 сегмента из трёх; только декор, чтец экрана её не читает.
@@ -675,7 +684,13 @@
       huntInput,
       el('p', { id: 'pl-hunt-hint', class: 'small muted' }, MF.t('plan.huntVolume.hint'))
     ]) : null;
-    if (hunt && !volumeText) {
+    if (demoMode) {
+      // Демо: цифр эффекта нет вовсе, только честная строка.
+      page.appendChild(el('section', { class: 'card plan-effect', 'aria-labelledby': 'pl-eff' }, [
+        el('h2', { id: 'pl-eff', class: 'card-title' }, MF.t('plan.effect')),
+        el('p', { class: 'muted' }, MF.t('plan.demoEffect'))
+      ]));
+    } else if (hunt && !volumeText) {
       effectBox = el('section', { class: 'card plan-effect', 'aria-labelledby': 'pl-eff' }, [
         el('h2', { id: 'pl-eff', class: 'card-title' }, MF.t('plan.effect')),
         huntAsk
@@ -716,6 +731,14 @@
     ui.renderTrust(page);
     if (ui.renderAbout) ui.renderAbout(page);
 
+    if (demoMode) {
+      page.appendChild(el('div', { class: 'plan-links' }, [
+        el('a', { href: '#/start', class: 'btn btn-primary' }, MF.t('plan.demoReset')),
+        el('a', { href: '#/', class: 'btn btn-secondary' }, MF.t('demo.home'))
+      ]));
+      return;
+    }
+
     /* заявка: одна главная кнопка, вторичный звонок, остальное свёрнуто в «Другие действия» */
     function currentText() { return MF.planText(ui.wizard, MF.buildPlan(ui.wizard, ui.state.assumptions)); }
     var link = MF.contactLink(currentText());
@@ -749,11 +772,11 @@
       // Ссылка открывает канал связи; для Telegram текст заявки копируется тем же нажатием (Telegram сам его не подставит).
       offer = el('a', { href: link.href, class: 'btn btn-primary', on: { click: function () {
         remember();
-        if (link.kind === 'telegram') doCopy();
+        if (link.kind === 'telegram') { doCopy(); if (requestHint) requestHint.hidden = false; }
       } } }, MF.t('plan.getOffer'));
     }
     var contactMissing = link.kind === 'none' ? el('p', { class: 'contact-missing', role: 'note' }, MF.t('plan.contactMissing')) : null;
-    var requestHint = link.kind === 'telegram' ? el('p', { class: 'request-hint small muted' }, MF.t('plan.telegramHint'))
+    var requestHint = link.kind === 'telegram' ? el('p', { class: 'request-hint small muted', role: 'status', 'aria-live': 'polite', hidden: true }, MF.t('plan.telegramHint'))
       : (link.kind === 'mailto' ? el('p', { class: 'request-hint small muted' }, MF.t('plan.mailHint')) : null);
 
     var requestBox = el('section', { class: 'card plan-request', 'aria-labelledby': 'pl-req' }, [
@@ -847,35 +870,21 @@
   }
 
   /* ---------- демо ---------- */
+  // «#/demo/<id>» всегда показывает пример на вымышленных данных; ответы мастера клиента не читаются и не перезаписываются.
   function renderDemo(container) {
     var id = hashParts()[1] || '';
-    var demo = byId(MF.WIZARD_DEMOS, id);
-    var page = el('div', { class: 'page narrow demo-page' });
-    container.appendChild(page);
-    page.appendChild(el('h1', { class: 'page-title' }, MF.t('demo.title')));
-    if (!demo) {
+    if (!byId(MF.WIZARD_DEMOS, id)) {
+      var page = el('div', { class: 'page narrow demo-page' });
+      container.appendChild(page);
+      page.appendChild(el('h1', { class: 'page-title' }, MF.t('demo.title')));
       page.appendChild(el('p', { class: 'lead' }, MF.t('demo.notFound')));
       page.appendChild(el('a', { href: '#/', class: 'btn btn-secondary' }, MF.t('demo.home')));
       return;
     }
-    page.appendChild(el('p', { class: 'lead' }, MF.t('demo.loading')));
-    if (ui.renderAssistant) ui.renderAssistant(page);
-
-    page.appendChild(el('div', { class: 'plan-links' }, [
-      el('a', { href: '#/plan', class: 'btn btn-primary' }, MF.t('demo.openPlan')),
-      el('a', { href: '#/', class: 'btn btn-secondary' }, MF.t('demo.home'))
-    ]));
-    var w = ensureWizard();
-    function open() {
-      saveWizard(MF.loadWizardDemo(MF.emptyWizard(), id));
-      root.location.replace('#/plan');
-    }
-    var hasOwn = !w.demo && (!!w.goal || Object.keys(w.answers).length > 0);
-    if (hasOwn) ui.confirm({ title: MF.t('demo.replace.title'), text: MF.t('demo.replace.text'), okLabel: MF.t('demo.replace.ok') }, open);
-    else open();
+    renderPlan(container, id);
   }
 
   ui.registerView('start', renderStart);
-  ui.registerView('plan', renderPlan);
+  ui.registerView('plan', function (c) { renderPlan(c, ''); });
   ui.registerView('demo', renderDemo);
 })(typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : this));

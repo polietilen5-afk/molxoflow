@@ -97,7 +97,7 @@
   function renderQuiz(container) {
     var page = el('div', { class: 'page narrow quiz-page' });
     container.appendChild(page);
-    page.appendChild(ui.pageHead(ui.routeLabel('quiz'), MF.t('quiz.title'), MF.t('quiz.lead')));
+    page.appendChild(ui.pageHead(MF.t('route.quiz'), MF.t('quiz.title'), MF.t('quiz.lead')));
     var stage = el('div', { class: 'quiz-stage' });
     page.appendChild(stage);
     page.appendChild(el('p', { class: 'note quiz-foot' }, MF.t('quiz.note')));
@@ -395,12 +395,13 @@
     page.appendChild(ui.pageHead(ui.routeLabel('offer'), MF.t('offer.title'), MF.t('offer.lead')));
     // Подсветка только у уровня, подходящего под бюджет клиента (MF.matchTier вернёт null без однозначного совпадения).
     var fit = MF.matchTier ? MF.matchTier(w) : null;
+    // Цен нет вовсе: заглушка стоит один раз, в тексте предложения ниже, а не в каждой карточке.
     page.appendChild(el('div', { class: 'tiers offer-tiers page-wide' }, ['start', 'grow', 'scale'].map(function (l) {
       var price = plan.prices && plan.prices[l];
       return el('section', { class: 'card tier-card tier-' + l + (fit === l ? ' is-fit' : ''), 'aria-labelledby': 'offer-tier-' + l }, [
         fit === l ? el('p', { class: 'tier-flag' }, MF.t('plan.tier.fit')) : null,
         ui.tierTitle(l, 'offer-tier-' + l, 'h2'),
-        el('p', { class: 'tier-price tier-price-big' + (price ? '' : ' is-unknown') }, price || MF.t('price.unknown')),
+        price ? el('p', { class: 'tier-price tier-price-big' }, price) : null,
         el('p', { class: 'tier-lead muted' }, MF.t('tier.' + l + '.lead')),
         el('ul', { class: 'tier-items' }, plan.tiers[l].map(function (k) { return el('li', null, MF.t(k)); }))
       ]);

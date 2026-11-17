@@ -386,7 +386,9 @@
     'plan.copy': 'Copy the request text',
     'plan.contactMissing': 'How to reach us: no contact is set up yet. Copy the request text and send it yourself.',
     'plan.telegramHint': 'The text is copied, paste it into the chat.',
-    'plan.demoBanner': 'Demonstration: the data is fictional.',
+    'plan.demoBanner': 'Demonstration: the data is fictional. This is an example, not your plan.',
+    'plan.demoTitle': 'Example plan',
+    'plan.demoEffect': 'In your plan, a calculation based on your numbers will appear here.',
     'plan.effect': 'Preliminary estimate of the effect',
     'plan.recap': 'You mentioned: {named}. You need: {need}.',
     'plan.recap.named': 'You mentioned: {named}.',
@@ -525,9 +527,7 @@
     'home.demoLink': 'See a ready demo',
     'home.quizLink': 'Check your AI readiness',
     'home.hint': 'Any question can be skipped.',
-    'home.free.cta': 'Continue',
-    'home.free.label': 'Describe the task in your own words',
-    'home.knowLabel': 'Already know the task?',
+    'home.other.title': 'Other ways to start',
     'home.demo.title': 'Example plans',
     'home.demo.lead': 'Examples with made-up data. Open a ready plan and see what a client gets.',
     'home.demo.tagShort': 'demo',
@@ -607,13 +607,8 @@
 
     /* ---------- demo ---------- */
     'demo.title': 'Demonstration example',
-    'demo.loading': 'Opening a demonstration example with fictional data.',
     'demo.notFound': 'There is no such example. Choose an example on the home page.',
-    'demo.openPlan': 'Open "Your plan"',
     'demo.home': 'To the home page',
-    'demo.replace.title': 'Replace your answers with the example?',
-    'demo.replace.text': 'Your answers will be replaced by a fictional example. They cannot be restored afterwards.',
-    'demo.replace.ok': 'Replace with the example',
 
 
     /* ---------- оболочка: шапка, подвал, диалоги, язык ---------- */
@@ -662,13 +657,14 @@
     /* ---------- главная ---------- */
     'home.micro': 'Free and with no sign-up.',
     'home.stage.title': 'Process diagram',
-    'home.stage.tag': 'demonstration',
+    'home.stage.tag': 'Demonstration: default diagram',
     'home.stage.ready': 'Requirements readiness',
     'home.stage.readyAria': 'Requirements readiness, %',
     'home.stage.label': '{n} of {total} sections filled · the draft is saved',
     'scene.aria': 'Process diagram: six modules, from input data to the result',
     'scene.label': '12 requirements documents',
     'scene.pause': 'Pause animation',
+    'scene.resume': 'Resume animation',
     'scene.cap.personal': 'Diagram built from your answers',
     'scene.ariaPersonal': 'Diagram built from your answers. Modules switched on: {modules}',
     'plan.scene.title': 'Solution diagram',

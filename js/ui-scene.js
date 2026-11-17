@@ -74,15 +74,15 @@
   // Две раскладки одной схемы. wide: три колонки (героя главной на десктопе, план); duo: две колонки для телефона (320 px в ширину, подписи читаются).
   // Положение узлов (левый верхний угол); центры лежат на маршруте-змейке: ряд вправо, смена ряда на краю, следующий ряд влево.
   var LAYOUTS = {
-    wide: { pos: [[30, 34], [205, 34], [380, 34], [380, 174], [205, 174], [30, 174]], edge: 455, box: '0 0 560 ', full: 400, compact: 250 },
-    duo: { pos: [[8, 8], [162, 8], [162, 96], [8, 96], [8, 184], [162, 184]], edge: 237, box: '0 0 320 ', full: 290, compact: 256 }
+    wide: { pos: [[20, 34], [205, 34], [390, 34], [390, 174], [205, 174], [20, 174]], edge: 465, w: 150, box: '0 0 560 ', full: 400, compact: 250 },
+    duo: { pos: [[8, 8], [172, 8], [172, 96], [8, 96], [8, 184], [172, 184]], edge: 242, w: 140, box: '0 0 320 ', full: 290, compact: 256 }
   };
   // Путь через центры только включённых узлов (индексы по порядку). wide: по ряду, на смену ряда через правый край.
   // duo: по прямой, пока совпадает ось, иначе угол по вертикали предыдущего узла (линии лежат под узлами).
   function routeThrough(idx, lay) {
     var L = lay || LAYOUTS.wide, d = '', prevRow = -1, px = 0, py = 0;
     idx.forEach(function (i, n) {
-      var cx = L.pos[i][0] + 75, cy = L.pos[i][1] + 32;
+      var cx = L.pos[i][0] + L.w / 2, cy = L.pos[i][1] + 32;
       if (L === LAYOUTS.duo) {
         if (n === 0) d = 'M' + cx + ' ' + cy;
         else if (cx === px) d += ' V' + cy;
@@ -146,13 +146,30 @@
     } else {
       route = s('path', { 'class': 'sc-track', d: basePath }, svg);
     }
+    // Пакеты данных лежат под карточками: на подписи они не ложатся и видны только на связях между узлами.
+    var pkG = compact ? null : s('g', null, svg);
+    // Стрелки по потоку: между соседними узлами (все переходы прямые), в центре зазора; по ним читается порядок 01 → 06.
+    NODE_POS.forEach(function (p, i) {
+      if (i === 5) return;
+      var q = NODE_POS[i + 1], x, y, d;
+      if (q[1] === p[1]) {
+        var right = q[0] > p[0];
+        x = right ? (p[0] + L.w + q[0]) / 2 : (q[0] + L.w + p[0]) / 2; y = p[1] + 32;
+        d = right ? (x - 3) + ',' + (y - 5) + ' ' + (x + 3) + ',' + y + ' ' + (x - 3) + ',' + (y + 5) : (x + 3) + ',' + (y - 5) + ' ' + (x - 3) + ',' + y + ' ' + (x + 3) + ',' + (y + 5);
+      } else {
+        x = p[0] + L.w / 2; y = (p[1] + 64 + q[1]) / 2;
+        d = (x - 5) + ',' + (y - 3) + ' ' + x + ',' + (y + 3) + ' ' + (x + 5) + ',' + (y - 3);
+      }
+      s('polyline', { 'class': 'sc-arrow' + (personal && litIdx.indexOf(i) >= 0 && litIdx.indexOf(i + 1) >= 0 ? ' is-act' : ''), points: d }, svg);
+    });
     // Непрозрачная подложка под узлами: пунктир маршрута не просвечивает сквозь приглушённые и горящие узлы.
-    NODE_POS.forEach(function (p) { s('rect', { 'class': 'sc-back', x: p[0], y: p[1], width: 150, height: 64, rx: 10 }, svg); });
+    NODE_POS.forEach(function (p) { s('rect', { 'class': 'sc-back', x: p[0], y: p[1], width: L.w, height: 64, rx: 6 }, svg); });
     var nodes = NODE_POS.map(function (p, i) {
       var cls = 'sc-node' + (personal ? (litIdx.indexOf(i) >= 0 ? ' is-lit is-sel' : ' is-dim') : '');
       var g = s('g', { 'class': cls, style: '--i:' + i }, svg);
-      s('rect', { x: p[0], y: p[1], width: 150, height: 64, rx: 10 }, g);
-      s('circle', { 'class': 'sc-ring', cx: p[0] + 75, cy: p[1] + 32, r: 62 }, g);
+      s('rect', { x: p[0], y: p[1], width: L.w, height: 64, rx: 6 }, g);
+      // Кольцо вспышки: контур самой карточки (не больше её границ), анимируется только прозрачность; соседей не накрывает.
+      s('rect', { 'class': 'sc-ring', x: p[0], y: p[1], width: L.w, height: 64, rx: 6 }, g);
       var no = s('text', { 'class': 'sc-no', x: p[0] + 16, y: p[1] + 20 }, g); no.textContent = '0' + (i + 1);
       var t = s('text', { x: p[0] + 16, y: p[1] + 46 }, g); t.textContent = titles[i] || '';
       return g;
@@ -172,7 +189,7 @@
       }
     }
     var lbl = s('text', duo ? { 'class': 'sc-label', x: 8, y: 280 } : { 'class': 'sc-label', x: 330, y: 372 }, svg); lbl.textContent = MF.t('scene.label');
-    var pkG = s('g', null, svg), dots = [];
+    var dots = [];
     for (var k = 0; k < 4; k++) dots.push(s('circle', { r: 4.5, 'class': 'sc-pk' }, pkG));
     container.appendChild(svg);
     var len = route.getTotalLength(), N = dots.length, pings = [];

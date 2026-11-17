@@ -6,9 +6,10 @@
 
   var SVG_NS = 'http://www.w3.org/2000/svg';
   var ROUTES = { home: true, start: true, plan: true, demo: true, interview: true, studio: true, docs: true, method: true, quiz: true, demos: true, cabinet: true, offer: true };
-  // Основная навигация: не больше пяти пунктов. «Мои заявки» появляется, только когда в кабинете есть что показать
-  // (решает ui.cabinetNavVisible из ui-extra.js); квиз, предложение и методика-«Как это работает» остаются рабочими маршрутами.
-  var NAV = ['start', 'demos', 'method', 'cabinet', 'interview'];
+  // Основная навигация: до четырёх пунктов. «Мои заявки» появляется, только когда в кабинете есть что показать
+  // (решает ui.cabinetNavVisible из ui-extra.js). «Конструктор ТЗ» из меню убран: маршрут #/interview живёт, ссылки на него в блоке
+  // «Другие способы начать» на главной и в подвале; квиз и предложение остаются рабочими маршрутами.
+  var NAV = ['start', 'demos', 'method', 'cabinet'];
   // Какой пункт шапки подсвечивать на маршруте: Студия и Документы живут внутри конструктора ТЗ.
   var NAV_ACTIVE = { studio: 'interview', docs: 'interview', plan: 'start', demo: 'demos', quiz: 'start', offer: 'start' };
   var CONSTRUCTOR_ROUTES = { interview: true, studio: true, docs: true };
@@ -118,10 +119,25 @@
     if (!(opts && opts.quiet)) ui.render();
   };
 
+  // Есть ли что сохранять: ответы мастера (не демо) или ответы конструктора. До этого «Сохранено» в шапке скрыто.
+  function hasValues(map) {
+    return !!map && Object.keys(map).some(function (k) {
+      var v = map[k];
+      return Array.isArray(v) ? v.length > 0 : (v !== null && v !== undefined && String(v).trim() !== '');
+    });
+  }
+  function hasSavedData() {
+    var w = typeof ui.getWizard === 'function' ? ui.getWizard() : null;
+    if (w && !w.demo && (w.goal || hasValues(w.answers))) return true;
+    return !!(ui.state && !ui.state.demo && hasValues(ui.state.answers));
+  }
+  ui.refreshStatus = function () { setStatus(statusMode); };
+
   function setStatus(mode) {
     statusMode = mode;
     var s = refs.status;
     if (!s) return;
+    s.hidden = mode === 'saved' && !hasSavedData();
     var text = mode === 'saved' ? MF.t('wizard.saved') : mode === 'cleared' ? MF.t('shell.statusCleared') : MF.t('wizard.unavailable');
     s.className = 'save-status is-' + mode;
     s.textContent = text;
@@ -386,6 +402,7 @@
     currentRoute = route;
     markNav(route);
     renderBanner();
+    setStatus(statusMode);
     var container = refs.view;
     clear(container);
     ui.setBodyFlag('actionbar', false);

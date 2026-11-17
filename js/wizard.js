@@ -529,11 +529,12 @@
   // Демо-план для главной («живые экраны»): одно фиксированное вымышленное состояние мастера (демо «shop»), план, схема и список документов.
   // Ничего не сохраняется; цена и эффект берутся из buildPlan как есть (без валюты цены нет), своих цифр здесь нет.
   MF.DEMO_PLAN_ID = 'shop';
-  MF.demoPlan = function () {
-    var demo = byId(MF.WIZARD_DEMOS, MF.DEMO_PLAN_ID);
-    var w = MF.loadWizardDemo(MF.emptyWizard(), MF.DEMO_PLAN_ID);
+  MF.demoPlan = function (id) {
+    var did = id && byId(MF.WIZARD_DEMOS, id) ? id : MF.DEMO_PLAN_ID;
+    var demo = byId(MF.WIZARD_DEMOS, did);
+    var w = MF.loadWizardDemo(MF.emptyWizard(), did);
     var plan = MF.buildPlan(w);
-    return { id: MF.DEMO_PLAN_ID, titleKey: demo.titleKey, wizard: w, plan: plan, view: MF.sceneView(w), docs: (MF.DOC_DEFS || []).map(function (d) { return { id: d.id, file: d.file, title: d.title }; }) };
+    return { id: did, titleKey: demo.titleKey, wizard: w, plan: plan, view: MF.sceneView(w), docs: (MF.DOC_DEFS || []).map(function (d) { return { id: d.id, file: d.file, title: d.title }; }) };
   };
 
   // Уровень (start, grow, scale), подходящий под бюджет клиента, или null. Подсветка только при однозначном совпадении:
