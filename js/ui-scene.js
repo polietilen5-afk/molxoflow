@@ -71,17 +71,31 @@
   }
 
   /* ---------- схема: шесть модулей, пакеты по маршруту, документы веером ---------- */
-  // Положение шести узлов (левый верхний угол); центры лежат на маршруте: верхний ряд вправо, правый край вниз, нижний ряд влево.
-  var NODE_POS = [[30, 34], [205, 34], [380, 34], [380, 174], [205, 174], [30, 174]];
-  // Путь через центры только включённых узлов (индексы по порядку): по ряду, на смену ряда через правый край.
-  function routeThrough(idx) {
-    var d = '', prevRow = -1;
+  // Две раскладки одной схемы. wide: три колонки (героя главной на десктопе, план); duo: две колонки для телефона (320 px в ширину, подписи читаются).
+  // Положение узлов (левый верхний угол); центры лежат на маршруте-змейке: ряд вправо, смена ряда на краю, следующий ряд влево.
+  var LAYOUTS = {
+    wide: { pos: [[30, 34], [205, 34], [380, 34], [380, 174], [205, 174], [30, 174]], edge: 455, box: '0 0 560 ', full: 400, compact: 250 },
+    duo: { pos: [[8, 8], [162, 8], [162, 96], [8, 96], [8, 184], [162, 184]], edge: 237, box: '0 0 320 ', full: 290, compact: 256 }
+  };
+  // Путь через центры только включённых узлов (индексы по порядку). wide: по ряду, на смену ряда через правый край.
+  // duo: по прямой, пока совпадает ось, иначе угол по вертикали предыдущего узла (линии лежат под узлами).
+  function routeThrough(idx, lay) {
+    var L = lay || LAYOUTS.wide, d = '', prevRow = -1, px = 0, py = 0;
     idx.forEach(function (i, n) {
-      var cx = NODE_POS[i][0] + 75, cy = NODE_POS[i][1] + 32, row = i < 3 ? 0 : 1;
-      if (n === 0) d = 'M' + cx + ' ' + cy;
-      else if (row === prevRow) d += ' H' + cx;
-      else d += ' H455 V' + cy + (cx === 455 ? '' : ' H' + cx);
-      prevRow = row;
+      var cx = L.pos[i][0] + 75, cy = L.pos[i][1] + 32;
+      if (L === LAYOUTS.duo) {
+        if (n === 0) d = 'M' + cx + ' ' + cy;
+        else if (cx === px) d += ' V' + cy;
+        else if (cy === py) d += ' H' + cx;
+        else d += ' V' + cy + ' H' + cx;
+      } else {
+        var row = i < 3 ? 0 : 1;
+        if (n === 0) d = 'M' + cx + ' ' + cy;
+        else if (row === prevRow) d += ' H' + cx;
+        else d += ' H' + L.edge + ' V' + cy + (cx === L.edge ? '' : ' H' + cx);
+        prevRow = row;
+      }
+      px = cx; py = cy;
     });
     return d;
   }
@@ -111,24 +125,29 @@
 
   // opts.view: { personal, modules } из MF.sceneView (по ответам мастера); без него схема-демонстрация.
   // opts.compact: уменьшенная статичная схема для плана (без цикла, документов и пакетов); opts.hidden: скрыта от чтеца (описание даёт обёртка).
+  // opts.layout: 'wide' (по умолчанию) или 'duo' (две колонки, для телефона; веер документов заменён подписью).
   function buildScene(container, opts) {
     var o = opts || {};
     var view = o.view || { personal: false, modules: [] };
     var personal = !!view.personal, compact = !!o.compact;
+    var duo = o.layout === 'duo', L = duo ? LAYOUTS.duo : LAYOUTS.wide;
+    var NODE_POS = L.pos, allIdx = [0, 1, 2, 3, 4, 5], basePath = routeThrough(allIdx, L);
     var mods = MF.MODULES || [];
     var titles = mods.map(function (m) { return MF.t('mod.' + m.id + '.title'); });
     var litIdx = [];
     mods.forEach(function (m, i) { if (view.modules.indexOf(m.id) >= 0) litIdx.push(i); });
-    var attrs = { viewBox: compact ? '0 0 560 250' : '0 0 560 400', 'class': 'scene' + (compact ? ' scene-static' : '') };
+    var attrs = { viewBox: L.box + (compact ? L.compact : L.full), 'class': 'scene' + (compact ? ' scene-static' : '') + (duo ? ' scene-duo' : '') };
     if (o.hidden) attrs['aria-hidden'] = 'true'; else { attrs.role = 'img'; attrs['aria-label'] = MF.sceneAria ? MF.sceneAria(view) : MF.t('scene.aria'); }
     var svg = s('svg', attrs);
     var route;
     if (personal && litIdx.length) {
-      s('path', { 'class': 'sc-track sc-base', d: 'M105 66 H280 H455 V206 H280 H105' }, svg);
-      route = s('path', { 'class': 'sc-track sc-active', d: routeThrough(litIdx) }, svg);
+      s('path', { 'class': 'sc-track sc-base', d: basePath }, svg);
+      route = s('path', { 'class': 'sc-track sc-active', d: routeThrough(litIdx, L) }, svg);
     } else {
-      route = s('path', { 'class': 'sc-track', d: 'M105 66 H280 H455 V206 H280 H105' }, svg);
+      route = s('path', { 'class': 'sc-track', d: basePath }, svg);
     }
+    // Непрозрачная подложка под узлами: пунктир маршрута не просвечивает сквозь приглушённые и горящие узлы.
+    NODE_POS.forEach(function (p) { s('rect', { 'class': 'sc-back', x: p[0], y: p[1], width: 150, height: 64, rx: 10 }, svg); });
     var nodes = NODE_POS.map(function (p, i) {
       var cls = 'sc-node' + (personal ? (litIdx.indexOf(i) >= 0 ? ' is-lit is-sel' : ' is-dim') : '');
       var g = s('g', { 'class': cls, style: '--i:' + i }, svg);
@@ -143,14 +162,16 @@
       watchEnter(svg);
       return svg;
     }
-    var sheetsG = s('g', { transform: 'translate(240 398)' }, svg);
     var sheets = [];
-    for (var i = 0; i < 12; i++) {
-      var r = s('rect', { 'class': 'sc-sheet', x: -22, y: -72, width: 44, height: 72, rx: 4 }, sheetsG);
-      r.style.transform = 'rotate(' + ((i - 5.5) * 7) + 'deg)';
-      sheets.push(r);
+    if (!duo) {
+      var sheetsG = s('g', { transform: 'translate(240 398)' }, svg);
+      for (var i = 0; i < 12; i++) {
+        var r = s('rect', { 'class': 'sc-sheet', x: -22, y: -72, width: 44, height: 72, rx: 4 }, sheetsG);
+        r.style.transform = 'rotate(' + ((i - 5.5) * 7) + 'deg)';
+        sheets.push(r);
+      }
     }
-    var lbl = s('text', { 'class': 'sc-label', x: 330, y: 372 }, svg); lbl.textContent = MF.t('scene.label');
+    var lbl = s('text', duo ? { 'class': 'sc-label', x: 8, y: 280 } : { 'class': 'sc-label', x: 330, y: 372 }, svg); lbl.textContent = MF.t('scene.label');
     var pkG = s('g', null, svg), dots = [];
     for (var k = 0; k < 4; k++) dots.push(s('circle', { r: 4.5, 'class': 'sc-pk' }, pkG));
     container.appendChild(svg);

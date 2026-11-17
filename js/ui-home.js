@@ -6,19 +6,103 @@
   var ui = MF.ui, el = ui.el;
 
   var SC = function () { return MF.scene; };
-  // Картинки блоков: обычные <img> с ленивой загрузкой; размеры заданы, чтобы страница не прыгала.
-  var PICS = {
-    schema: ['flow-schema.webp', 524, 480],
-    docs: ['docs-stack.webp', 900, 675],
-    effect: ['effect.webp', 720, 720],
-    privacy: ['flow-privacy.webp', 797, 560]
-  };
-  function img(kind, alt) {
-    var p = PICS[kind];
-    return el('img', { src: 'img/' + p[0], alt: alt || '', width: p[1], height: p[2], loading: 'lazy', decoding: 'async' });
+  // Схема: на телефоне (до 768 px) раскладка в две колонки, выше: в три; при смене ширины схема строится заново (старая отсоединяется и останавливается).
+  var PHONE = '(max-width: 767px)';
+  function mountScene(box, opts) {
+    var sc = SC();
+    if (!sc || !sc.buildScene) return;
+    var mq = root.matchMedia ? root.matchMedia(PHONE) : null;
+    var holder = null;
+    function build() {
+      if (holder && holder.parentNode) holder.parentNode.removeChild(holder);
+      holder = el('div', { class: 'scene-holder' });
+      box.appendChild(holder);
+      var o = {};
+      Object.keys(opts).forEach(function (k) { o[k] = opts[k]; });
+      o.layout = mq && mq.matches ? 'duo' : 'wide';
+      sc.buildScene(holder, o);
+    }
+    build();
+    if (mq && typeof mq.addEventListener === 'function') mq.addEventListener('change', function () { if (box.isConnected !== false) build(); });
   }
-  function pic(kind) {
-    return el('div', { class: 'result-pic pic-' + kind, 'aria-hidden': 'true' }, img(kind, ''));
+
+  // «Живые экраны»: окно продукта с тремя фрагментами (ваш план, схема решения, документы ТЗ), собранными из реальных функций на фиксированных
+  // вымышленных данных (MF.demoPlan). Вкладки: role=tablist, стрелки, Home/End. Текстов клиента здесь нет, только словари и идентификаторы.
+  function renderProductWindow() {
+    var demo = MF.demoPlan ? MF.demoPlan() : null;
+    if (!demo || !demo.plan || !demo.plan.ready) return null;
+    var plan = demo.plan;
+
+    var opps = plan.opportunities.map(function (o) {
+      var sol = MF.SOLUTIONS.filter(function (x) { return x.id === o.solutionId; })[0];
+      return el('li', { class: 'pw-opp' }, [
+        el('span', { class: 'pw-dir' }, MF.t('dir.' + o.direction + '.title')),
+        el('span', { class: 'pw-opp-title' }, MF.t(sol.titleKey)),
+        el('span', { class: 'pw-opp-text' }, MF.t(sol.changesKey))
+      ]);
+    });
+    // Цена уровня: только когда владелец задал валюту и цену (buildPlan иначе даёт null), своих цифр нет.
+    var tiers = ['start', 'grow', 'scale'].filter(function (l) { return !!(plan.prices && plan.prices[l]); }).map(function (l) {
+      return el('li', null, [el('span', { class: 'pw-tier' }, MF.t('tier.' + l + '.title')), ' ', el('span', { class: 'pw-price num' }, plan.prices[l])]);
+    });
+    var planPanel = el('div', { class: 'pw-plan' }, [
+      el('p', { class: 'pw-goal' }, MF.t(demo.titleKey)),
+      el('ol', { class: 'pw-opps', 'aria-label': MF.t('plan.opportunities') }, opps),
+      tiers.length ? el('ul', { class: 'pw-tiers' }, tiers) : null
+    ]);
+
+    var sceneBox = el('div', { class: 'pw-scene', role: 'img', 'aria-label': MF.sceneAria(demo.view) });
+    mountScene(sceneBox, { view: demo.view, compact: true, hidden: true });
+    var scenePanel = el('div', null, [el('p', { class: 'pw-goal' }, MF.t('plan.scene.lead')), sceneBox]);
+
+    var docsPanel = el('div', null, [
+      el('ol', { class: 'pw-docs', lang: 'ru', 'aria-label': MF.t('home.res.docs.title') }, demo.docs.map(function (d, i) {
+        return el('li', null, [el('span', { class: 'pw-file num' }, (i < 9 ? '0' : '') + (i + 1)), el('span', { class: 'pw-doc' }, d.title), el('span', { class: 'pw-name' }, d.file)]);
+      })),
+      el('p', { class: 'pw-note', lang: MF.LANG }, MF.t('home.live.docsNote'))
+    ]);
+
+    var defs = [
+      { id: 'plan', label: MF.t('plan.title'), body: planPanel },
+      { id: 'scene', label: MF.t('plan.scene.title'), body: scenePanel },
+      { id: 'docs', label: MF.t('home.live.docsTab'), body: docsPanel }
+    ];
+    var btns = [], panels = [];
+    function select(i, focus) {
+      btns.forEach(function (b, k) {
+        b.setAttribute('aria-selected', k === i ? 'true' : 'false');
+        b.setAttribute('tabindex', k === i ? '0' : '-1');
+        panels[k].hidden = k !== i;
+      });
+      if (focus) btns[i].focus();
+    }
+    defs.forEach(function (d, i) {
+      var b = el('button', { type: 'button', role: 'tab', class: 'pw-tab', id: 'pw-tab-' + d.id, 'aria-controls': 'pw-panel-' + d.id, 'aria-selected': 'false', tabindex: '-1', on: {
+        click: function () { select(i, false); },
+        keydown: function (e) {
+          var n = btns.length, to = -1;
+          if (e.key === 'ArrowRight') to = (i + 1) % n;
+          else if (e.key === 'ArrowLeft') to = (i + n - 1) % n;
+          else if (e.key === 'Home') to = 0;
+          else if (e.key === 'End') to = n - 1;
+          if (to < 0) return;
+          if (e.preventDefault) e.preventDefault();
+          select(to, true);
+        }
+      } }, d.label);
+      btns.push(b);
+      panels.push(el('div', { class: 'pw-panel', role: 'tabpanel', id: 'pw-panel-' + d.id, 'aria-labelledby': 'pw-tab-' + d.id }, d.body));
+    });
+    select(0, false);
+
+    return el('div', { class: 'pw-wrap' }, [
+      el('div', { class: 'pw' }, [
+        el('div', { class: 'pw-bar', 'aria-hidden': 'true' }, [el('i'), el('i'), el('i'), el('span', { class: 'pw-name-bar' }, 'Molxo Flow')]),
+        el('div', { class: 'pw-tabs', role: 'tablist', 'aria-label': MF.t('home.live.tabs') }, btns),
+        el('div', { class: 'pw-panels' }, panels)
+      ]),
+      el('p', { class: 'pw-caption' }, MF.t('home.live.demo'))
+    ]);
   }
 
   // Поле «Опишите задачу своими словами»: текст попадает в ответ business мастера (цель по умолчанию routine) и ведёт на шаг,
@@ -106,9 +190,7 @@
       sceneBox
     ]);
 
-    var canvas = el('canvas', { class: 'hero-field', 'aria-hidden': 'true' });
     var heroBox = el('div', { class: 'hero-box' }, [
-      canvas,
       el('div', { class: 'wrap' }, el('div', { class: 'hero' }, [hero, stage]))
     ]);
 
@@ -119,9 +201,8 @@
     var who = whoWrap.children && whoWrap.children.length ? el('section', { class: 'home-section home-who' }, whoWrap) : null;
 
     // «Что вы получите»: бенто. Схема на две строки, рядом ТЗ и расчёт эффекта; вся ячейка: ссылка.
-    function resultCard(href, title, text, kind) {
+    function resultCard(href, title, text) {
       return el('li', null, el('a', { href: href, class: 'card result-card' }, [
-        pic(kind),
         el('span', { class: 'result-title' }, title),
         el('span', { class: 'result-text' }, text)
       ]));
@@ -129,10 +210,11 @@
     var results = el('section', { class: 'home-section', 'aria-labelledby': 'res-title' }, el('div', { class: 'wrap rv' }, [
       el('h2', { id: 'res-title', class: 'section-title' }, MF.t('home.res.title')),
       el('p', { class: 'section-kicker' }, MF.t('home.res.lead')),
+      renderProductWindow(),
       el('ul', { class: 'result-grid', 'aria-label': MF.t('home.res.title') }, [
-        resultCard('#/studio', MF.t('home.res.schema.title'), MF.t('home.res.schema.text'), 'schema'),
-        resultCard('#/docs', MF.t('home.res.docs.title'), MF.t('home.res.docs.text'), 'docs'),
-        resultCard('#/interview', MF.t('home.res.effect.title'), MF.t('home.res.effect.text'), 'effect')
+        resultCard('#/studio', MF.t('home.res.schema.title'), MF.t('home.res.schema.text')),
+        resultCard('#/docs', MF.t('home.res.docs.title'), MF.t('home.res.docs.text')),
+        resultCard('#/interview', MF.t('home.res.effect.title'), MF.t('home.res.effect.text'))
       ])
     ]));
 
@@ -158,7 +240,7 @@
       }))
     ]));
 
-    // «Данные остаются у вас»: приватность и безопасность в одном блоке, справа картинка.
+    // «Данные остаются у вас»: приватность и безопасность в одном блоке, справа знак приватности (SVG).
     var privacyText = el('div', null, [
       el('h2', { id: 'prv-title', class: 'privacy-big' }, MF.t('home.privacy.big')),
       el('p', null, MF.t('home.privacy.text'))
@@ -166,7 +248,7 @@
     ui.renderSecurity(privacyText, { bare: true });
     var privacy = el('section', { class: 'home-section', 'aria-labelledby': 'prv-title' }, el('div', { class: 'wrap privacy rv' }, [
       privacyText,
-      el('div', { class: 'privacy-pic' }, img('privacy', MF.t('home.device.aria')))
+      el('div', { class: 'privacy-pic' }, ui.sign('privacy', MF.t('home.device.aria')))
     ]));
 
     // Финал.
@@ -182,8 +264,7 @@
     var sc = SC();
     if (sc) {
       sc.wordsIn(title);
-      sc.buildScene(sceneBox, { view: sceneView });
-      sc.mountField(canvas);
+      mountScene(sceneBox, { view: sceneView });
       sc.reveal(page);
     }
   }

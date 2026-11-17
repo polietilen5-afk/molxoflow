@@ -199,20 +199,7 @@ img, svg { max-width: 100%; }
 /* Главная: сцена */
 .home { max-width: none; padding: 0; animation: none; }
 .hero-box { position: relative; overflow: hidden; isolation: isolate; border-bottom: 1px solid var(--line); }
-.hero-field { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; opacity: .5; }
-.hero-glow { display: none; }
-/* Сгенерированная сцена (GPT Image): тёмный фон с потоком иконок справа; слева (0 → 40 %) и снизу (70 % → 0) гасится, чтобы текст читался.
-   Подключается только от 1000 px: на узком экране файл не загружается. Локальный файл, без сети. */
-@media (min-width: 1000px) {
-  .hero-box::before {
-    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .38; z-index: -1;
-    background: url("../img/flow-hero.webp") right center / cover no-repeat;
-    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 40%), linear-gradient(180deg, #000 70%, transparent 100%);
-    -webkit-mask-composite: source-in;
-    mask-image: linear-gradient(90deg, transparent 0, #000 40%), linear-gradient(180deg, #000 70%, transparent 100%);
-    mask-composite: intersect;
-  }
-}
+/* Фон героя плоский (токен --bg): картинок, свечения и частиц нет; главный визуал — схема решения справа. */
 .wrap { max-width: var(--wide); margin: 0 auto; padding: 0 var(--gutter); position: relative; min-width: 0; }
 .hero { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-6); align-items: center; padding: var(--s-6) 0 var(--s-7); position: relative; }
 .hero-label { margin-bottom: var(--s-4); }
@@ -224,18 +211,18 @@ img, svg { max-width: 100%; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: var(--s-3); margin: var(--s-5) 0 var(--s-3); }
 .hero-hint { color: var(--muted); font: var(--fs-small)/1.5 var(--mono); }
 .stage {
-  background: linear-gradient(180deg, #1a1e25, #13161b); border: 0; border-radius: var(--r-lg); padding: var(--s-4); min-width: 0;
+  background: var(--card); border: 1px solid var(--line); border-top: 2px solid var(--accent); border-radius: var(--r-lg); padding: var(--s-4); min-width: 0;
   position: relative;
-  box-shadow: var(--edge), var(--gloss), var(--lift);
 }
 .stage-title { display: flex; justify-content: space-between; gap: var(--s-2); margin: 0 0 var(--s-2); font: var(--fs-label)/1.3 var(--mono); color: var(--muted); font-weight: 400; }
 .stage-title em { font-style: normal; color: var(--muted); }
 .scene { display: block; width: 100%; height: auto; }
 .sc-node rect { fill: var(--card-2); stroke: var(--line-strong); stroke-width: 1.2; transition: fill var(--t-scene) var(--ease-out), stroke var(--t-scene) var(--ease-out); }
-.sc-node text { fill: var(--muted); font: 600 13px var(--disp); transition: fill var(--t-scene) var(--ease-out); }
-.sc-node .sc-no { fill: var(--muted); font: 12px var(--mono); }
+.sc-node text { fill: var(--muted); font: 600 16px var(--disp); transition: fill var(--t-scene) var(--ease-out); }
+.sc-node .sc-no { fill: var(--muted); font: 13px var(--mono); }
 .sc-node.is-lit rect { fill: rgba(255, 106, 43, .16); stroke: var(--accent); }
 .sc-node.is-lit text { fill: var(--text); }
+.sc-back { fill: var(--card); stroke: none; }
 .sc-ring { fill: none; stroke: var(--accent); stroke-width: 1.5; opacity: 0; transform-box: fill-box; transform-origin: center; }
 .sc-node.is-ping .sc-ring { animation: sc-ping .9s var(--ease-out); }
 @keyframes sc-ping { 0% { opacity: .8; transform: scale(1); } 100% { opacity: 0; transform: scale(1.35); } }
@@ -243,7 +230,7 @@ img, svg { max-width: 100%; }
 .sc-pk { fill: var(--accent); }
 .sc-sheet { fill: var(--card-3); stroke: var(--line-strong); stroke-width: 1; opacity: 0; transform-box: fill-box; transform-origin: 50% 100%; transition: opacity var(--t-scene) var(--ease-out); }
 .sc-sheet.is-on { opacity: 1; }
-.sc-label { fill: var(--muted); font: 12px var(--mono); }
+.sc-label { fill: var(--muted); font: 13px var(--mono); }
 /* Схема по ответам мастера (проход H): выбранные модули горят постоянно (is-lit), остальные приглушены; пакеты идут только по выбранным узлам */
 .sc-node { transition: opacity var(--t-scene) var(--ease-out); }
 .sc-node.is-dim { opacity: .5; }
@@ -252,6 +239,9 @@ img, svg { max-width: 100%; }
 /* Уменьшенная схема плана: один вход при появлении на экране, без цикла (узлы ждут за кадром только после подтверждения наблюдателя) */
 .scene-static { max-height: 220px; }
 @media (max-width: 600px) { .scene-static .sc-node text { font-size: 15px; } .scene-static .sc-node .sc-no { font-size: 14px; } }
+/* Раскладка для телефона: две колонки, viewBox 320 px, текст читается без масштабирования; высоту не режем */
+.scene-duo, .scene-duo.scene-static { max-height: none; }
+.scene-duo .sc-node text { font-size: 15px; } .scene-duo .sc-node .sc-no { font-size: 13px; }
 .scene-static.sc-wait .sc-node { opacity: 0; }
 .scene-static.is-in .sc-node { animation: sc-in var(--t-scene) var(--ease-out) both; animation-delay: calc(var(--i, 0) * var(--stagger)); }
 @keyframes sc-in { from { opacity: 0; transform: translateY(6px); } }
@@ -269,10 +259,13 @@ img, svg { max-width: 100%; }
 .rv.rv-wait { opacity: 0; transform: translateY(12px); }
 /* секции ниже героя отрисовываются по мере подхода к экрану (content-visibility); запасная высота запоминается после первого показа */
 .home-section { padding: var(--s-8) 0; position: relative; content-visibility: auto; contain-intrinsic-size: auto 600px; }
+/* Тихая текстура графита под «Как мы работаем»: слой не выше .35, без анимации, чтобы текст (--muted) держал контраст не ниже 4.5:1 */
+.home-how { isolation: isolate; }
+.home-how::before { content: ""; position: absolute; inset: 0; z-index: -1; background: url("../img/texture-graphite.webp") center / cover no-repeat; opacity: .35; pointer-events: none; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 70%, transparent); mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 70%, transparent); }
 .section-title { font-size: var(--fs-section); line-height: 1.15; letter-spacing: -.02em; margin-bottom: var(--s-2); }
 .section-kicker { color: var(--muted); margin-bottom: var(--s-6); max-width: 60ch; }
 
-/* «Что вы получите»: бенто. На мобильном столбец, картинка 140 px */
+/* «Что вы получите»: окно продукта (живые фрагменты) и три текстовые ссылки */
 .result-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-4); }
 .result-card {
   display: flex; flex-direction: column; gap: var(--s-2); height: 100%; text-decoration: none; color: var(--text); position: relative; overflow: hidden;
@@ -282,11 +275,8 @@ img, svg { max-width: 100%; }
 @media (hover: hover) and (pointer: fine) {
   .result-card:hover { box-shadow: var(--edge-hover), var(--gloss); }
 }
-.result-pic { height: 140px; margin: 0 0 var(--s-2); border-radius: var(--r-md); background: var(--bg); box-shadow: var(--edge); overflow: hidden; }
-/* Картинки блоков: обычные <img> (loading="lazy"), вписываются целиком в плашку */
-.result-pic img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .privacy-pic { min-height: 0; height: 100%; max-height: 280px; min-width: 0; border-radius: var(--r-lg); box-shadow: var(--edge); background: var(--bg); position: relative; aspect-ratio: 4 / 3; overflow: hidden; }
-.privacy-pic img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.privacy-pic .sign { padding: var(--s-5); box-sizing: border-box; }
 .result-title { font: var(--disp-w) var(--fs-card)/1.2 var(--disp); overflow-wrap: anywhere; }
 .result-text { color: var(--muted); }
 .blocks-line { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-3); margin-top: var(--s-4); font: var(--fs-label)/1.5 var(--mono); color: var(--muted); }
@@ -411,24 +401,21 @@ img, svg { max-width: 100%; }
 
 @media (min-width: 768px) {
   :root { --gutter: var(--s-5); }
-  .result-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
-  .result-grid > li { grid-column: span 5; }
-  .result-grid > li:first-child { grid-column: span 7; grid-row: span 2; }
-  .result-grid > li:first-child .result-pic { height: 280px; }
+  .result-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .privacy { grid-template-columns: minmax(0, 1fr) minmax(0, .8fr); gap: var(--s-7); }
   .final { padding: var(--s-6) var(--s-7); }
   .hero-sub { font-size: 18px; }
 }
 @media (min-width: 1000px) {
-  .hero { grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: var(--s-7); padding: var(--s-8) 0; }
+  .hero { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: var(--s-7); padding: var(--s-8) 0; }
   .workspace { grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: var(--s-5); }
   .workspace-side { position: sticky; top: 76px; }
   .home-section { padding: var(--s-9) 0; }
 }
 @media (max-width: 767px) {
   .home-section { padding: var(--s-8) 0; }
-  /* на телефоне схема героя скрыта: главная кнопка видна без прокрутки */
-  .stage { display: none; }
+  /* на телефоне схема героя идёт ниже текста в раскладке в две колонки: главная кнопка видна без прокрутки */
+  .stage { padding: var(--s-3); }
 }
 @media (max-width: 480px) {
   .card { padding: var(--s-4); }
@@ -445,6 +432,44 @@ img, svg { max-width: 100%; }
   .sc-sheet { opacity: 1; }
   .hero-title .w { opacity: 1; transform: none; }
 }
+/* Окно продукта: рамка в палитре сайта, без теней-ореолов; три фрагмента на вкладках */
+.pw-wrap { margin: 0 0 var(--s-6); min-width: 0; }
+.pw { background: var(--card); border: 1px solid var(--line-strong); border-radius: var(--r-lg); overflow: hidden; min-width: 0; }
+.pw-bar { display: flex; align-items: center; gap: 6px; padding: 0 var(--s-4); min-height: 40px; background: var(--card-2); border-bottom: 1px solid var(--line); }
+.pw-bar i { width: 10px; height: 10px; border-radius: 50%; background: var(--card-3); border: 1px solid var(--line-strong); flex: none; }
+.pw-name-bar { margin-left: var(--s-2); font: var(--fs-label)/1 var(--mono); color: var(--muted); }
+.pw-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--line); background: var(--card); }
+.pw-tab { flex: 1 1 0; min-width: 0; min-height: 44px; padding: 0 var(--s-3); background: none; border: 0; border-bottom: 2px solid transparent; color: var(--muted); font: 600 var(--fs-small)/1.2 var(--font); cursor: pointer; overflow-wrap: anywhere; }
+.pw-tab[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
+.pw-tab:focus-visible { outline-offset: -3px; }
+@media (hover: hover) and (pointer: fine) { .pw-tab:hover { color: var(--text); background: var(--card-2); } }
+.pw-panels { padding: var(--s-5); min-height: 280px; }
+.pw-panel[hidden] { display: none; }
+.pw-goal { margin: 0 0 var(--s-4); color: var(--muted); font-size: var(--fs-small); line-height: 1.4; overflow-wrap: anywhere; }
+.pw-opps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-3); }
+.pw-opp { display: flex; flex-direction: column; gap: var(--s-1); padding: var(--s-4); background: var(--card-2); border-radius: var(--r-md); border-left: 2px solid var(--line-strong); min-width: 0; }
+.pw-opp:first-child { border-left-color: var(--accent); }
+.pw-dir { font: var(--fs-label)/1.3 var(--mono); color: var(--accent-text); }
+.pw-opp-title { font: var(--disp-w) var(--fs-item)/1.25 var(--disp); overflow-wrap: anywhere; }
+.pw-opp-text { color: var(--muted); font-size: var(--fs-small); line-height: 1.45; overflow-wrap: anywhere; }
+.pw-tiers { list-style: none; margin: var(--s-4) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-5); font: var(--fs-small)/1.4 var(--mono); }
+.pw-tier { color: var(--muted); }
+.pw-scene { max-width: 640px; }
+.pw-scene .scene-static { max-height: 320px; }
+.pw-scene .scene-duo { max-height: none; }
+.pw-docs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 var(--s-6); }
+.pw-docs li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 0 var(--s-2); align-items: baseline; padding: var(--s-2) 0; border-bottom: 1px solid var(--line); min-height: 44px; }
+.pw-file { color: var(--muted); font: var(--fs-label)/1.3 var(--mono); }
+.pw-doc { font-size: var(--fs-small); overflow-wrap: anywhere; }
+.pw-name { grid-column: 2; color: var(--muted); font: var(--fs-label)/1.3 var(--mono); overflow-wrap: anywhere; }
+.pw-note { margin: var(--s-4) 0 0; color: var(--muted); font-size: var(--fs-small); line-height: 1.45; }
+.pw-caption { margin: var(--s-2) 0 0; color: var(--muted); font: var(--fs-label)/1.4 var(--mono); }
+@media (min-width: 768px) {
+  .pw-opps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .pw-docs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pw-tab { flex: 0 0 auto; padding: 0 var(--s-5); }
+}
+@media (max-width: 480px) { .pw-panels { padding: var(--s-4); } .pw-tab { padding: 0 var(--s-2); } }
 /* Сцена вне экрана или на скрытой вкладке: бесконечные циклы на паузе (класс ставит ui-scene через IntersectionObserver) */
 .is-off, .is-off *, .is-off *::before, .is-off *::after { animation-play-state: paused !important; }
 
@@ -476,10 +501,10 @@ img, svg { max-width: 100%; }
 
 /* Пустое состояние: картинка слева, заголовок, текст и одна кнопка; зазор текст → кнопка 24 px */
 .empty { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: var(--s-5); align-items: center; padding: var(--s-6); border: 1px dashed var(--line-strong); border-radius: var(--radius); min-width: 0; }
-.empty-pic { width: 160px; height: 120px; background: center / contain no-repeat; opacity: .85; border-radius: var(--r-md); }
-.empty-pic.is-privacy { background-image: url("../img/flow-privacy.webp"); }
-.empty-pic.is-docs { background-image: url("../img/docs-stack.webp"); }
-.empty-pic.is-schema { background-image: url("../img/flow-schema.webp"); }
+.empty-pic { width: 160px; height: 120px; border-radius: var(--r-md); }
+.sign { display: block; width: 100%; height: 100%; }
+.sg-l { fill: none; stroke: var(--line-strong); stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.sg-a { fill: none; stroke: var(--accent); stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
 .empty-title { font: var(--disp-w) var(--fs-card)/1.2 var(--disp); overflow-wrap: anywhere; }
 .empty-text { color: var(--muted); max-width: 46ch; margin: var(--s-2) 0 var(--s-5); overflow-wrap: anywhere; }
 .empty-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-4); }

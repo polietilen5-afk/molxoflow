@@ -526,6 +526,16 @@
     return MF.t(view && view.personal ? 'scene.ariaPersonal' : 'scene.aria', { modules: names.join(', ') });
   };
 
+  // Демо-план для главной («живые экраны»): одно фиксированное вымышленное состояние мастера (демо «shop»), план, схема и список документов.
+  // Ничего не сохраняется; цена и эффект берутся из buildPlan как есть (без валюты цены нет), своих цифр здесь нет.
+  MF.DEMO_PLAN_ID = 'shop';
+  MF.demoPlan = function () {
+    var demo = byId(MF.WIZARD_DEMOS, MF.DEMO_PLAN_ID);
+    var w = MF.loadWizardDemo(MF.emptyWizard(), MF.DEMO_PLAN_ID);
+    var plan = MF.buildPlan(w);
+    return { id: MF.DEMO_PLAN_ID, titleKey: demo.titleKey, wizard: w, plan: plan, view: MF.sceneView(w), docs: (MF.DOC_DEFS || []).map(function (d) { return { id: d.id, file: d.file, title: d.title }; }) };
+  };
+
   // Уровень (start, grow, scale), подходящий под бюджет клиента, или null. Подсветка только при однозначном совпадении:
   // заданы цены владельца, бюджет выбран из диапазонов и ровно одна цена уровня попадает в выбранный диапазон.
   var BUDGET_RANGES = { lt1k: [0, 1000], '1k-5k': [1000, 5000], '5k-15k': [5000, 15000], gt15k: [15000, Infinity] };

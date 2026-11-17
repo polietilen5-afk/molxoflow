@@ -76,10 +76,22 @@
       lead ? el('p', { class: 'lead' }, lead) : null
     ]);
   };
+  // Знаки пустых состояний и блока приватности: тонкая линия, одна оранжевая деталь; рисуются кодом (kind: privacy | docs | schema), без растров.
+  var SIGNS = {
+    privacy: [['l', 'M80 12L114 25V57C114 81 98 97 80 106C62 97 46 81 46 57V25Z'], ['l', 'M68 56H92V76H68Z'], ['a', 'M72 56V49A8 8 0 0 1 88 49V56']],
+    docs: [['l', 'M56 20H104V98H56Z'], ['l', 'M48 14H96V92H48Z'], ['l', 'M40 8H88V86H40Z'], ['l', 'M50 24H78'], ['l', 'M50 36H78'], ['a', 'M50 48H66']],
+    schema: [['l', 'M14 46H42V74H14Z'], ['l', 'M66 46H94V74H66Z'], ['l', 'M118 46H146V74H118Z'], ['l', 'M42 60H66'], ['a', 'M94 60H118']]
+  };
+  ui.sign = function (kind, label) {
+    var attrs = { viewBox: '0 0 160 120', 'class': 'sign', focusable: 'false', preserveAspectRatio: 'xMidYMid meet' };
+    if (label) { attrs.role = 'img'; attrs['aria-label'] = label; } else attrs['aria-hidden'] = 'true';
+    return svg('svg', attrs, (SIGNS[kind] || []).map(function (p) { return svg('path', { 'class': 'sg-' + p[0], d: p[1] }); }));
+  };
+
   // Пустое состояние: картинка (pic: privacy | docs | schema), заголовок, текст и действия (одна главная кнопка, остальное ссылки).
   ui.empty = function (o) {
     return el('div', { class: 'empty' }, [
-      el('div', { class: 'empty-pic is-' + o.pic, 'aria-hidden': 'true' }),
+      el('div', { class: 'empty-pic is-' + o.pic, 'aria-hidden': 'true' }, ui.sign(o.pic)),
       el('div', { class: 'empty-body' }, [
         o.title ? el('h2', { class: 'empty-title' }, o.title) : null,
         o.text ? el('p', { class: 'empty-text' }, o.text) : null,
