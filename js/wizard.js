@@ -333,6 +333,24 @@
     return out;
   };
 
+  // «Вы назвали» раздельными строками по смыслу: [{ id, labelKey, items }]; подпись шага берётся из словаря, а если её нет, из названия шага.
+  // Инструмент не читается как боль: у каждого ответа своя строка. Текст ответов показывать только через textContent.
+  var SAID_LABELS = { pain: 'plan.said.pain', tools: 'plan.said.tools', team: 'plan.said.team', result: 'plan.said.result', find: 'plan.said.find' };
+  MF.planSaid = function (w) {
+    var rows = [];
+    if (!isWizard(w) || !w.goal) return rows;
+    var ids = w.goal === 'opportunities' ? ['find'] : ['pain', 'tools', 'team', 'result'];
+    ids.forEach(function (id) {
+      var st = stepDef(id), sel = selectedIds(w, id);
+      if (!st) return;
+      if ((id === 'tools' && sel.length === 1 && sel[0] === 'none') || (sel.length === 1 && sel[0] === 'unknown')) return;
+      var items = recapItems(w, id).filter(function (x) { return !!x; });
+      if (!items.length) return;
+      rows.push({ id: id, labelKey: SAID_LABELS[id] || st.titleKey, items: items });
+    });
+    return rows;
+  };
+
   // Блок «Кто за этим стоит» из MF.CONFIG.about: null, пока текст пуст; текст до 600 знаков, заголовок до 120.
   MF.aboutSlot = function () {
     var a = MF.CONFIG && MF.CONFIG.about;

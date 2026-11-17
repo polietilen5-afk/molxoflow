@@ -380,14 +380,14 @@ img, svg { max-width: 100%; }
 .assume-row { display: flex; flex-direction: column; gap: 4px; }
 .assume-label { font-size: var(--fs-small); display: flex; flex-wrap: wrap; align-items: center; gap: 4px var(--s-2); }
 /* Теги-метки (демонстрация, допущение): квадратные, рамка пунктиром, моно — не похожи на выбираемые строки */
-.tag-assume { font: var(--fs-label)/1.5 var(--mono); padding: 0 var(--s-2); border-radius: var(--r-xs); background: transparent; color: var(--warn); border: 1px dashed rgba(255, 194, 75, .55); }
+.tag-assume { font: var(--fs-label)/1.5 var(--mono); padding: 0 var(--s-2); border-radius: var(--r-xs); background: transparent; color: var(--warn); border: 1px solid rgba(255, 194, 75, .55); }
 .assume-field { display: flex; align-items: center; gap: var(--s-2); }
 .assume-input { width: 130px; max-width: 100%; min-height: 44px; padding: 4px 10px; border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); border-radius: var(--r-sm); background: var(--card-2); color: var(--text); font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .assume-input:focus-visible { outline-offset: 1px; box-shadow: inset 0 0 0 1px var(--focus); }
 .assume-unit { color: var(--muted); font-size: var(--fs-small); }
 .core-count { font: 600 var(--fs-body)/1.4 var(--mono); font-variant-numeric: tabular-nums; margin-bottom: var(--s-2); }
 .tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
-.tag { padding: 2px var(--s-2); border-radius: var(--r-xs); background: transparent; color: var(--muted); border: 1px dashed var(--line-strong); font: var(--fs-small)/1.5 var(--mono); overflow-wrap: anywhere; max-width: 100%; }
+.tag { padding: 2px var(--s-2); border-radius: var(--r-xs); background: transparent; color: var(--muted); border: 1px solid var(--line-strong); font: var(--fs-small)/1.5 var(--mono); overflow-wrap: anywhere; max-width: 100%; }
 .side-result { overflow-wrap: anywhere; }
 .side-demo { padding-bottom: var(--s-2); }
 
@@ -414,10 +414,12 @@ img, svg { max-width: 100%; }
   .final { padding: var(--s-7) 0 0; }
 }
 @media (min-width: 1000px) {
-  .hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s-8); padding: calc(var(--sec) * .75) 0 var(--sec); }
+  .hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s-8); padding: calc(var(--sec) * .75) 0 var(--s-7); }
   .workspace { grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: var(--s-5); }
   .workspace-side { position: sticky; top: 76px; }
-  .stage { align-self: start; margin-top: 30px; }
+  .stage { align-self: start; margin-top: 30px; position: sticky; top: 84px; }
+  .hero-box { overflow: clip; }
+  .hero-box + .home-section { padding-top: var(--s-7); }
 }
 @media (max-width: 767px) {
   /* на телефоне схема героя идёт ниже текста в раскладке в две колонки: главная кнопка видна без прокрутки */
@@ -447,7 +449,7 @@ img, svg { max-width: 100%; }
 .pw-tab[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
 .pw-tab:focus-visible { outline-offset: -3px; }
 @media (hover: hover) and (pointer: fine) { .pw-tab:hover { color: var(--text); background: var(--card-2); } }
-.pw-panels { padding: var(--s-5); min-height: 280px; }
+.pw-panels { padding: var(--s-5); }
 .pw-goal { margin: 0 0 var(--s-4); color: var(--muted); font-size: var(--fs-small); line-height: 1.4; overflow-wrap: anywhere; }
 .pw-opps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-3); }
 .pw-opp { display: flex; flex-direction: column; gap: var(--s-1); padding: var(--s-4); background: var(--card-2); border-radius: var(--r-md); border-left: 2px solid var(--line-strong); min-width: 0; }
@@ -465,12 +467,13 @@ img, svg { max-width: 100%; }
 .pw-doc { font-size: var(--fs-small); overflow-wrap: anywhere; }
 .pw-name { grid-column: 2; color: var(--muted); font: var(--fs-label)/1.3 var(--mono); overflow-wrap: anywhere; }
 .pw-note { margin: var(--s-4) 0 0; color: var(--muted); font-size: var(--fs-small); line-height: 1.45; }
-.pw-caption { display: inline-block; margin: var(--s-2) 0 0; padding: var(--s-1) var(--s-3); color: var(--text); background: var(--accent-soft); border: 1px solid var(--accent); border-radius: var(--r-xs); font: 600 var(--fs-small)/1.4 var(--font); }
+.pw-caption { display: inline-block; margin: var(--s-2) 0 0; padding: var(--s-1) var(--s-3); color: var(--text); background: transparent; border: 1px solid var(--line-strong); border-radius: var(--r-xs); font: 600 var(--fs-small)/1.4 var(--font); }
 @media (min-width: 768px) {
   .pw-opps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .pw-docs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .pw-tab { flex: 0 0 auto; padding: 0 var(--s-5); }
 }
+@media (max-width: 767px) { .pw-docs { grid-template-columns: repeat(2, minmax(0, 1fr)); } .pw-docs li { min-height: 0; grid-template-columns: 22px minmax(0, 1fr); } .pw-name { display: none; } }
 @media (max-width: 480px) { .pw-panels { padding: var(--s-4); } .pw-tab { padding: 0 var(--s-2); } }
 /* Сцена вне экрана или на скрытой вкладке: бесконечные циклы на паузе (класс ставит ui-scene через IntersectionObserver) */
 .is-off, .is-off *, .is-off *::before, .is-off *::after { animation-play-state: paused !important; }

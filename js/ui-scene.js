@@ -198,7 +198,7 @@
       pings = [];
       nodes.forEach(function (n) { n.classList.remove('is-ping'); });
     }
-    // По ответам узлы горят всегда, а пакеты идут только по выбранным; в демонстрации узлы зажигаются по ходу пакета.
+    // По ответам узлы горят всегда, а пакеты идут только по выбранным; в демонстрации горит один узел под пакетом.
     function resetNodes() { if (!personal) nodes.forEach(function (n) { n.classList.remove('is-lit'); }); }
     function place(t) {
       dots.forEach(function (d, idx) {
@@ -209,11 +209,14 @@
       });
       var head = t % 1, idx2 = Math.min(5, Math.floor(head * 6));
       if (!personal) {
+        // Демонстрация: горит один активный узел за раз (ход данных), а не накопление всех шести.
         nodes.forEach(function (n, i) {
-          if (i <= idx2 && !n.classList.contains('is-lit')) {
-            n.classList.add('is-lit', 'is-ping');
-            pings.push(root.setTimeout(function () { n.classList.remove('is-ping'); }, 900));
-          }
+          if (i === idx2) {
+            if (!n.classList.contains('is-lit')) {
+              n.classList.add('is-lit', 'is-ping');
+              pings.push(root.setTimeout(function () { n.classList.remove('is-ping'); }, 900));
+            }
+          } else n.classList.remove('is-lit');
         });
       }
       var on = Math.floor(head * 13);
@@ -223,7 +226,7 @@
     function finalState() {
       clearPings();
       place(0.25);
-      if (!personal) nodes.forEach(function (n) { n.classList.add('is-lit'); });
+      if (!personal) nodes.forEach(function (n, i) { n.classList.toggle('is-lit', i === 0); });
       sheets.forEach(function (sh) { sh.classList.add('is-on'); });
     }
     if (reduced()) { finalState(); return svg; }

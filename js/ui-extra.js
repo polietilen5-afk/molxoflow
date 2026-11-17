@@ -199,6 +199,7 @@
           el('p', { class: 'quiz-level' }, [el('strong', null, MF.t('quiz.level.' + res.level)), MF.t('quiz.level.' + res.level + '.text')])
         ]),
         bar,
+        el('p', { class: 'small muted quiz-score-note' }, MF.t('quiz.result.note')),
         el('h3', { class: 'group-title' }, MF.t('quiz.ideas.title')),
         el('p', { class: 'muted' }, MF.t('quiz.ideas.lead')),
         el('ol', { class: 'quiz-ideas' }, ideas),
@@ -412,7 +413,7 @@
       el('p', null, MF.t('offer.prelim'))
     ]));
     function current() { return MF.buildOffer(ui.getWizard(), MF.buildPlan(ui.getWizard(), ui.state.assumptions)).text; }
-    page.appendChild(el('section', { class: 'offer-text', role: 'region', tabindex: '0', 'aria-label': MF.t('offer.title') }, current()));
+    page.appendChild(el('section', { class: 'offer-text', role: 'region', tabindex: '0', 'aria-label': MF.t('offer.title') }, MF.buildOffer(ui.getWizard(), MF.buildPlan(ui.getWizard(), ui.state.assumptions), { onPage: true }).text));
     var c = copier(current, 'offer.copied');
     page.appendChild(el('div', { class: 'offer-actions' }, [
       el('button', { type: 'button', class: 'btn btn-primary', on: { click: c.onClick } }, MF.t('offer.copy')),

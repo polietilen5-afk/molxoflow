@@ -40,7 +40,7 @@
 /* Цвета тегов только из токенов системы; различие ещё и по рамке (сплошная/пунктир) и по подписи */
 .tag-0 { background: rgba(255, 92, 106, .12); color: var(--danger); border-color: rgba(255, 92, 106, .5); border-style: solid; }   /* Решение */
 .tag-1 { background: transparent; color: var(--muted); border-color: var(--line-strong); border-style: solid; }   /* Входные данные */
-.tag-2 { background: var(--card-3); color: var(--text); border-color: var(--line-strong); border-style: dashed; }   /* AI-модуль */
+.tag-2 { background: var(--card-3); color: var(--text); border-color: var(--line-strong); }   /* AI-модуль */
 .tag-3 { background: var(--accent-soft); color: var(--accent-text); border-color: rgba(255, 106, 43, .45); border-style: solid; }   /* Код */
 .tag-4 { background: rgba(61, 220, 151, .12); color: var(--ok); border-color: rgba(61, 220, 151, .5); border-style: solid; }   /* Интеграции */
 .tag-5 { background: rgba(255, 194, 75, .12); color: var(--warn); border-color: rgba(255, 194, 75, .5); border-style: solid; }   /* Ручная проверка */

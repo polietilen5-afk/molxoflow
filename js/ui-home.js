@@ -55,9 +55,10 @@
     var scenePanel = el('div', null, [el('p', { class: 'pw-goal' }, MF.t('plan.scene.lead')), sceneBox]);
 
     var docsPanel = el('div', null, [
-      el('ol', { class: 'pw-docs', lang: 'ru', 'aria-label': MF.t('home.res.docs.title') }, demo.docs.map(function (d, i) {
+      // Контейнер русского содержимого помечен lang=ru целиком; подпись списка и пояснение остаются на языке интерфейса снаружи.
+      el('div', { class: 'pw-docs-box', lang: 'ru' }, el('ol', { class: 'pw-docs' }, demo.docs.map(function (d, i) {
         return el('li', null, [el('span', { class: 'pw-file num' }, (i < 9 ? '0' : '') + (i + 1)), el('span', { class: 'pw-doc' }, d.title), el('span', { class: 'pw-name' }, d.file)]);
-      })),
+      }))),
       el('p', { class: 'pw-note', lang: MF.LANG }, MF.t('home.live.docsNote'))
     ]);
 

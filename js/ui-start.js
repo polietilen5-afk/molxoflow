@@ -232,6 +232,8 @@
         return el('li', null, el('button', {
           type: 'button', class: 'goal-card' + (w.goal === g.id ? ' is-selected' : ''), 'aria-pressed': w.goal === g.id ? 'true' : 'false',
           on: { click: function () {
+            // Автопереход после выбора цели: выбор сначала озвучивается через общую live-область.
+            if (ui.announce) ui.announce(MF.t('wizard.chosen', { name: MF.t(g.titleKey) }));
             var base = ui.wizard.demo ? MF.emptyWizard() : ui.wizard;
             saveWizard(MF.setWizardStep(MF.setWizardGoal(base, g.id), 1));
             pushStep(1);
@@ -247,7 +249,7 @@
         placeholder: MF.t('wizard.placeholder'), 'aria-labelledby': 'wz-title', 'aria-describedby': 'wz-hint wz-count', value: textOf(w, step.id)
       });
       // Счётчик знаков показывается, когда до предела остаётся мало; текст не обрезается молча.
-      var counter = el('p', { id: 'wz-count', class: 'char-count small muted', 'aria-live': 'polite' });
+      var counter = el('p', { id: 'wz-count', class: 'char-count small muted' });
       var chipButtons = [];
       var updateCounter = function (note) {
         var left = TEXT_MAX - area.value.length;
@@ -431,7 +433,7 @@
     }
 
     /* --- кнопки --- */
-    refs.skipped = el('p', { class: 'wizard-skipped muted small', role: 'status', 'aria-live': 'polite' }, MF.t('wizard.skipped'));
+    refs.skipped = el('p', { class: 'wizard-skipped muted small' }, MF.t('wizard.skipped'));
     // Подсказка о недостающем ответе: постоянная live-область (role не меняется), без ответа в ней текст, с ответом пусто.
     refs.need = el('p', { id: 'wz-need', class: 'wizard-need small', role: 'status', 'aria-live': 'polite' }, MF.t('wizard.needAnswer'));
     // На первом шаге «Назад» остаётся в Tab (aria-disabled вместо disabled), клик ничего не делает.
@@ -444,7 +446,7 @@
     var demoNote = w.demo ? el('p', { class: 'plan-demo-note pending' }, MF.t('wizard.demoNote')) : null;
     var title = el('h1', { id: 'wz-title', class: 'question-title', tabindex: '-1' }, MF.t(step.titleKey));
 
-    statusNode = el('p', { class: 'save-status wizard-status', 'aria-live': 'polite' });
+    statusNode = el('p', { class: 'save-status wizard-status' });
     var clearBtn = el('button', { type: 'button', class: 'btn btn-secondary btn-small', on: { click: function () {
       ui.confirm({ title: MF.t('wizard.clear.title'), text: MF.t('wizard.clear.text'), okLabel: MF.t('wizard.clear.ok') }, function () {
         clearWizardData();
@@ -527,6 +529,9 @@
     ui.go('start');
   }
 
+  // Подпись карточки по смыслу решения: метка «ИИ» только у ИИ-агента, сбор данных, мониторинг и отчёты названы своими словами.
+  var CAT_KEYS = { 'parser-scraper': 'cat.data', 'monitoring-alerts': 'cat.monitoring', 'analytics-reports': 'cat.reports' };
+
   // demoId: пример плана на вымышленных данных (MF.demoPlan); ответы мастера клиента не читаются и не пишутся.
   function renderPlan(container, demoId) {
     var demoMode = !!demoId;
@@ -552,9 +557,18 @@
     }
 
     var industry = byId(MF.INDUSTRIES, w.industry);
-    // Слова клиента одной строкой: только из его ответов, текстом на языке интерфейса.
-    var recap = MF.planRecap && !demoMode ? MF.planRecap(w) : { named: '', need: '' };
-    var recapText = demoMode ? MF.t('demo.' + demoId + '.business') : recap.named && recap.need ? MF.t('plan.recap', recap) : (recap.named ? MF.t('plan.recap.named', recap) : (recap.need ? MF.t('plan.recap.need', recap) : ''));
+    // Слова клиента раздельными строками по смыслу (задача, инструменты, команда, нужный результат); в демо одна строка о вымышленном бизнесе.
+    var said = MF.planSaid && !demoMode ? MF.planSaid(w) : [];
+    var recapNode = null;
+    if (demoMode) recapNode = el('p', { class: 'plan-recap' }, MF.t('demo.' + demoId + '.business'));
+    else if (said.length) {
+      recapNode = el('div', { class: 'plan-recap' }, [
+        el('p', { class: 'plan-recap-title' }, MF.t('plan.said.title')),
+        el('dl', { class: 'plan-said' }, said.map(function (r) {
+          return el('div', { class: 'plan-said-row' }, [el('dt', null, MF.t(r.labelKey)), el('dd', null, MF.joinList(r.items))]);
+        }))
+      ]);
+    }
     // Ответы клиента как показания: цель, отрасль, бюджет, срок; пустые не выводятся.
     var facts = [
       ['plan.fact.goal', MF.wizardAnswerText(w, 'goal')],
@@ -566,7 +580,7 @@
       el('div', { class: 'plan-head-main' }, [
         el('p', { class: 'plan-prelim' }, MF.t('plan.preliminary')),
         el('h1', { class: 'page-title' }, MF.t(demoMode ? 'plan.demoTitle' : 'plan.title')),
-        recapText ? el('p', { class: 'plan-recap' }, recapText) : null
+        recapNode
       ]),
       facts.length ? el('dl', { class: 'plan-facts' }, facts.map(function (f) {
         return el('div', { class: 'plan-fact' }, [el('dt', null, MF.t(f[0])), el('dd', null, f[1])]);
@@ -576,17 +590,16 @@
     var requestSlot = el('div', { class: 'plan-request-slot' });
 
     /* возможности */
-    var names = [];
     // Причины, одинаковые у всех карточек, не повторяются: остаются только различающиеся.
     var sharedReasons = plan.opportunities.length > 1 ? plan.opportunities[0].reasons.filter(function (r) {
       return plan.opportunities.every(function (o) { return o.reasons.indexOf(r) >= 0; });
     }) : [];
     var opps = plan.opportunities.map(function (o, i) {
-      var ownReasons = o.reasons.filter(function (r) { return sharedReasons.indexOf(r) < 0; });
+      // В демо клиент ничего не описывал: причина «совпало с вашим описанием» не показывается.
+      var ownReasons = o.reasons.filter(function (r) { return sharedReasons.indexOf(r) < 0 && !(demoMode && r === 'reason.words'); });
       var s = byId(MF.SOLUTIONS, o.solutionId);
-      if (i > 0) names.push(MF.t(s.titleKey));
       return el('li', null, el('div', { class: 'card opp-card' }, [
-        el('span', { class: 'tag opp-dir dir-' + o.direction }, MF.t('dir.' + o.direction + '.title')),
+        el('span', { class: 'tag opp-dir dir-' + o.direction }, MF.t(CAT_KEYS[o.solutionId] || ('dir.' + o.direction + '.title'))),
         el('h3', { class: 'opp-title' }, MF.t(s.titleKey)),
         el('p', { class: 'opp-changes' }, [el('span', { class: 'opp-label' }, MF.t('plan.changes') + ': '), MF.t(s.changesKey)]),
         ownReasons.length ? el('ul', { class: 'opp-reasons small muted', 'aria-label': MF.t('plan.reasons') }, ownReasons.map(function (r) { return el('li', null, MF.t(r)); })) : null
@@ -596,6 +609,9 @@
       el('h2', { id: 'pl-opps', class: 'section-sub' }, MF.t('plan.opportunities')),
       el('ol', { class: 'opp-list plan-opps' }, opps)
     ]));
+    // Оценка эффекта и следующий шаг стоят сразу после возможностей, ближе к началу плана.
+    var effectSlot = el('div', { class: 'plan-effect-slot' });
+    page.appendChild(effectSlot);
 
     /* схема решения: те же модули, что на главной, уменьшенно и статично; описание для чтеца перечисляет включённые модули */
     var sceneView = MF.sceneView ? MF.sceneView(w, { any: true }) : null;
@@ -630,8 +646,7 @@
     page.appendChild(el('section', { class: 'plan-section', 'aria-labelledby': 'pl-tiers' }, [
       el('h2', { id: 'pl-tiers', class: 'section-sub' }, MF.t('plan.tiers')),
       el('p', { class: 'plan-price-note muted' }, MF.t('price.later')),
-      el('div', { class: 'tiers plan-tiers' }, tierCards),
-      names.length ? el('p', { class: 'tier-additional muted' }, MF.t('plan.additional', { names: names.join(', ') })) : null
+      el('div', { class: 'tiers plan-tiers' }, tierCards)
     ]));
 
     ui.renderHow(page);
@@ -685,7 +700,7 @@
     ]) : null;
     if (demoMode) {
       // Демо: цифр эффекта нет вовсе, только честная строка.
-      page.appendChild(el('section', { class: 'card plan-effect', 'aria-labelledby': 'pl-eff' }, [
+      effectSlot.appendChild(el('section', { class: 'card plan-effect', 'aria-labelledby': 'pl-eff' }, [
         el('h2', { id: 'pl-eff', class: 'card-title' }, MF.t('plan.effect')),
         el('p', { class: 'muted' }, MF.t('plan.demoEffect'))
       ]));
@@ -694,7 +709,7 @@
         el('h2', { id: 'pl-eff', class: 'card-title' }, MF.t('plan.effect')),
         huntAsk
       ]);
-      page.appendChild(effectBox);
+      effectSlot.appendChild(effectBox);
       effectBox = null; // оценки ещё нет: обновлять нечего
     } else if (volumeText) {
       if (plan.effect) {
@@ -718,7 +733,7 @@
           hunt ? null : el('button', { type: 'button', class: 'btn btn-secondary btn-small plan-effect-fix', on: { click: goToVolume } }, MF.t('plan.effectFix'))
         ]);
       }
-      page.appendChild(effectBox);
+      effectSlot.appendChild(effectBox);
     }
 
     if (plan.intelligenceNotice) {
@@ -743,6 +758,7 @@
     /* заявка: одна главная кнопка, вторичный звонок, остальное свёрнуто в «Другие действия» */
     function currentText() { return MF.planText(ui.wizard, MF.buildPlan(ui.wizard, ui.state.assumptions)); }
     var link = MF.contactLink(currentText());
+    effectSlot.appendChild(el('p', { class: 'plan-next muted' }, [el('strong', null, MF.t('plan.next.title') + '. '), MF.t('plan.next.text')]));
     var copyStatus = el('p', { class: 'copy-status small', role: 'status', 'aria-live': 'polite' });
     var manualNote = el('p', { class: 'pending small', hidden: true }, MF.t('plan.copyManual'));
     var manual = el('textarea', { class: 'answer plan-manual', rows: '10', readonly: true, hidden: true, 'aria-label': MF.t('plan.requestText') });
@@ -783,7 +799,6 @@
     var requestBox = el('section', { class: 'card plan-request', 'aria-labelledby': 'pl-req' }, [
       el('h2', { id: 'pl-req', class: 'card-title' }, MF.t('plan.requestTitle')),
       el('p', { class: 'muted' }, MF.t('plan.requestLead')),
-      el('p', { class: 'plan-next muted' }, [el('strong', null, MF.t('plan.next.title') + '. '), MF.t('plan.next.text')]),
       el('p', { class: 'small muted' }, MF.t('wizard.rules')),
       el('div', { class: 'plan-actions' }, offer),
       requestHint,
@@ -823,11 +838,11 @@
     if (link.kind !== 'none') {
       // Скрыта, пока блок заявки на экране (и до первого ответа наблюдателя); без наблюдателя остаётся видимой. Скрытая — inert.
       var hasObserver = typeof root.IntersectionObserver === 'function';
-      var cta = el('div', { class: 'plan-cta-bar', 'data-hidden': hasObserver ? 'true' : 'false', inert: hasObserver }, el('button', { type: 'button', class: 'btn btn-primary', 'aria-label': MF.t('plan.getOffer') + ': ' + MF.t('plan.requestTitle'), on: { click: function () {
+      var cta = el('div', { class: 'plan-cta-bar', 'data-hidden': hasObserver ? 'true' : 'false', inert: hasObserver }, el('button', { type: 'button', class: 'btn btn-primary', on: { click: function () {
         remember();
         if (requestBox.scrollIntoView) requestBox.scrollIntoView({ block: 'start' });
         offer.focus();
-      } } }, MF.t('plan.getOffer')));
+      } } }, MF.t('plan.toRequest')));
       // Вне .page: у страницы после анимации остаётся transform, и position: fixed считался бы от неё.
       container.appendChild(cta);
       ui.setBodyFlag('actionbar', true);

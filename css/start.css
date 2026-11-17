@@ -66,7 +66,7 @@
 .wizard-card { padding: var(--s-5); }
 @media (min-width: 768px) { .wizard-card { padding: var(--s-6); } }
 .wizard-card .question-title { outline: none; }
-.wizard-bar { margin: var(--s-2) 0 0; background: var(--card-3); }
+.wizard-bar { margin: var(--s-2) 0 0; background: var(--card-3); height: 6px; box-sizing: border-box; border: 1px solid var(--line-strong); }
 .wizard-body { display: flex; flex-direction: column; gap: var(--s-1); }
 .answer-short { min-height: 84px; }
 .chip-choice { min-height: 52px; }
@@ -100,7 +100,7 @@
 .plan-head-cta { display: none; }
 .plan-prelim {
   display: inline-block; max-width: 100%; padding: 2px var(--s-2); border-radius: var(--r-xs); font: var(--fs-label)/1.5 var(--mono); overflow-wrap: anywhere;
-  background: transparent; color: var(--warn); border: 1px dashed rgba(255, 194, 75, .55);
+  background: transparent; color: var(--warn); border: 1px solid rgba(255, 194, 75, .55);
 }
 .plan-demo {
   display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-4); padding: 10px var(--s-4);
@@ -110,26 +110,17 @@
 .plan-section { display: flex; flex-direction: column; gap: var(--s-3); min-width: 0; }
 .section-sub { font-size: var(--fs-section); line-height: 1.15; letter-spacing: -.02em; }
 .opp-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: var(--s-4); }
-/* возможности плана: список, первая — карточка, остальные — компактные строки */
-.opp-list.plan-opps { display: flex; flex-direction: column; gap: 0; counter-reset: opp; }
+/* возможности плана: все идеи одной формы — карточки с номером */
+.opp-list.plan-opps { display: flex; flex-direction: column; gap: var(--s-3); counter-reset: opp; }
 .plan-opps > li { counter-increment: opp; }
-.plan-opps > li:first-child { margin-bottom: var(--s-3); }
-.plan-opps > li:first-child::before { content: counter(opp, decimal-leading-zero); display: block; margin-bottom: var(--s-2); font: var(--fs-label)/1.3 var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
-.plan-opps > li:first-child { position: relative; }
-.plan-opps > li:not(:first-child) { padding: 0; }
-.plan-opps > li:not(:first-child) .opp-card {
-  position: relative; padding: var(--s-3) var(--s-4) var(--s-3) calc(var(--s-4) + 40px); border-bottom: 1px solid var(--line); background: transparent; box-shadow: none; border-radius: 0;
-}
-.plan-opps > li:not(:first-child) .opp-card::before {
-  content: counter(opp, decimal-leading-zero); position: absolute; left: var(--s-4); top: var(--s-3); font: var(--fs-label)/1.8 var(--mono); color: var(--muted); font-variant-numeric: tabular-nums;
-}
-.plan-opps > li:not(:first-child) .opp-title { font-size: var(--fs-item); }
+.plan-opps .opp-card { position: relative; }
+.plan-opps .opp-card::before { content: counter(opp, decimal-leading-zero); font: var(--fs-label)/1.3 var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
 .opp-card { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-2); }
 .opp-title { font-size: var(--fs-card); line-height: 1.2; overflow-wrap: anywhere; }
 .opp-changes { overflow-wrap: anywhere; }
 .opp-label { font-weight: 600; color: var(--text); }
 .opp-reasons { display: flex; flex-wrap: wrap; gap: 4px var(--s-2); }
-.opp-reasons li { padding: 0 var(--s-2); border-radius: var(--r-xs); border: 1px dashed var(--line-strong); font: var(--fs-label)/1.6 var(--mono); }
+.opp-reasons li { padding: 0 var(--s-2); border-radius: var(--r-xs); border: 1px solid var(--line-strong); font: var(--fs-label)/1.6 var(--mono); }
 .opp-dir { }
 /* Три уровня: один контейнер с тремя колонками и линиями между ними */
 .tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: var(--s-4); }
@@ -359,7 +350,13 @@ a.lang-btn { text-decoration: none; }
 /* Проход A: один главный путь на hero, бейдж ИИ отдельной строкой, слова клиента и цена одной фразой в плане, свёрнутый звонок */
 .hero-actions { margin: var(--s-5) 0 var(--s-2); }
 .ai-badge-row { margin: 0; }
-.plan-recap { margin: var(--s-2) 0 0; font-size: var(--fs-item); overflow-wrap: anywhere; }
+.plan-recap { margin: var(--s-2) 0 0; font-size: var(--fs-item); overflow-wrap: anywhere; width: 100%; }
+.plan-recap-title { margin: 0 0 var(--s-2); font: var(--fs-label)/1.3 var(--mono); color: var(--muted); }
+.plan-said { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr); }
+.plan-said-row { display: flex; flex-direction: column; gap: 2px; padding: var(--s-2) 0; border-top: 1px solid var(--line); min-width: 0; }
+.plan-said-row dt { font: var(--fs-label)/1.3 var(--mono); color: var(--muted); }
+.plan-said-row dd { margin: 0; font-size: var(--fs-body); color: var(--text); overflow-wrap: anywhere; }
+@media (min-width: 720px) { .plan-said-row { flex-direction: row; gap: var(--s-4); } .plan-said-row dt { flex: 0 0 200px; } }
 .plan-price-note { margin: 0 0 12px; }
 .about-text { margin: 0; max-width: 62ch; overflow-wrap: anywhere; }
 .cabinet-soon { margin-top: 16px; }
@@ -374,12 +371,12 @@ a.lang-btn { text-decoration: none; }
    на телефоне одна полоска «логотип, язык, меню» и меню, раскрывающееся из своей кнопки; мастер и план получают нижнюю панель действий. */
 .nav-toggle {
   display: none; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 0 var(--s-3); cursor: pointer;
-  background: transparent; color: var(--text); border: 0; box-shadow: inset 0 0 0 1px var(--line-strong); border-radius: var(--r-pill); font: inherit;
+  background: transparent; color: var(--text); border: 0; border-radius: var(--r-pill); font: inherit;
   transition: transform var(--t-press) var(--ease-out), background-color var(--t-hover) var(--ease-out);
 }
 .nav-toggle:active { transform: scale(.97); }
 @media (hover: hover) and (pointer: fine) { .nav-toggle:hover { background: var(--card-2); } }
-.nav-toggle-bar { display: block; width: 18px; height: 2px; border-radius: 1px; background: currentColor; box-shadow: 0 -6px 0 currentColor, 0 6px 0 currentColor; }
+.nav-toggle-bar { display: block; width: 20px; height: 2px; border-radius: 1px; background: currentColor; box-shadow: 0 -6px 0 currentColor, 0 6px 0 currentColor; }
 .nav-ask { display: none; }
 .ctabs-back { color: var(--accent-text); font-weight: 600; }
 .plan-cta-bar { display: none; }
@@ -415,7 +412,7 @@ a.lang-btn { text-decoration: none; }
 }
 @media (max-width: 767px) {
   /* Нижняя панель мастера: «Назад | Пропустить | Далее» липнет к низу экрана и в одном порядке под большим пальцем */
-  .page.wizard { padding-bottom: var(--s-4); }
+  .page.wizard { padding-bottom: var(--s-7); }
   .wizard-actions {
     position: sticky; bottom: 0; z-index: 30; flex-wrap: nowrap; gap: var(--s-2);
     margin: var(--s-4) calc(-1 * var(--s-4)) 0; padding: var(--s-2) var(--s-4) calc(var(--s-2) + env(safe-area-inset-bottom, 0px));
@@ -427,7 +424,7 @@ a.lang-btn { text-decoration: none; }
   /* Липкая полоса «Получить предложение» в плане: выезжает снизу, прячется, пока блок заявки на экране */
   .plan-cta-bar {
     display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; padding: var(--s-2) var(--s-4) calc(var(--s-2) + env(safe-area-inset-bottom, 0px));
-    background: var(--bg); border-top: 1px solid var(--line);
+    background-color: var(--bg); background-image: none; border-top: 1px solid var(--line-strong);
     transform: translateY(100%); opacity: 0; visibility: hidden;
     transition: transform var(--t-pop) var(--ease-in), opacity var(--t-pop) var(--ease-in), visibility 0s linear var(--t-pop);
   }
@@ -464,8 +461,8 @@ html { scroll-padding-bottom: 100px; }
   /* Отраслевые страницы: ссылки меню остаются доступными без скрипта (details) */
   .nav-more { display: block; }
   .nav-more > summary {
-    display: inline-flex; align-items: center; min-width: 44px; min-height: 44px; padding: 0 14px; cursor: pointer; list-style: none;
-    border: 1px solid var(--line-strong); border-radius: var(--r-pill); font-weight: 500; color: var(--text);
+    display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 0; cursor: pointer; list-style: none;
+    border: 0; border-radius: var(--r-pill); color: var(--text);
   }
   .nav-more > summary::-webkit-details-marker { display: none; }
   .nav-more-list {
@@ -481,7 +478,7 @@ html { scroll-padding-bottom: 100px; }
     position: sticky; bottom: 0; z-index: 5; margin: 20px -16px -16px; padding: 10px var(--s-4) calc(10px + env(safe-area-inset-bottom, 0px));
     background: var(--card); border-top: 1px solid var(--line-strong); border-radius: 0 0 var(--r-lg) var(--r-lg);
   }
-  .page.plan { padding-bottom: calc(var(--bar-h) + var(--s-4)); }
+  .page.plan { padding-bottom: calc(var(--bar-h) + var(--s-7) + env(safe-area-inset-bottom, 0px)); }
   /* липкая строка «Назад | Следующий вопрос» не должна быть под кнопкой чата */
   [data-route="interview"] .chat-widget { bottom: 84px; }
   [data-route="interview"] .chat-panel { bottom: 144px; }
@@ -745,7 +742,7 @@ a, button, summary, [role="button"], .chip, .goal-card { touch-action: manipulat
 .wizard-need { color: var(--text); font-size: var(--fs-small); }
 .wizard-card { margin-bottom: var(--s-5); }
 .wizard-actions .btn-ghost { box-shadow: inset 0 0 0 1px var(--line-strong); }
-.plan-prelim { color: var(--muted); background: var(--card-2); border: 1px dashed var(--line-strong); }
+.plan-prelim { color: var(--muted); background: var(--card-2); border: 1px solid var(--line-strong); }
 .plan-demo { background: var(--card-2); border: 0; box-shadow: var(--edge); border-left: 2px solid var(--accent); border-radius: var(--r-md); }
 .plan-demo-text { color: var(--text); font-size: var(--fs-body); }
 .contact-missing { background: transparent; border: 1px dashed var(--line-strong); color: var(--text); font-weight: 500; }
@@ -786,7 +783,7 @@ a, button, summary, [role="button"], .chip, .goal-card { touch-action: manipulat
 .btn.is-disabled, .btn[aria-disabled="true"] { background: transparent; color: var(--muted); box-shadow: none; border: 1px dashed var(--line-strong); }
 @media (hover: hover) and (pointer: fine) { .btn.is-disabled:hover, .btn[aria-disabled="true"]:hover { background: transparent; color: var(--muted); box-shadow: none; } }
 /* Переключатель языка: активный — подчёркивание 2 px и вес 600; подписи ≥ 14 px */
-.lang-btn { font-size: 14px; }
+.lang-btn { font-size: 14px; padding: 0 var(--s-3); }
 .lang-btn[aria-pressed="true"], .lang-btn[aria-current="true"] { font-weight: 600; }
 .lang-btn[aria-pressed="true"]::after, .lang-btn[aria-current="true"]::after { height: 2px; bottom: 8px; }
 /* Подпись схемы: две строки, ≥ 13 px */

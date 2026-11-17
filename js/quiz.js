@@ -14,12 +14,12 @@
     return null;
   }
 
-  // Вопрос готовности: три варианта с очками 2, 1, 0 (больше очков = ближе к готовности).
-  function scored(id, names) {
-    var scores = [2, 1, 0];
+  // Вопрос готовности: три варианта; очки заданы по идентификатору, а порядок показа смешан (лучший вариант не всегда первый),
+  // чтобы «первые варианты без разбора» не давали максимум.
+  function scored(id, pairs) {
     return {
       id: id, kind: 'score', labelKey: 'quiz.q.' + id,
-      options: names.map(function (n, i) { return { id: n, labelKey: 'quiz.o.' + id + '.' + n, score: scores[i] }; })
+      options: pairs.map(function (p) { return { id: p[0], labelKey: 'quiz.o.' + id + '.' + p[0], score: p[1] }; })
     };
   }
 
@@ -34,11 +34,11 @@
   MF.QUIZ = [
     profile('goal', 'goal', MF.GOALS),
     profile('industry', 'industry', MF.INDUSTRIES),
-    scored('repeat', ['daily', 'weekly', 'rare']),
-    scored('data', ['system', 'mixed', 'scattered']),
-    scored('rules', ['clear', 'partly', 'none']),
-    scored('owner', ['yes', 'maybe', 'no']),
-    scored('pilot', ['yes', 'unsure', 'no'])
+    scored('repeat', [['daily', 2], ['weekly', 1], ['rare', 0]]),
+    scored('data', [['scattered', 0], ['mixed', 1], ['system', 2]]),
+    scored('rules', [['partly', 1], ['clear', 2], ['none', 0]]),
+    scored('owner', [['maybe', 1], ['yes', 2], ['no', 0]]),
+    scored('pilot', [['unsure', 1], ['yes', 2], ['no', 0]])
   ];
 
   MF.QUIZ_MAX_SCORE = 10;

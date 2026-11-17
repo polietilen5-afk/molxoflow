@@ -431,7 +431,9 @@
     document.title = route === 'home' ? MF.t('shell.metaTitle') : MF.t('route.' + route) + ' | Molxo Flow';
     if (changed && refs.ready) {
       root.scrollTo(0, 0);
-      container.focus({ preventScroll: true });
+      // Шаг мастера: фокус на заголовок шага, как на всех шагах; иначе на область содержимого.
+      var wzTitle = document.getElementById('wz-title');
+      (wzTitle || container).focus({ preventScroll: true });
     }
   };
 
@@ -695,6 +697,7 @@
     refs.view.parentNode.insertBefore(refs.footer, refs.view.nextSibling);
     document.body.appendChild(buildDialog());
 
+    ui.announce = function (text) { if (refs.announce) { refs.announce.textContent = ''; refs.announce.textContent = text; } };
     refs.announce = el('p', { id: 'lang-status', class: 'visually-hidden', role: 'status', 'aria-live': 'polite' });
     document.body.appendChild(refs.announce);
     var skip = document.querySelector('.skip-link');
