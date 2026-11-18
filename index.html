@@ -1,62 +1,111 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Molxo Flow: от идеи до понятного плана</title>
-  <meta name="description" content="Расскажите, что хотите улучшить, и Molxo Flow подберёт решение и соберёт понятный план. Можно также составить ТЗ: 15 вопросов, схема процесса и 12 документов. Всё работает в вашем браузере.">
-  <link rel="canonical" href="https://molxoflow.com/">
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <meta name="theme-color" content="#0d0f12">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Molxo Flow">
-  <meta property="og:locale" content="ru_RU">
-  <link rel="alternate" hreflang="ru" href="https://molxoflow.com/">
-  <link rel="alternate" hreflang="uk" href="https://molxoflow.com/?lang=uk">
-  <link rel="alternate" hreflang="en" href="https://molxoflow.com/?lang=en">
-  <link rel="alternate" hreflang="x-default" href="https://molxoflow.com/">
-  <meta property="og:url" content="https://molxoflow.com/">
-  <meta property="og:title" content="Molxo Flow: от идеи до понятного плана">
-  <meta property="og:description" content="Расскажите, что хотите улучшить, и Molxo Flow подберёт решение и соберёт понятный план. Можно также составить ТЗ: 15 вопросов, схема процесса и 12 документов. Всё работает в вашем браузере.">
-  <meta property="og:image" content="https://molxoflow.com/img/og-molxo-flow.webp">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://molxoflow.com/img/og-molxo-flow.webp">
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/views.css">
-  <link rel="stylesheet" href="css/start.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title data-i18n="meta.title">Molxo Flow</title>
+<meta name="description" content="" data-i18n-attr="content:meta.desc">
+<meta name="theme-color" content="#0b0d11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="kit/kit.i18n.css">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <a class="skip-link" href="#view">К содержимому</a>
-  <header id="app-header"></header>
-  <div id="save-status"></div>
-  <main id="view" tabindex="-1"></main>
-  <noscript>
-    <p lang="ru">Для работы Molxo Flow нужен включённый JavaScript.</p>
-    <p lang="uk">Для роботи Molxo Flow потрібен увімкнений JavaScript.</p>
-    <p lang="en">Molxo Flow needs JavaScript to be enabled.</p>
-  </noscript>
-  <script src="js/data.js" defer></script>
-  <script src="js/core.js" defer></script>
-  <script src="js/docs.js" defer></script>
-  <script src="js/texts.js" defer></script>
-  <script src="js/texts.uk.js" defer></script>
-  <script src="js/texts.en.js" defer></script>
-  <script src="js/lang.js" defer></script>
-  <script src="js/config.js" defer></script>
-  <script src="js/catalog.js" defer></script>
-  <script src="js/wizard.js" defer></script>
-  <script src="js/export.js" defer></script>
-  <script src="js/quiz.js" defer></script>
-  <script src="js/offer.js" defer></script>
-  <script src="js/handoff.js" defer></script>
-  <script src="js/ui-shell.js" defer></script>
-  <script src="js/ui-scene.js" defer></script>
-  <script src="js/ui-blocks.js" defer></script>
-  <script src="js/ui-start.js" defer></script>
-  <script src="js/ui-home.js" defer></script>
-  <script src="js/ui-views.js" defer></script>
-  <script src="js/ui-extra.js" defer></script>
+<a class="skip" href="#pain" data-i18n="skip"></a>
+
+<canvas id="stage" role="img" aria-label="" data-i18n-attr="aria-label:stage.aria" aria-describedby="scene-text"></canvas>
+<div id="fallback" aria-hidden="true"></div>
+
+<div id="scene-text" class="sr" data-i18n="scene.text"></div>
+
+<header class="top">
+  <a class="brand" href="#top" data-i18n-attr="aria-label:brand.aria">Molxo<span>Flow</span></a>
+  <div class="top-r">
+    <div class="lang-sw" data-i18n-switch></div>
+    <a class="btn btn-sm" href="#start" data-i18n="nav.start"></a>
+  </div>
+</header>
+
+<main id="top">
+  <div id="journey">
+    <div class="hero" id="hero">
+      <p class="eyebrow" data-i18n="hero.eyebrow"></p>
+      <h1 data-i18n="hero.h1"></h1>
+      <p class="lead" data-i18n="hero.lead"></p>
+      <div class="actions">
+        <a class="btn" href="#start" id="startBtn" data-i18n="hero.start"></a>
+        <span class="micro-inline" data-i18n="hero.micro"></span>
+      </div>
+      <p class="demo-note" data-i18n="hero.demo"></p>
+    </div>
+
+    <div class="caption" id="caption" aria-live="off">
+      <span class="cap-n" id="capN">1</span>
+      <div><b id="capT"></b><span id="capS"></span></div>
+    </div>
+    <ol class="rail" id="rail" aria-hidden="true"><li></li><li></li><li></li><li></li></ol>
+  </div>
+
+  <div class="after">
+    <section class="blk" id="pain" aria-labelledby="painT">
+      <p class="kicker" data-i18n="pain.kicker"></p>
+      <h2 id="painT" data-i18n="pain.h2"></h2>
+      <p class="sub" data-i18n="pain.sub"></p>
+      <div class="chips" id="chips" role="radiogroup" data-i18n-attr="aria-label:pain.group"></div>
+      <div class="live" id="live" aria-live="polite"></div>
+    </section>
+
+    <section class="blk" id="how" aria-labelledby="howT">
+      <p class="kicker" data-i18n="how.kicker"></p>
+      <h2 id="howT" data-i18n="how.h2"></h2>
+      <ol class="steps" id="steps"></ol>
+    </section>
+
+    <section class="blk" id="what" aria-labelledby="whatT">
+      <p class="kicker" data-i18n="what.kicker"></p>
+      <h2 id="whatT" data-i18n="what.h2"></h2>
+      <ul class="prods" id="prods"></ul>
+    </section>
+
+    <section class="blk reel-blk" id="reel" aria-labelledby="reelT">
+      <p class="kicker" data-i18n="reel.kicker"></p>
+      <h2 id="reelT" data-i18n="reel.h2"></h2>
+      <figure class="reel">
+        <video id="reelVid" muted loop playsinline preload="none" poster="assets/reel-poster.en.jpg" data-i18n-attr="aria-label:reel.aria">
+          <source id="reelSrc" src="assets/reel.en.mp4" type="video/mp4">
+        </video>
+        <figcaption data-i18n="reel.cap"></figcaption>
+      </figure>
+    </section>
+
+    <section class="blk" id="get" aria-labelledby="getT">
+      <p class="kicker" data-i18n="get.kicker"></p>
+      <h2 id="getT" data-i18n="get.h2"></h2>
+      <div class="docs" id="docs"></div>
+    </section>
+
+    <section class="blk close" id="start" aria-labelledby="startT">
+      <h2 id="startT" data-i18n="close.h2"></h2>
+      <p class="sub" data-i18n="close.sub"></p>
+      <a class="btn btn-lg" href="https://t.me/Molxo1" target="_blank" rel="noopener" data-i18n="close.btn"></a>
+      <p class="micro" data-i18n="close.micro"></p>
+    </section>
+
+    <footer class="foot">
+      <p data-i18n="foot.about"></p>
+      <p><a href="https://t.me/Molxo1" target="_blank" rel="noopener" data-i18n="foot.tg"></a></p>
+    </footer>
+  </div>
+</main>
+
+<script src="kit/kit.i18n.js"></script>
+<script src="i18n/en.js"></script>
+<script src="i18n/ru.js"></script>
+<script src="i18n/uk.js"></script>
+<script src="wins.js"></script>
+<script src="app.js"></script>
+<script type="module" src="scene.js"></script>
 </body>
 </html>
