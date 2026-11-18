@@ -119,5 +119,14 @@ MFI18N.register('en', {
   'sc.3.name': 'Marina', 'sc.3.biz': 'Online store', 'sc.3.c1': 'Where is my order? It was due yesterday', 'sc.3.a1': 'Marina, checking! It’s in the confirmation email, could you send the number?', 'sc.3.c2': 'Sent it to you', 'sc.3.a2': 'Found it: with the courier, arriving by evening. I’ll write when they set off.', 'sc.3.topic': 'Order status', 'sc.3.what': 'Delivery', 'sc.3.when': 'This evening', 'sc.3.title': 'Order status', 'sc.3.sub': 'Today · Telegram', 'sc.3.note': 'Delivery question. Reply sent to the client.',
   'sc.4.name': 'Oleg', 'sc.4.biz': 'Law firm', 'sc.4.c1': 'Hello, I need advice on a lease agreement', 'sc.4.a1': 'Hello! Do you have the agreement? Send it over, I’ll pass it to a lawyer.', 'sc.4.c2': 'Yes, sending it as a file', 'sc.4.a2': 'Received. A lawyer will review it and suggest a time.', 'sc.4.topic': 'Consultation', 'sc.4.what': 'Lease agreement', 'sc.4.when': 'We will suggest a time', 'sc.4.title': 'Consultation: contract', 'sc.4.sub': 'This week · Email', 'sc.4.note': 'Consultation on a lease. Document received.',
   'sc.5.name': 'Sveta', 'sc.5.biz': 'Food delivery', 'sc.5.c1': 'I want to order lunch to the office for twelve people', 'sc.5.a1': 'Great! For what time, and any preferences?', 'sc.5.c2': 'By 1 pm, no nuts', 'sc.5.a2': 'Got it: by 1 pm, no nuts. A manager will confirm the menu.', 'sc.5.topic': 'Office order', 'sc.5.what': 'Lunch, 12 people', 'sc.5.when': 'By 1 pm', 'sc.5.title': 'Order: office lunch', 'sc.5.sub': 'By 1 pm · Website', 'sc.5.note': 'Order: office lunch, by 1 pm, no nuts.',
-  'sc.6.name': 'Dmitry', 'sc.6.biz': 'Car service', 'sc.6.c1': 'The suspension knocks, when can I come for a check?', 'sc.6.a1': 'Hello! Please tell me the car make and a convenient day.', 'sc.6.c2': 'A sedan, tomorrow morning is best', 'sc.6.a2': 'Booked for tomorrow morning. The mechanic will call before you arrive.', 'sc.6.topic': 'Diagnostics', 'sc.6.what': 'Suspension', 'sc.6.when': 'Tomorrow morning', 'sc.6.title': 'Diagnostics: suspension', 'sc.6.sub': 'Tomorrow · Telegram', 'sc.6.note': 'Suspension check, tomorrow morning.'
+  'sc.6.name': 'Dmitry', 'sc.6.biz': 'Car service', 'sc.6.c1': 'The suspension knocks, when can I come for a check?', 'sc.6.a1': 'Hello! Please tell me the car make and a convenient day.', 'sc.6.c2': 'A sedan, tomorrow morning is best', 'sc.6.a2': 'Booked for tomorrow morning. The mechanic will call before you arrive.', 'sc.6.topic': 'Diagnostics', 'sc.6.what': 'Suspension', 'sc.6.when': 'Tomorrow morning', 'sc.6.title': 'Diagnostics: suspension', 'sc.6.sub': 'Tomorrow · Telegram', 'sc.6.note': 'Suspension check, tomorrow morning.',
+  'agent.ask': 'Ask the assistant',
+  'agent.fab': 'Chat with the assistant',
+  'agent.fab.aria': 'Open the chat with the AI assistant',
+  'agent.title': 'Molxo AI assistant',
+  'agent.close': 'Close the chat',
+  'agent.note': 'This is an AI assistant, not a person.',
+  'agent.frame': 'Chat with the Molxo AI assistant',
+  'agent.slow': 'The chat is taking long to load.',
+  'agent.tg': 'Continue in Telegram'
 });
