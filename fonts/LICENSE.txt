@@ -1,0 +1,13 @@
+Fonts bundled with this site (files *.woff2, declarations in fonts.css)
+
+Families: Unbounded, Manrope, JetBrains Mono, Fira Sans Extra Condensed.
+
+License: each of these families is distributed under the SIL Open Font
+License, Version 1.1 (SIL OFL 1.1). The license permits use, embedding,
+redistribution and self-hosting of the fonts, including on a commercial
+site, provided the fonts are not sold on their own.
+Full license text: https://openfontlicense.org
+
+The files are the unmodified Latin and Cyrillic subsets in WOFF2 format.
+Copyright notices and reserved font names belong to the respective
+authors of each family and are kept as published by the upstream projects.

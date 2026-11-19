@@ -45,6 +45,7 @@ function pageDicts(p, html) {
     });
   } else {
     re = /<script>([\s\S]*?MFI18N\.register[\s\S]*?)<\/script>/g;
+    html = html.replace(/<script id="i18n-pend">[^]*?<\/script>/g, '');
     while ((m = re.exec(html))) { d = loadDicts(m[1]); for (l in d) { all[l] = d[l]; } }
   }
   return all;
@@ -83,6 +84,8 @@ PAGES.forEach(function (p) {
   if (!/<link rel="icon"[^>]*href="\/favicon\.svg"/.test(html)) fail(p.file + ': нет favicon');
   if (!metaContent(html, 'http-equiv', 'Content-Security-Policy')) fail(p.file + ': нет CSP');
   if (metaContent(html, 'name', 'referrer') !== 'no-referrer') fail(p.file + ': нет referrer');
+  if (/fonts\.(googleapis|gstatic)\.com/i.test(html)) fail(p.file + ': осталась ссылка на Google Fonts');
+  if (!/<link rel="stylesheet" href="(\.\.\/)*fonts\/fonts\.css\?v=[0-9a-f]{8}">/.test(html)) fail(p.file + ': не подключён fonts/fonts.css');
   /* [ключи] в видимом HTML */
   m = /\[[a-z][a-z0-9]*(\.[a-z0-9]+)+\]/i.exec(html.replace(/<script[\s\S]*?<\/script>/g, ''));
   if (m) fail(p.file + ': в HTML виден ключ ' + m[0]);
@@ -125,6 +128,21 @@ PAGES.forEach(function (p) {
   }
   if (bad.length === before) ok++;
 });
+
+/* шрифты: все woff2 из fonts.css существуют, лишних нет */
+(function () {
+  var css = '', re = /url\(([^)]+)\)/g, m, used = {}, files;
+  try { css = fs.readFileSync(abs('fonts/fonts.css'), 'utf8'); } catch (e) { fail('нет fonts/fonts.css'); return; }
+  while ((m = re.exec(css))) {
+    var ref = m[1].replace(/["']/g, '');
+    used[ref] = 1;
+    if (/^(https?:)?\/\//i.test(ref)) fail('fonts.css: внешний url ' + ref);
+    else if (!fs.existsSync(path.join(abs('fonts'), ref))) fail('fonts.css: нет файла ' + ref);
+  }
+  files = fs.readdirSync(abs('fonts')).filter(function (f) { return /\.woff2$/.test(f); });
+  files.forEach(function (f) { if (!used[f]) fail('fonts/' + f + ' не используется в fonts.css'); });
+  if (!fs.existsSync(abs('fonts/LICENSE.txt'))) fail('нет fonts/LICENSE.txt');
+}());
 
 /* версия сцены в app.js */
 (function () {

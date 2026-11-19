@@ -159,6 +159,19 @@
     dicts[l] = obj;
     if (inited) renderSwitchers();
   }
+  /* Снимает класс i18n-pending (ставит inline-скрипт сборки при ru/uk, кроме главной, и прячет body до подстановки
+   * словаря, чтобы английский пререндер не прыгал на ru/uk-текст). После подстановки ждём шрифты (их заранее ставит
+   * в preload тот же скрипт), чтобы смена гарнитуры не перестроила строки. Страховка в самом inline-скрипте: через
+   * 1500 мс после DOMContentLoaded и в любом случае через 6 с. */
+  function release() {
+    var de = w.document.documentElement, f = w.document.fonts;
+    var done = function () { de.classList.remove('i18n-pending'); };
+    if (!de.classList.contains('i18n-pending')) return;
+    try {
+      void w.document.body.offsetHeight;
+      if (f && f.ready) f.ready.then(function () { w.setTimeout(done, 0); }, done); else done();
+    } catch (e) { done(); }
+  }
   function init() {
     if (inited) return;
     inited = true;
@@ -167,6 +180,7 @@
     apply();
     renderSwitchers();
     decorateAll();
+    release();
     w.document.addEventListener('click', function (e) {
       var b = e.target && e.target.closest ? e.target.closest('[data-i18n-switch] [data-lang]') : null, all, idx = -1, k;
       if (!b) return;

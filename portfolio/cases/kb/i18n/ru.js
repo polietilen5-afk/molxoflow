@@ -515,7 +515,7 @@ MFI18N.register('ru', {
   "lg.backup": "Резервная копия по расписанию создана",
 
   "toast.thanks": "Оценка сохранена",
-  "toast.handoff": "Человек позван",
+  "toast.handoff": "Человек подключён",
   "toast.taken": "Вы перехватили диалог",
   "toast.released": "Диалог возвращён боту",
   "toast.dismissed": "Вопрос отклонён",

@@ -20,12 +20,12 @@ var ORIGIN = 'https://molxoflow.com';
 var SLUGS = ['fleet', 'dispatch', 'hr', 'tender', 'kb', 'autodiag', 'excavation', 'booking', 'recovery'];
 var LANGS = ['ru', 'uk', 'en'];
 
-/* Content-Security-Policy в meta: хосты Google Fonts пока остаются (решение владельца T12). */
+/* Content-Security-Policy в meta: шрифты свои (fonts/), внешних хостов нет (T13, ADR-005). */
 var CSP = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline'",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src 'self' https://fonts.gstatic.com",
+  "style-src 'self' 'unsafe-inline'",
+  "font-src 'self'",
   "img-src 'self' data:",
   "media-src 'self'",
   "connect-src 'self'",
@@ -42,6 +42,38 @@ var PAGES = [
 ].concat(SLUGS.map(function (s) {
   return { file: 'portfolio/cases/' + s + '/index.html', url: '/portfolio/cases/' + s + '/', dict: 'portfolio/cases/' + s + '/i18n/en.js' };
 }));
+
+/* Критичные начертания: preload на главной и в галерее (имя файла в fonts/). */
+var PRELOAD_FONTS = ['manrope-400-latin.woff2', 'unbounded-500-latin.woff2'];
+var PRELOAD_PAGES = { 'index.html': 1, 'portfolio/index.html': 1 };
+
+/* Кириллические начертания: preload только при языке ru/uk (создаёт inline-скрипт, T16). */
+function cyrFonts(file) {
+  var l = ['manrope-400-cyrillic.woff2', 'unbounded-500-cyrillic.woff2'];
+  if (/^portfolio\/cases\//.test(file)) l.push('jetbrains-mono-400-cyrillic.woff2');
+  if (file === 'portfolio/cases/excavation/index.html') l.push('fira-sans-extra-condensed-600-cyrillic.woff2', 'fira-sans-extra-condensed-700-cyrillic.woff2');
+  return l;
+}
+
+/* T16: до первой отрисовки определяем язык так же, как kit.i18n (?lang, localStorage, navigator.languages).
+ * Если не en: класс i18n-pending на <html> прячет body (визуально) и подгружается кириллица;
+ * kit.i18n.js снимает класс после подстановки словаря и загрузки шрифтов, страховочный таймаут 1500 мс.
+ * Без JS класс не ставится, контент виден. */
+function pendingBlock(page, fdir, nl) {
+  var hide = true;
+  var js = "(function(){var d=document.documentElement,l='',m,s,n,i,b,q=/^(en|ru|uk|ua)/;" +
+    "try{m=/[?&]lang=([a-zA-Z]+)/.exec(location.search);if(m){b=m[1].toLowerCase().slice(0,2);if(q.test(b))l=b}}catch(e){}" +
+    "if(!l)try{b=String(localStorage.getItem('molxo-variant-lang')||'').toLowerCase().slice(0,2);if(q.test(b))l=b}catch(e){}" +
+    "if(!l)try{n=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language];for(i=0;i<n.length;i++){b=String(n[i]||'').toLowerCase().slice(0,2);if(q.test(b)){l=b;break}}}catch(e){}" +
+    "if(l==='ua')l='uk';if(l!=='ru'&&l!=='uk')return;" +
+    (hide ? "d.classList.add('i18n-pending');" +
+    "var f=function(){d.classList.remove('i18n-pending')};setTimeout(f,6000);document.addEventListener('DOMContentLoaded',function(){setTimeout(f,1500)});" : "") +
+    "var F=" + JSON.stringify(hide ? cyrFonts(page.file) : []) + ",k,a;" +
+    "for(k=0;k<F.length;k++){a=document.createElement('link');a.rel='preload';a.as='font';a.type='font/woff2';a.crossOrigin='';a.href='" + fdir + "'+F[k];document.head.appendChild(a)}" +
+    "})();";
+  return ['<script id="i18n-pend">' + js + '</script>',
+    hide ? '<style>html.i18n-pending body{visibility:hidden}</style>' : ''].filter(Boolean).join(nl);
+}
 
 var errors = [];
 var changed = [];
@@ -66,7 +98,7 @@ function loadDict(source) {
 }
 function dictFor(page, html) {
   if (page.dict === 'inline') {
-    var m = /<script>([\s\S]*?MFI18N\.register[\s\S]*?)<\/script>/.exec(html);
+    var m = /<script>([\s\S]*?MFI18N\.register[\s\S]*?)<\/script>/.exec(html.replace(/<!-- build:meta -->[^]*?<!-- \/build:meta -->/g, ''));
     return m ? loadDict(m[1]) : {};
   }
   return loadDict(readText(page.dict));
@@ -123,6 +155,7 @@ function prerender(html, dict, file) {
 /* ---------- 2. Метатеги ---------- */
 function stripHeadTags(html) {
   html = html.replace(/[ \t]*<!-- build:meta -->[\s\S]*?<!-- \/build:meta -->(\r?\n)?/g, '');
+  html = html.replace(/[ \t]*<link\b[^>]*\bhref="https:\/\/fonts\.(googleapis|gstatic)\.com[^"]*"[^>]*>[ \t]*(\r?\n)?/gi, '');
   html = html.replace(/[ \t]*<link\b[^>]*\brel="(canonical|icon|alternate)"[^>]*>[ \t]*(\r?\n)?/gi, '');
   html = html.replace(/[ \t]*<meta\b[^>]*\b(property="og:[^"]*"|name="twitter:[^"]*"|name="referrer"|name="robots"|http-equiv="Content-Security-Policy")[^>]*>[ \t]*(\r?\n)?/gi, '');
   return html;
@@ -144,6 +177,13 @@ function metaBlock(page, title, desc, nl) {
   L.push('<meta name="referrer" content="no-referrer">');
   L.push('<meta name="robots" content="' + (noindex ? 'noindex,follow' : 'index,follow,max-image-preview:large') + '">');
   L.push('<link rel="icon" type="image/svg+xml" href="/favicon.svg">');
+  var up = path.relative(path.dirname(abs(page.file)), ROOT).split(path.sep).join('/');
+  var fdir = (up ? up + '/' : '') + 'fonts/';
+  if (page.file !== 'index.html') L.push(pendingBlock(page, fdir, nl)); /* главная: свой гейт T07 (html:not(.rdy)) */
+  L.push('<link rel="stylesheet" href="' + fdir + 'fonts.css">');
+  if (PRELOAD_PAGES[page.file]) PRELOAD_FONTS.forEach(function (f) {
+    L.push('<link rel="preload" href="' + fdir + f + '" as="font" type="font/woff2" crossorigin>');
+  });
   if (canon) {
     L.push('<link rel="canonical" href="' + canon + '">');
     LANGS.forEach(function (l) { L.push('<link rel="alternate" hreflang="' + l + '" href="' + canon + '?lang=' + l + '">'); });
