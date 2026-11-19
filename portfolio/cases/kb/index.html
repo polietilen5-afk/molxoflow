@@ -48,9 +48,9 @@
 <section class="pf-sec sec-tight">
   <div class="pf-wrap">
     <div class="pf-grid3">
-      <article class="pf-card"><span class="pf-num">1</span><h3 data-i18n="g.task.h">The problem</h3><p data-i18n="g.task.p">Answers live in a site, a price sheet, a policy file and the heads of a few people. Customers wait, staff repeat themselves, and chatbots that guess put wrong prices and terms in writing.</p></article>
-      <article class="pf-card"><span class="pf-num">2</span><h3 data-i18n="g.did.h">What we built</h3><p data-i18n="g.did.p">A knowledge agent that collects the company's sources, keeps them in sync, answers only from the fragments it found, cites each one, refuses when nothing fits and routes the case to a person. It runs on a local model on the company's server or on a cloud model.</p></article>
-      <article class="pf-card"><span class="pf-num">3</span><h3 data-i18n="g.res.h">The result</h3><p data-i18n="g.res.p">Repeated questions answered at any hour with a source behind every answer. Gaps in the knowledge become a visible to-do list, and a test set shows whether a change made answers better or worse.</p></article>
+      <article class="pf-card"><span class="pf-num">1</span><h2 data-i18n="g.task.h">The problem</h2><p data-i18n="g.task.p">Answers live in a site, a price sheet, a policy file and the heads of a few people. Customers wait, staff repeat themselves, and chatbots that guess put wrong prices and terms in writing.</p></article>
+      <article class="pf-card"><span class="pf-num">2</span><h2 data-i18n="g.did.h">What we built</h2><p data-i18n="g.did.p">A knowledge agent that collects the company's sources, keeps them in sync, answers only from the fragments it found, cites each one, refuses when nothing fits and routes the case to a person. It runs on a local model on the company's server or on a cloud model.</p></article>
+      <article class="pf-card"><span class="pf-num">3</span><h2 data-i18n="g.res.h">The result</h2><p data-i18n="g.res.p">Repeated questions answered at any hour with a source behind every answer. Gaps in the knowledge become a visible to-do list, and a test set shows whether a change made answers better or worse.</p></article>
     </div>
   </div>
 </section>
@@ -70,7 +70,7 @@
       </div>
       <div class="kb-shell">
         <nav class="kb-side" id="kb-side" data-i18n-attr="aria-label:app.modules"></nav>
-        <main class="kb-main" id="kb-main" tabindex="-1"></main>
+        <div class="kb-main" id="kb-main" tabindex="-1" role="region" data-i18n-attr="aria-label:app.name"></div>
       </div>
       <nav class="kb-bnav" id="kb-bnav" data-i18n-attr="aria-label:app.modules"></nav>
       <div class="kb-drawer" id="kb-drawer" hidden></div>
@@ -119,7 +119,7 @@
   <div class="pf-wrap">
     <p class="eyebrow" data-i18n="stack.eyebrow">Stack</p>
     <ul class="pf-tags">
-      <li class="pf-tag">Python</li><li class="pf-tag">FastAPI</li><li class="pf-tag">SQLite</li><li class="pf-tag">Docker</li>
+      <li class="pf-tag">Python</li><li class="pf-tag">FastAPI</li><li class="pf-tag" data-i18n="stack.db">Local database</li><li class="pf-tag">Docker</li>
       <li class="pf-tag" data-i18n="stack.hybrid">Hybrid search</li><li class="pf-tag" data-i18n="stack.local">Local model server</li><li class="pf-tag" data-i18n="stack.cloud">Cloud model API</li>
     </ul>
   </div>

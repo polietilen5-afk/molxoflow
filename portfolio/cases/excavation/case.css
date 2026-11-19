@@ -37,7 +37,7 @@
 .vp-in.is-tablet { width: 768px; max-width: 100%; border-color: var(--line-s); }
 .vp-in.is-phone { width: 390px; max-width: 100%; border-color: var(--line-s); border-width: 6px 3px; border-radius: 22px; border-style: solid; }
 .pane[hidden] { display: none; }
-@media (min-width: 900px) { .vp-in { max-height: min(82dvh, 900px); overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; } }
+@media (min-width: 900px) { .vp-in { max-height: min(82vh, 900px); max-height: min(82dvh, 900px); overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; } }
 @media (max-width: 899px) { .vp-in { overflow: clip; } }
 @media (max-width: 560px) { .vp-switch { display: none; } .stage { padding: 8px; } .demo-tabs { padding: 10px 8px 0; } .vp-in { width: 100% !important; border-width: 1px; border-radius: 8px; } }
 @media (prefers-reduced-motion: reduce) { .vp-in { transition: none; } }

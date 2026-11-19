@@ -228,7 +228,7 @@
 #rc-dlg { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 12px; }
 #rc-dlg[hidden] { display: none; }
 .rc-modal-bg { position: absolute; inset: 0; background: rgba(5, 6, 9, .78); }
-.rc-modal { position: relative; width: min(520px, 100%); max-height: calc(100dvh - 24px); overflow: auto; padding: 22px; background: var(--s1); border: 1px solid var(--line-s); border-radius: 16px; }
+.rc-modal { position: relative; width: min(520px, 100%); max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); overflow: auto; padding: 22px; background: var(--s1); border: 1px solid var(--line-s); border-radius: 16px; }
 .rc-form { display: grid; gap: 12px; margin: 14px 0; }
 .rc-fld { display: flex; flex-direction: column; gap: 4px; }
 .rc-fld label { font-size: 14px; font-weight: 600; }

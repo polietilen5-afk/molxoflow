@@ -22,7 +22,7 @@ img, svg { max-width: 100%; }
 .skip:focus { top: 12px; }
 
 /* шапка кейса */
-.pf-top { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px var(--gut); background: rgba(11, 13, 17, .92); border-bottom: 1px solid var(--line); }
+.pf-top { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px var(--gut); background: #0b0d11; border-bottom: 1px solid var(--line); }
 .pf-brand { display: inline-flex; align-items: center; min-height: 44px; font: 700 18px/1 var(--disp); letter-spacing: -.02em; text-decoration: none; }
 .pf-brand span { color: var(--accent); margin-left: 4px; }
 .pf-nav { display: flex; align-items: center; gap: 8px 14px; flex-wrap: wrap; justify-content: flex-end; }
@@ -74,5 +74,5 @@ img, svg { max-width: 100%; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation-duration: .001s !important; transition-duration: .001s !important; } }
 @media (hover: none) { .btn:hover { transform: none; } }
 
-/* Переключатель языка: компактный, перекрывает размеры 44 px в case.css (зона нажатия остаётся 44 px через ::before) */
-.pf-top .lang-sw.mfi-switch button { min-width: 0; min-height: 28px; height: 28px; padding: 0 8px; }
+/* Переключатель языка: компактные горизонтальные отступы; высоту кнопки задаёт kit.i18n.css (44 px) */
+.pf-top .lang-sw.mfi-switch button { min-width: 0; padding: 0 8px; }

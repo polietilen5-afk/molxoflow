@@ -131,9 +131,9 @@
   function cardWork(e) {
     var box = el('div');
     var mm = CL.DB.memos.filter(function (m) { return m.emp === e.id; }), pc = CL.DB.pieces.filter(function (p) { return p.shares.some(function (s) { return s.emp === e.id; }); });
-    box.appendChild(el('h4', { cls: 'sub-h', text: T('m.memos') }));
+    box.appendChild(el('h3', { cls: 'sub-h', text: T('m.memos') }));
     box.appendChild(mm.length ? el('ul', { cls: 'events' }, mm.map(function (m) { return el('li', {}, [el('time', { text: m.month }), el('div', {}, [el('b', { text: T('mk.' + m.kind) }), el('span', { text: m.reason })]), CL.badge(m.st === 'approved' ? 'ok' : m.st === 'rejected' ? 'bad' : 'warn', T('ms.' + m.st))]); })) : el('p', { cls: 'lead-s', text: T('work.noMemos') }));
-    box.appendChild(el('h4', { cls: 'sub-h', text: T('m.piece') }));
+    box.appendChild(el('h3', { cls: 'sub-h', text: T('m.piece') }));
     box.appendChild(pc.length ? el('ul', { cls: 'events' }, pc.map(function (p) { var sh = p.shares.filter(function (s) { return s.emp === e.id; })[0]; return el('li', {}, [el('time', { text: p.date }), el('div', {}, [el('b', { text: T('pt.' + p.type) + ' ' + p.id.toUpperCase() }), el('span', { text: T('piece.share', { pct: sh.pct }) })]), CL.badge(p.st === 'confirmed' ? 'ok' : p.st === 'cancelled' ? 'bad' : 'warn', T('ps.' + p.st))]); })) : el('p', { cls: 'lead-s', text: T('work.noPieces') }));
     return box;
   }

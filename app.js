@@ -6,7 +6,8 @@
   var I = window.MFI18N;
   function t(k, v) { return I.t(k, v); }
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var MX = window.MX = { p: 0, reduce: reduce, ready: false, mode: 'init' };
+  var saveData = !!(navigator.connection && navigator.connection.saveData);
+  var MX = window.MX = { p: 0, reduce: reduce, saveData: saveData, paused: false, ready: false, mode: 'init', heroBottom: 0 };
 
   function el(tag, cls, text) { var e = doc.createElement(tag); if (cls) { e.className = cls; } if (text != null) { e.textContent = text; } return e; }
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
@@ -27,16 +28,24 @@
     { a: 0.8, b: 1.01 }
   ];
   var curStage = -1;
+  /* высота экрана для прогресса берётся из невидимого элемента 100svh (запасной 100vh): адресная строка телефона её не меняет */
+  var vhProbe = el('div');
+  vhProbe.setAttribute('aria-hidden', 'true');
+  vhProbe.style.cssText = 'position:fixed;left:0;top:0;width:0;height:100vh;height:100svh;visibility:hidden;pointer-events:none';
+  doc.body.appendChild(vhProbe);
+  function stableVH() { return vhProbe.offsetHeight || window.innerHeight; }
   function readProgress() {
-    var h = journey.offsetHeight - window.innerHeight;
+    var vh = stableVH();
+    var h = journey.offsetHeight - vh;
     var y = window.pageYOffset || 0;
     var top = journey.getBoundingClientRect().top + y;
     MX.p = h > 0 ? clamp((y - top) / h, 0, 1) : 0;
     var p = MX.p, i, st = -1;
     hero.style.opacity = String(1 - sstep(0.015, 0.07, p));
-    hero.style.visibility = p > 0.08 ? 'hidden' : 'visible';
+    hero.style.visibility = p > 0.08 ? 'hidden' : '';
+    if (p < 0.08) { MX.heroBottom = hero.getBoundingClientRect().bottom; }
     for (i = 0; i < STAGES.length; i++) { if (p >= STAGES[i].a && p < STAGES[i].b) { st = i; } }
-    var inJ = y < top + journey.offsetHeight - window.innerHeight * 0.6;
+    var inJ = y < top + journey.offsetHeight - vh * 0.6;
     cap.classList.toggle('on', st >= 0 && inJ);
     railEl.classList.toggle('on', p > 0.05 && inJ);
     if (st !== curStage) {
@@ -52,6 +61,8 @@
   window.addEventListener('resize', onScroll);
   window.addEventListener('orientationchange', function () { window.setTimeout(onScroll, 250); });
   readProgress();
+  /* высота героя меняется после загрузки шрифтов и при смене языка: пересчитываем нижнюю границу для сцены */
+  if ('ResizeObserver' in window) { new ResizeObserver(function () { if (MX.p < 0.08) { MX.heroBottom = hero.getBoundingClientRect().bottom; if (MX.onScroll) { MX.onScroll(MX.p); } } }).observe(hero); }
 
   /* ---------- запасной вид без WebGL: CSS-стопка окон ---------- */
   var fbRepaint = null;
@@ -99,7 +110,7 @@
       raf = 0;
       cur += (MX.p - cur) * (reduce ? 1 : 0.1);
       place();
-      if (reduce || !vis) { return; }
+      if (reduce || !vis || MX.paused) { return; }
       items.forEach(function (it) {
         var dist = pose(cur).z - it.d.pos[2];
         if (dist > 0 && dist < 11 && now - it.last > 90) { it.last = now; window.MXW.paint(it.c, it.d, now - t0, 1); }
@@ -111,8 +122,29 @@
     doc.addEventListener('visibilitychange', function () { vis = !doc.hidden; if (vis && !raf) { raf = window.requestAnimationFrame(frame); } });
     frame(performance.now());
   };
-  if (location.search.indexOf('no3d') >= 0) { window.addEventListener('load', function () { MX.fallback(); }); }
-  window.setTimeout(function () { if (!MX.ready && MX.mode === 'init') { MX.fallback(); } }, 6000);
+  /* Сцена three.js (1,3 МБ) не нужна для первой отрисовки: грузим после load и простоя браузера, не при Save-Data и prefers-reduced-motion
+     (там сразу лёгкий запасной вид из CSS). Если сцена не пришла или WebGL отказал, остаётся запасной вид. */
+  function afterFirstPaint(fn) {
+    var done = false;
+    function run() {
+      if (done) { return; }
+      done = true;
+      if ('requestIdleCallback' in window) { window.requestIdleCallback(fn, { timeout: 1500 }); } else { window.setTimeout(fn, 300); }
+    }
+    if (doc.readyState === 'complete') { window.setTimeout(run, 0); } else { window.addEventListener('load', run); }
+    window.setTimeout(run, 5000);
+  }
+  function loadScene() {
+    if (MX.mode !== 'init') { return; }
+    var s = doc.createElement('script');
+    s.type = 'module'; s.src = 'scene.js?v=2';
+    s.onerror = function () { MX.fallback(); };
+    doc.head.appendChild(s);
+    window.setTimeout(function () { if (!MX.ready && MX.mode === 'init') { MX.fallback(); } }, 30000);
+  }
+  afterFirstPaint(function () {
+    if (location.search.indexOf('no3d') >= 0 || saveData || reduce) { MX.fallback(); } else { loadScene(); }
+  });
 
   /* ---------- «Вашу боль разберём» ---------- */
   var NPAIN = 5;
@@ -148,10 +180,24 @@
       (function (idx) {
         var b = el('button', 'chip', t('pain.' + (idx + 1) + '.chip'));
         b.type = 'button'; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', idx === curPain ? 'true' : 'false');
-        b.addEventListener('click', function () {
+        b.tabIndex = idx === curPain ? 0 : -1;
+        function pick(focus) {
           curPain = idx;
-          Array.prototype.forEach.call(chipsBox.children, function (c, k) { c.setAttribute('aria-checked', k === idx ? 'true' : 'false'); });
-          renderLive(idx, !reduce);
+          Array.prototype.forEach.call(chipsBox.children, function (c, k) { c.setAttribute('aria-checked', k === idx ? 'true' : 'false'); c.tabIndex = k === idx ? 0 : -1; });
+          if (focus) { b.focus(); }
+          renderLive(idx, !reduce && !MX.paused);
+        }
+        b.addEventListener('click', function () { pick(false); });
+        /* стрелки, Home, End: как у группы переключателей (одна точка табуляции) */
+        b.addEventListener('keydown', function (e) {
+          var k = e.key, to = -1;
+          if (k === 'ArrowRight' || k === 'ArrowDown') { to = (idx + 1) % NPAIN; }
+          else if (k === 'ArrowLeft' || k === 'ArrowUp') { to = (idx + NPAIN - 1) % NPAIN; }
+          else if (k === 'Home') { to = 0; } else if (k === 'End') { to = NPAIN - 1; }
+          if (to < 0) { return; }
+          e.preventDefault();
+          chipsBox.children[to].click();
+          chipsBox.children[to].focus();
         });
         chipsBox.appendChild(b);
       }(i));
@@ -160,7 +206,7 @@
   if ('IntersectionObserver' in window && !reduce) {
     var seen = false;
     new IntersectionObserver(function (es) {
-      if (es[0].isIntersecting && !seen) { seen = true; renderLive(curPain, true); }
+      if (es[0].isIntersecting && !seen) { seen = true; renderLive(curPain, !MX.paused); }
     }, { threshold: 0.3 }).observe(live);
   }
 
@@ -198,6 +244,7 @@
   }
   var stageTimer = 0;
   function stageStep() {
+    if (MX.paused) { return; }
     stageRoots.forEach(function (r) {
       if (!r.classList.contains('play')) { return; }
       var mx = +r.getAttribute('data-max'), hd = +r.getAttribute('data-hold');
@@ -446,7 +493,7 @@
   var vvis = false, vlang = '';
   function syncVid() {
     if (!vid) { return; }
-    var go = vvis && !doc.hidden && !reduce;
+    var go = vvis && !doc.hidden && !reduce && !saveData && !MX.paused;
     if (go) { var pr = vid.play(); if (pr && pr.catch) { pr.catch(function () {}); } } else { vid.pause(); }
   }
   function setReel() {
@@ -459,7 +506,8 @@
     vid.load();
     syncVid();
   }
-  if (vid && !reduce && 'IntersectionObserver' in window) {
+  if (vid && (reduce || saveData)) { vid.controls = true; }
+  if (vid && !reduce && !saveData && 'IntersectionObserver' in window) {
     new IntersectionObserver(function (es) { vvis = es[0].isIntersecting; if (vvis) { vid.preload = 'auto'; } syncVid(); }, { threshold: 0.25 }).observe(vid);
     doc.addEventListener('visibilitychange', syncVid);
   }
@@ -509,6 +557,7 @@
   function tzBlock() {
     var wrap = el('div', 'tzw'), left = el('div', 'tzl'), grid = el('div', 'tzg'), tiles = [], cur = 0, i;
     var pv = root('dpaper', 'tz', 0, 1), body = el('div', 'tzc');
+    pv.id = 'tzPreview';
     pv.setAttribute('aria-live', 'off');
     var head = dhead('', 'md'), htitle = head.querySelector('b');
     var count = el('p', 'tzn mono');
@@ -517,6 +566,7 @@
     function nn(i) { return (i < 10 ? '0' : '') + i; }
     function show(k, byUser) {
       cur = k;
+      pv.setAttribute('aria-live', byUser ? 'polite' : 'off');
       tiles.forEach(function (b, j) { b.classList.toggle('on', j === k); b.setAttribute('aria-pressed', j === k ? 'true' : 'false'); });
       htitle.textContent = nn(k + 1) + ' ' + t('tz.n' + (k + 1));
       count.textContent = t('tz.count', { n: k + 1 });
@@ -530,8 +580,7 @@
         var b = el('button', 'tzf');
         b.type = 'button';
         b.appendChild(el('i', 'tzi')); b.appendChild(el('em', '', nn(k + 1))); b.appendChild(el('span', '', t('tz.n' + (k + 1))));
-        b.addEventListener('mouseenter', function () { show(k, true); });
-        b.addEventListener('focus', function () { show(k, true); });
+        b.setAttribute('aria-controls', 'tzPreview');
         b.addEventListener('click', function () { show(k, true); });
         tiles.push(b); grid.appendChild(b);
       }(i - 1));
@@ -542,7 +591,7 @@
     show(0, false);
     if (!reduce) {
       tzTimer = window.setInterval(function () {
-        if (!pv.classList.contains('play') || Date.now() < tzPause || doc.hidden) { return; }
+        if (!pv.classList.contains('play') || Date.now() < tzPause || doc.hidden || MX.paused) { return; }
         show((cur + 1) % 12, false);
       }, 3200);
     }
@@ -559,9 +608,30 @@
     docsBox.appendChild(el('span', 'k-demo', t('demo')));
   }
 
+  /* ---------- пауза анимации (WCAG 2.2.2): стадии блоков, ТЗ-ротатор, видео, окна сцены, CSS-анимации ---------- */
+  var pauseBtn = doc.getElementById('pauseBtn');
+  function setPaused(on) {
+    MX.paused = on;
+    doc.documentElement.classList.toggle('paused', on);
+    if (pauseBtn) { pauseBtn.setAttribute('aria-pressed', on ? 'true' : 'false'); }
+    if (on) {
+      clearT();
+      Array.prototype.forEach.call(live.querySelectorAll('.lv-row'), function (r) { r.classList.add('on'); });
+      stageAll();
+    }
+    syncVid();
+    if (MX.onScroll) { MX.onScroll(MX.p); }
+  }
+  if (pauseBtn) {
+    if (reduce) { pauseBtn.hidden = true; }
+    pauseBtn.addEventListener('click', function () { setPaused(!MX.paused); });
+  }
+
   /* ---------- сборка и пересборка при смене языка ---------- */
   var pending = null;
   I.onChange(function () {
+    if (pauseBtn) { pauseBtn.classList.add('rdy'); }
+    doc.documentElement.classList.add('rdy');
     buildChips();
     renderLive(curPain, false);
     buildSteps();

@@ -1,13 +1,16 @@
-/* Переключатель языка MFI18N: в покое виден только код текущего языка; нажатие раскрывает ряд EN RU UA, выбор или Esc сворачивает. Цвета через переменные: --mfi-fg, --mfi-focus. */
+/* Переключатель языка MFI18N: в покое виден только код текущего языка; нажатие раскрывает ряд EN RU UA, выбор или Esc сворачивает. Цвета через переменные: --mfi-fg, --mfi-focus.
+   Кнопка занимает 44x44 px (цель касания), но в раскладке считается как 28 px высотой (отрицательный margin; в покое и по ширине), поэтому шапка не растёт.
+   Селекторы с html и повтором класса перебивают локальные правила страниц (pf.css, case.css) без !important. */
 .mfi-switch { display: inline-flex; align-items: center; gap: 0; padding: 0; border: 0; border-radius: 0; background: none; font: 600 13px/1 system-ui, sans-serif; letter-spacing: .06em; }
 .mfi-switch[hidden] { display: none; }
-.mfi-switch button { all: unset; box-sizing: border-box; position: relative; min-width: 0; height: 28px; padding: 0 8px; display: none; align-items: center; justify-content: center; cursor: pointer; color: var(--mfi-fg, inherit); opacity: .72; touch-action: manipulation; }
-.mfi-switch button::before { content: ""; position: absolute; inset: -8px -2px; }
-.mfi-switch button:hover { opacity: 1; }
-.mfi-switch button[aria-pressed="true"] { display: inline-flex; opacity: 1; }
-.mfi-switch:not(.mfi-open) button[aria-pressed="true"]::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: 3px; height: 1px; background: repeating-linear-gradient(90deg, currentColor 0 2px, transparent 2px 4px); opacity: .55; }
-.mfi-switch.mfi-open button { display: inline-flex; animation: mfi-in .2s ease both; }
+html .mfi-switch.mfi-switch button { all: unset; box-sizing: border-box; position: relative; min-width: 44px; min-height: 44px; width: auto; height: 44px; margin: -8px 0; padding: 0 8px; display: none; align-items: center; justify-content: center; cursor: pointer; color: var(--mfi-fg, inherit); opacity: .72; touch-action: manipulation; font: inherit; letter-spacing: inherit; }
+html .pf-top .lang-sw.mfi-switch.mfi-switch button { min-width: 44px; min-height: 44px; height: 44px; margin: -8px 0; padding: 0 8px; }
+html .mfi-switch.mfi-switch:not(.mfi-open) button, html .pf-top .lang-sw.mfi-switch.mfi-switch:not(.mfi-open) button { margin-left: -5px; margin-right: -5px; }
+@media (hover: hover) { .mfi-switch button:hover { opacity: 1; } }
+html .mfi-switch.mfi-switch button[aria-pressed="true"] { display: inline-flex; opacity: 1; }
+.mfi-switch:not(.mfi-open) button[aria-pressed="true"]::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: 11px; height: 1px; background: repeating-linear-gradient(90deg, currentColor 0 2px, transparent 2px 4px); opacity: .55; }
+html .mfi-switch.mfi-open.mfi-open button { display: inline-flex; animation: mfi-in .2s ease both; }
 .mfi-switch.mfi-open button[aria-pressed="true"] { color: var(--mfi-focus, currentColor); animation: none; }
-.mfi-switch button:focus-visible { outline: 2px solid var(--mfi-focus, currentColor); outline-offset: 2px; border-radius: 4px; }
+.mfi-switch button:focus-visible { outline: 2px solid var(--mfi-focus, currentColor); outline-offset: -4px; border-radius: 4px; }
 @keyframes mfi-in { from { opacity: 0; transform: translateX(-6px); } to { opacity: .72; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .mfi-switch.mfi-open button { animation: none; opacity: .72; } .mfi-switch.mfi-open button[aria-pressed="true"] { opacity: 1; } }

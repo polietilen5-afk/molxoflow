@@ -11,13 +11,19 @@
  * JS:        MFI18N.t('key', {name: 'x'})   подстановка {name}
  *            MFI18N.onChange(function (lang) { перерисовать динамические тексты })
  * Переключатель: <div data-i18n-switch></div> (или MFI18N.mountSwitcher(el))
- * Выбор языка: ?lang=en|ru|uk, затем localStorage 'molxo-variant-lang', иначе en.
+ * Выбор языка: ?lang=en|ru|uk, затем localStorage 'molxo-variant-lang', затем язык браузера
+ * (navigator.languages), иначе en.
+ * Перенос языка: ?lang= дописывается ко всем внутренним ссылкам (кроме якорей, внешних адресов,
+ * mailto/tel/tg и ссылок с data-i18n-nolang); смена языка обновляет адрес (history.replaceState).
+ * Клавиатура: Enter/пробел раскрывает ряд, стрелки влево/вправо двигают фокус, Escape сворачивает;
+ * фокус остаётся на кнопке активного языка.
  * Нет ключа в текущем языке: берётся en, иначе виден сам ключ в квадратных скобках.
  */
 (function (w) {
   'use strict';
   var ORDER = ['en', 'ru', 'uk'];
   var LABEL = { en: 'EN', ru: 'RU', uk: 'UA' };
+  var GROUP = { en: 'Language', ru: 'Язык', uk: 'Мова' };
   var NAME = { en: 'English', ru: 'Русский', uk: 'Українська' };
   var KEY = 'molxo-variant-lang';
   var dicts = {};
@@ -32,13 +38,15 @@
     return l;
   }
   function pickInitial() {
-    var q = '';
+    var q = '', nl = [], i, b;
     try { q = (/[?&]lang=([a-zA-Z]+)/.exec(w.location.search) || [])[1] || ''; } catch (e) {}
     q = norm(q);
     if (q && has(q)) return q;
     var s = '';
     try { s = norm(w.localStorage.getItem(KEY)); } catch (e2) {}
     if (s && has(s)) return s;
+    try { nl = (w.navigator.languages && w.navigator.languages.length) ? w.navigator.languages : [w.navigator.language]; } catch (e3) {}
+    for (i = 0; i < nl.length; i++) { b = norm(nl[i]); if (b && has(b)) return b; }
     return 'en';
   }
   function t(key, vars) {
@@ -71,11 +79,45 @@
       }
     }
   }
+  /* Перенос языка: ?lang= к внутренней ссылке (не якорь, не внешний адрес, не mailto/tel/tg). */
+  function decorate(a) {
+    var h = a.getAttribute('href'), hash = '', q = '', i, u, same;
+    if (!h || a.hasAttribute('data-i18n-nolang') || /^(#|mailto:|tel:|tg:|javascript:|data:|blob:)/i.test(h)) return;
+    if (/^(https?:)?\/\//i.test(h)) {
+      try { u = new w.URL(h, w.location.href); same = u.host === w.location.host; } catch (e) { same = false; }
+      if (!same) return;
+    }
+    i = h.indexOf('#');
+    if (i >= 0) { hash = h.slice(i); h = h.slice(0, i); }
+    i = h.indexOf('?');
+    if (i >= 0) { q = h.slice(i + 1); h = h.slice(0, i); }
+    if (/\.[a-z0-9]{1,5}$/i.test(h) && !/\.html?$/i.test(h)) return;
+    q = q.replace(/(^|&)lang=[^&]*/g, '').replace(/^&/, '');
+    a.setAttribute('href', h + '?' + (q ? q + '&' : '') + 'lang=' + lang + hash);
+  }
+  function decorateAll() {
+    var list = w.document.querySelectorAll('a[href]'), i;
+    for (i = 0; i < list.length; i++) decorate(list[i]);
+  }
+  function syncUrl() {
+    try {
+      var u = w.location, q = u.search.replace(/^\?/, '').replace(/(^|&)lang=[^&]*/g, '').replace(/^&/, '');
+      w.history.replaceState(w.history.state, '', u.pathname + '?' + (q ? q + '&' : '') + 'lang=' + lang + u.hash);
+    } catch (e) {}
+  }
+  function switches() { return w.document.querySelectorAll('[data-i18n-switch]'); }
+  function activeBtn(sw) { return sw ? sw.querySelector('button[aria-pressed="true"]') : null; }
+  function setOpen(sw, on) {
+    var a = activeBtn(sw);
+    if (on) sw.classList.add('mfi-open'); else sw.classList.remove('mfi-open');
+    if (a) a.setAttribute('aria-expanded', on ? 'true' : 'false');
+  }
   function renderSwitchers() {
-    var els = w.document.querySelectorAll('[data-i18n-switch]'), i, j, b, html, l;
+    var els = switches(), i, j, b, l;
     for (i = 0; i < els.length; i++) {
       els[i].setAttribute('role', 'group');
-      els[i].setAttribute('aria-label', 'Language');
+      els[i].setAttribute('aria-label', GROUP[lang] || GROUP.en);
+      els[i].setAttribute('aria-live', 'polite');
       els[i].className = (els[i].className.replace(/\bmfi-switch\b/, '') + ' mfi-switch').replace(/^\s+/, '');
       els[i].innerHTML = '';
       for (j = 0; j < ORDER.length; j++) {
@@ -87,6 +129,10 @@
         b.setAttribute('lang', l);
         b.setAttribute('aria-label', NAME[l]);
         b.setAttribute('aria-pressed', l === lang ? 'true' : 'false');
+        if (l === lang) {
+          b.setAttribute('aria-haspopup', 'true');
+          b.setAttribute('aria-expanded', els[i].classList.contains('mfi-open') ? 'true' : 'false');
+        }
         b.textContent = LABEL[l];
         els[i].appendChild(b);
       }
@@ -101,6 +147,8 @@
     w.document.documentElement.setAttribute('lang', l);
     apply();
     renderSwitchers();
+    decorateAll();
+    syncUrl();
     if (!silent) {
       for (var i = 0; i < subs.length; i++) { try { subs[i](l); } catch (e2) { if (w.console) w.console.error(e2); } }
     }
@@ -118,24 +166,56 @@
     w.document.documentElement.setAttribute('lang', lang);
     apply();
     renderSwitchers();
+    decorateAll();
     w.document.addEventListener('click', function (e) {
-      var b = e.target && e.target.closest ? e.target.closest('[data-i18n-switch] [data-lang]') : null;
-      if (b) setLang(b.getAttribute('data-lang'));
+      var b = e.target && e.target.closest ? e.target.closest('[data-i18n-switch] [data-lang]') : null, all, idx = -1, k;
+      if (!b) return;
+      all = switches();
+      for (k = 0; k < all.length; k++) if (all[k] === b.parentNode) idx = k;
+      setLang(b.getAttribute('data-lang'));
+      if (idx >= 0) { b = activeBtn(switches()[idx]); if (b && b.focus) b.focus(); }
+    });
+    /* ссылки, добавленные позже (демо, динамика): язык дописывается перед переходом */
+    ['mousedown', 'touchstart', 'focusin', 'click'].forEach(function (ev) {
+      w.document.addEventListener(ev, function (e) {
+        var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+        if (a) decorate(a);
+      }, true);
     });
     w.document.addEventListener('click', function (e) {
       var bt = e.target && e.target.closest ? e.target.closest('.mfi-switch button') : null, sw, all, k;
       all = w.document.querySelectorAll('.mfi-switch.mfi-open');
-      if (!bt) { for (k = 0; k < all.length; k++) all[k].classList.remove('mfi-open'); return; }
+      if (!bt) { for (k = 0; k < all.length; k++) setOpen(all[k], false); return; }
       sw = bt.parentNode;
-      for (k = 0; k < all.length; k++) if (all[k] !== sw) all[k].classList.remove('mfi-open');
-      if (!sw.classList.contains('mfi-open')) { e.stopPropagation(); sw.classList.add('mfi-open'); return; }
-      if (bt.getAttribute('aria-pressed') === 'true') { e.stopPropagation(); sw.classList.remove('mfi-open'); return; }
+      for (k = 0; k < all.length; k++) if (all[k] !== sw) setOpen(all[k], false);
+      if (!sw.classList.contains('mfi-open')) { e.stopPropagation(); setOpen(sw, true); return; }
+      if (bt.getAttribute('aria-pressed') === 'true') { e.stopPropagation(); setOpen(sw, false); return; }
       sw.classList.remove('mfi-open');
     }, true);
     w.document.addEventListener('keydown', function (e) {
-      if (e.key !== 'Escape') return;
-      var all = w.document.querySelectorAll('.mfi-switch.mfi-open'), k;
-      for (k = 0; k < all.length; k++) all[k].classList.remove('mfi-open');
+      var all = w.document.querySelectorAll('.mfi-switch.mfi-open'), k, a, btns, cur, n, ae = w.document.activeElement;
+      if (e.key === 'Escape') {
+        for (k = 0; k < all.length; k++) {
+          a = activeBtn(all[k]);
+          setOpen(all[k], false);
+          if (a && a.focus) a.focus();
+        }
+        return;
+      }
+      if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && ae && ae.closest) {
+        cur = ae.closest('.mfi-switch.mfi-open');
+        if (!cur) return;
+        btns = cur.querySelectorAll('button');
+        for (n = 0; n < btns.length; n++) if (btns[n] === ae) break;
+        if (n === btns.length) return;
+        n = e.key === 'ArrowRight' ? Math.min(btns.length - 1, n + 1) : Math.max(0, n - 1);
+        btns[n].focus();
+        e.preventDefault();
+      }
+    });
+    w.document.addEventListener('focusout', function (e) {
+      var sw = e.target && e.target.closest ? e.target.closest('.mfi-switch.mfi-open') : null, to = e.relatedTarget;
+      if (sw && to && !sw.contains(to)) setOpen(sw, false);
     });
     for (var i = 0; i < subs.length; i++) { try { subs[i](lang); } catch (e3) { if (w.console) w.console.error(e3); } }
   }

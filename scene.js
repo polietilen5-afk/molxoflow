@@ -21,7 +21,12 @@ const DEV = {
 };
 const KIND = { chat: 'window', crm: 'window', inbox: 'tablet', agent: 'monitor', doc: 'slim', phone: 'phone' };
 
-function boot() {
+/* уступаем главному потоку между тяжёлыми шагами запуска (TBT): сборка среды, окон, первая отрисовка текстур, компиляция шейдеров */
+function tick() { return new Promise(function (r) { setTimeout(r, 0); }); }
+
+async function boot() {
+  /* сцена грузится позже первой отрисовки: если за это время включился запасной вид (таймаут, Save-Data), сцену не запускаем */
+  if (MX.mode !== 'init') { return; }
   if (location.search.indexOf('no3d') >= 0) { MX.fallback(); return; }
   const cv = document.getElementById('stage');
   let renderer;
@@ -55,8 +60,10 @@ function boot() {
   panel(5, 5, 5.4, 16, 1.4, 0, 9, -4, 0);
   panel(1.4, 2, 2.6, 12, 2.4, 0, -8, 8, 0);
   panel(3.2, 3.2, 3.6, 3, 14, 0, 0, 12, 0);
+  await tick();
   const pm = new THREE.PMREMGenerator(renderer);
   scene.environment = pm.fromScene(envScene, 0.04).texture;
+  await tick();
 
   const key = new THREE.DirectionalLight(new THREE.Color('#ffe6c4'), 1.5);
   key.position.set(4, 5, 6); scene.add(key);
@@ -208,6 +215,7 @@ function boot() {
     return true;
   }
   buildWins();
+  await tick();
   function paint(w, t) { MXW.paint(w.cvs, w.d, t, TS); w.tex.needsUpdate = true; }
   function paintAll(t) { wins.forEach(function (w) { paint(w, t); }); }
 
@@ -236,6 +244,7 @@ function boot() {
      между кадрами камера переезжает и окна плавно проявляются. Текст в текстурах рисуется в компактном макете 390 px с крупным кеглем. */
   const SWITCH = [0.19, 0.32, 0.45, 0.58, 0.8];
   const PW = 0.025;
+  const topV = new THREE.Vector3();
   const pA = new THREE.Vector3(), pB = new THREE.Vector3(), lA = new THREE.Vector3(), lB = new THREE.Vector3();
   let fitD = [];
   let W = 1, H = 1;
@@ -296,8 +305,6 @@ function boot() {
       framePose(fr.i, p, pA, lA); framePose(fr.i + 1, p, pB, lB);
       tmpP.copy(pA).lerp(pB, fr.u); tmpL.copy(lA).lerp(lB, fr.u);
       camera.position.copy(tmpP); camera.lookAt(tmpL);
-      if (k > 0.001) { camera.setViewOffset(W, H, 0, -H * 0.34 * k, W, H); } else { camera.clearViewOffset(); }
-      camera.updateProjectionMatrix();
       wins.forEach(function (w, idx) {
         const o = idx === fr.i ? 1 - fr.u : (idx === fr.i + 1 ? fr.u : 0);
         w.g.visible = o > 0.01;
@@ -305,6 +312,21 @@ function boot() {
         w.g.rotation.y = w.d.ry * 0.35;
         setOpacity(w, o);
       });
+      if (k > 0.001) {
+        /* окно уходит вниз на 34% высоты; если подпись героя ниже, добавляем сдвиг, чтобы окно не наезжало на текст под кнопкой */
+        camera.setViewOffset(W, H, 0, -H * 0.34 * k, W, H); camera.updateProjectionMatrix();
+        const hb = MX.heroBottom || 0;
+        if (hb > 0) {
+          const w0 = wins[fr.u < 0.5 ? fr.i : fr.i + 1], sp0 = DEV[KIND[w0.d.id] || 'window'];
+          camera.updateMatrixWorld(); w0.g.updateMatrixWorld(true);
+          topV.set(0, w0.d.wh / 2 + sp0.pad + sp0.rimW, 0); w0.g.localToWorld(topV); topV.project(camera);
+          const topPx = (1 - topV.y) / 2 * H, need = hb + 20;
+          if (topPx < need) {
+            camera.setViewOffset(W, H, 0, -(H * 0.34 * k + (need - topPx) * (1 - sstep(0.02, 0.08, p))), W, H);
+          }
+        }
+      } else { camera.clearViewOffset(); }
+      camera.updateProjectionMatrix();
       return;
     }
     curve(p);
@@ -339,7 +361,7 @@ function boot() {
     let painted = 0;
     wins.forEach(function (w) {
       const dist = camera.position.distanceTo(w.g.position);
-      if (w.g.visible && (portrait || dist < 12) && painted < (small ? 1 : 2) && now - w.last > (small ? 110 : 70)) { w.last = now; paint(w, t); painted++; }
+      if (!MX.paused && w.g.visible && (portrait || dist < 12) && painted < (small ? 1 : 2) && now - w.last > (small ? 110 : 70)) { w.last = now; paint(w, t); painted++; }
     });
     renderer.render(scene, camera);
     if (onScreen && !document.hidden) { raf = requestAnimationFrame(frame); }
@@ -349,7 +371,13 @@ function boot() {
   function renderOnce() { cur = MX.p; applyCamera(); renderer.render(scene, camera); }
 
   /* изменение размера или ориентации: камера, рендерер, при смене макета окна строятся заново */
+  let lastW = window.innerWidth, lastH = window.innerHeight, lastPortrait = isPortrait();
+  const coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
   function onResize() {
+    /* адресная строка телефона меняет только высоту: на касании такие события игнорируем (ни пересборки окон, ни рывка кадра) */
+    const w = window.innerWidth, h = window.innerHeight, po = isPortrait();
+    if (w === lastW && po === lastPortrait && (coarse ? Math.abs(h - lastH) < Math.max(160, lastH * 0.25) : h === lastH)) { return; }
+    lastW = w; lastH = h; lastPortrait = po;
     resize();
     if (buildWins()) { computeFit(); paintAll(MX.reduce ? MXW.FIN : (performance.now() - t0)); }
     if (MX.reduce) { renderOnce(); } else { kick(); }
@@ -380,7 +408,9 @@ function boot() {
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(function (es) { onScreen = es[0].isIntersecting; if (onScreen) { kick(); } }, { rootMargin: '100px' }).observe(document.getElementById('journey'));
     }
-    paintAll(4000);
+    for (const w of wins) { paint(w, 4000); await tick(); }
+    if (renderer.compileAsync) { try { await renderer.compileAsync(scene, camera); } catch (e) { /* шейдеры скомпилируются при первом кадре */ } }
+    if (MX.mode === 'fallback') { renderer.dispose(); return; }
     kick();
   }
   window.addEventListener('orientationchange', function () { window.setTimeout(onResize, 250); });
@@ -390,4 +420,4 @@ function boot() {
   cv.addEventListener('webglcontextlost', function (e) { e.preventDefault(); MX.mode = 'init'; MX.ready = false; MX.fallback(); });
 }
 
-try { boot(); } catch (err) { if (window.console) { console.warn('3D scene did not start, using the fallback', err); } MX.fallback(); }
+boot().catch(function (err) { if (window.console) { console.warn('3D scene did not start, using the fallback', err); } MX.fallback(); });

@@ -152,10 +152,10 @@
     cols.forEach(function (c) {
       var st = BK.staff(c.staff), hh = BK.hoursOf(st, c.iso), colEl = el('div', { cls: 'cal-col', 'data-iso': c.iso, 'data-staff': c.staff });
       for (var g = T0; g < T1; g += 60) colEl.appendChild(el('i', { cls: 'gl', style: 'top:' + ((g - T0) * PX) + 'px' }));
-      if (!hh) colEl.appendChild(shade(c, T0, T1, st.off.indexOf(c.iso) >= 0 ? T('cal.off') : T('cal.closed')));
+      if (!hh) { var s0 = shade(c, T0, T1, st.off.indexOf(c.iso) >= 0 ? T('cal.off') : T('cal.closed')); if (s0) colEl.appendChild(s0); }
       else {
-        colEl.appendChild(shade(c, T0, hh[0])); colEl.appendChild(shade(c, hh[1], T1));
-        if (st.brk) colEl.appendChild(shade(c, st.brk[0], st.brk[1], T('cal.break')));
+        var s1 = shade(c, T0, hh[0]), s2 = shade(c, hh[1], T1); if (s1) colEl.appendChild(s1); if (s2) colEl.appendChild(s2);
+        if (st.brk) { var s3 = shade(c, st.brk[0], st.brk[1], T('cal.break')); if (s3) colEl.appendChild(s3); }
       }
       dayBookings(c.iso, c.staff).forEach(function (b) {
         var cl = BK.client(b.client), blk = el('button', { type: 'button', cls: 'blk st-' + b.status + (b.dur <= 30 ? ' sm' : ''), style: 'top:' + ((b.time - T0) * PX) + 'px;height:' + (b.dur * PX - 1) + 'px', 'aria-label': BK.hhmm(b.time) + ' ' + (cl ? cl.name : '') + ', ' + BK.svcName(b.svc) + ', ' + T('st.' + b.status), onclick: function (e) { e.stopPropagation(); BK.bookingCard(b.id); } }, [

@@ -105,7 +105,7 @@
       CL.ROLES.forEach(function (x, i) { cols.push({ h: T('role.' + x), cls: i === ri ? 'me' : '', f: function (m) { return CL.badge(ACC_KIND[m[1][i]], T('acc.v.' + m[1][i])); } }); });
       box.appendChild(CL.table(cols, MATRIX, { cls: 'matrix' }));
       box.appendChild(el('ul', { cls: 'legend' }, ['edit', 'view', 'masked', 'none'].map(function (k) { return el('li', {}, [CL.badge(ACC_KIND[k], T('acc.v.' + k)), el('span', { text: T('acc.vd.' + k) })]); })));
-      box.appendChild(el('h4', { cls: 'sub-h', text: T('acc.users') }));
+      box.appendChild(el('h3', { cls: 'sub-h', text: T('acc.users') }));
       var users = [['demo.hr', 'hr', 'acc.scopeAll'], ['demo.manager', 'mgr', 'acc.scopeOwn'], ['demo.accounting', 'acc', 'acc.scopeAll'], ['demo.director', 'ceo', 'acc.scopeAll']];
       box.appendChild(CL.table([{ h: T('acc.login'), f: function (u) { return el('code', { text: u[0] }); } }, { h: T('acc.role'), f: function (u) { return T('role.' + u[1]); } }, { h: T('acc.scope'), f: function (u) { return T(u[2], { dept: CL.deptName(CL.MGR_DEPT) }); } }, { h: '', f: function (u) { return CL.btn(T('acc.switch'), function () { CL.DB.role = u[1]; CL.log('access', 'role', { role: T('role.' + u[1]) }); if (!CL.modOK(CL.UI.mod)) CL.UI.mod = 'home'; CL.render(); }, 'btn-ghost'); } }], users));
       box.appendChild(el('p', { cls: 'hint-s', text: T('acc.rule') }));
@@ -185,9 +185,9 @@
         cfg.appendChild(el('button', { type: 'button', cls: 'tog' + (B[x[0]] ? ' on' : ''), role: 'switch', 'aria-checked': B[x[0]] ? 'true' : 'false', disabled: !edit, onclick: function () { B[x[0]] = !B[x[0]]; CL.log('backups', 'bk.opt', { opt: x[1], v: '~' + (B[x[0]] ? 'on' : 'off') }); CL.render(); } }, [el('i'), el('span', { text: x[1] })]));
       });
       box.appendChild(cfg);
-      box.appendChild(el('h4', { cls: 'sub-h', text: T('bk.history') }));
+      box.appendChild(el('h3', { cls: 'sub-h', text: T('bk.history') }));
       box.appendChild(CL.table([{ h: T('f.date'), f: function (b) { return b.at; } }, { h: T('f.status'), f: function (b) { return CL.badge(b.st === 'ok' ? 'ok' : 'warn', T('bk.st.' + b.st)); } }, { h: T('bk.filesArchive'), f: function (b) { return b.files ? T('yes') : T('bk.filesFail'); } }], B.entries.slice(0, 8)));
-      box.appendChild(el('h4', { cls: 'sub-h', text: T('bk.open') }));
+      box.appendChild(el('h3', { cls: 'sub-h', text: T('bk.open') }));
       var ul = el('ul', { cls: 'tasklist' });
       OPEN_Q.forEach(function (k) {
         var done = !!B.decided[k];

@@ -44,8 +44,8 @@
   }
   function footer() {
     return '<footer class="w-foot"><div class="w-foot-g"><div><p class="w-brand"><b>' + esc(t('site.brand.a')) + '</b><span>' + esc(t('site.brand.b')) + '</span></p><p class="w-fsm">' + esc(t('foot.about')) + '</p></div>' +
-      '<div><h4>' + esc(t('foot.company')) + '</h4><ul><li>' + go('equipment') + esc(pgName('equipment')) + '</a></li><li>' + go('faq') + esc(pgName('faq')) + '</a></li><li>' + go('guide') + esc(pgName('guide')) + '</a></li><li>' + go('process') + esc(pgName('process')) + '</a></li></ul></div>' +
-      '<div><h4>' + esc(t('foot.contact')) + '</h4><ul><li>+0 000 000-00-00</li><li>office@example.test</li><li>' + esc(t('foot.hours')) + '</li></ul></div></div>' +
+      '<div><h3>' + esc(t('foot.company')) + '</h3><ul><li>' + go('equipment') + esc(pgName('equipment')) + '</a></li><li>' + go('faq') + esc(pgName('faq')) + '</a></li><li>' + go('guide') + esc(pgName('guide')) + '</a></li><li>' + go('process') + esc(pgName('process')) + '</a></li></ul></div>' +
+      '<div><h3>' + esc(t('foot.contact')) + '</h3><ul><li>+0 000 000-00-00</li><li>office@example.test</li><li>' + esc(t('foot.hours')) + '</li></ul></div></div>' +
       '<p class="w-mark" aria-hidden="true">' + esc(t('site.brand.a')) + '</p><p class="w-fsm w-legal">' + esc(t('foot.legal')) + ' ' + esc(t('img.note')) + '</p></footer>';
   }
   function crumbs(cur, extra) {
@@ -53,7 +53,7 @@
   }
   function pagehead(cur, extra, eye, h1, lead) {
     return '<section class="w-pagehead ph-' + PHEAD[P.page] + '"><div class="w-in">' + crumbs(cur, extra) + (eye ? '<p class="w-eye">' + esc(eye) + '</p>' : '') +
-      '<h1 class="ph-h" aria-label="' + esc(h1) + '"><span aria-hidden="true">' + wordsMasked(h1) + '</span></h1>' + (lead ? '<p class="w-lead">' + esc(lead) + '</p>' : '') + '</div></section>';
+      '<h2 class="ph-h" aria-label="' + esc(h1) + '"><span aria-hidden="true">' + wordsMasked(h1) + '</span></h2>' + (lead ? '<p class="w-lead">' + esc(lead) + '</p>' : '') + '</div></section>';
   }
   function wordsMasked(text) {
     var a = String(text).split(' '), i, h = '';
@@ -73,7 +73,9 @@
   function marquee() {
     var i, set = '';
     for (i = 0; i < EX.SERV_IDS.length; i++) set += '<span>' + esc(sName(EX.SERV_IDS[i])) + '</span><i></i>' + (i < 4 ? '<span class="o">' + esc(t('pr.' + (i + 1) + '.h')) + '</span><i></i>' : '');
-    return '<div class="w-marq" aria-hidden="true"><div class="mq-trk"><div class="mq-set">' + set + '</div><div class="mq-set dup">' + set + '</div></div></div>';
+    var ps = !!P.mqPaused;
+    return '<div class="mq-wrap' + (ps ? ' paused' : '') + '"><div class="w-marq" aria-hidden="true"><div class="mq-trk"><div class="mq-set">' + set + '</div><div class="mq-set dup">' + set + '</div></div></div>' +
+      '<button type="button" class="mq-pause" data-act="mq" aria-pressed="' + ps + '" aria-label="' + esc(t('mq.pause')) + '"><svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2h4v12H3zM9 2h4v12H9z"/></svg><svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2l10 6-10 6z"/></svg></button></div>';
   }
   function tickText(k) {
     var a = TICK[k], e = EX.estimate(a[0], a[1], a[2], a[3]);
@@ -91,10 +93,10 @@
   function pHome() {
     var i, s, k = t('home.rot').split('|'), t0 = tickText(0), h = '';
     h += '<section class="w-hero" id="heroS"><div class="w-in hero-in"><div class="hero-g"><div class="hero-l"><p class="hero-meta"><span>' + esc(t('home.eye')) + '</span></p>';
-    h += '<h1 class="hero-h" aria-label="' + esc(t('home.h1')) + '"><span class="ln" aria-hidden="true" style="--i:0"><span class="ln-i">' + esc(t('home.l1')) + '</span></span>' +
+    h += '<h2 class="hero-h" aria-label="' + esc(t('home.h1')) + '"><span class="ln" aria-hidden="true" style="--i:0"><span class="ln-i">' + esc(t('home.l1')) + '</span></span>' +
       '<span class="ln rot" aria-hidden="true" style="--i:1"><span class="ln-i" id="rotBox">';
     for (i = 0; i < k.length; i++) h += '<span class="rw' + (i === 0 ? ' on' : '') + '">' + esc(k[i]) + '</span>';
-    h += '</span></span><span class="ln" aria-hidden="true" style="--i:2"><span class="ln-i">' + esc(t('home.l3')) + '</span></span></h1>';
+    h += '</span></span><span class="ln" aria-hidden="true" style="--i:2"><span class="ln-i">' + esc(t('home.l3')) + '</span></span></h2>';
     h += '<p class="w-lead">' + esc(t('home.lead')) + '</p><div class="w-row">' + btn(t('home.cta1'), 'pricing', 'home', 'hot') + btn(t('home.cta2'), 'contact', 'home', 'ghost') + '</div></div>';
     h += '<div class="hero-r">' + pic('hero-excavator', 'hero-ph', true);
     h += '<div class="tick" role="img" aria-label="' + esc(t('tick.k')) + '"><p class="tk"><i></i>' + esc(t('tick.k')) + '</p><p class="tj" id="tkJob">' + esc(t0.job) + '</p><p class="tv"><span id="tkLo">' + EX.fmt(t0.lo) + '</span> – <span id="tkHi">' + EX.fmt(t0.hi) + '</span></p><p class="tu">' + esc(t('est.u')) + '</p></div></div></div></div></section>';
@@ -327,7 +329,7 @@
   }
   function pThanks() {
     var r = P.thanks ? EX.find(P.thanks) : null;
-    if (!r) return '<section class="w-pagehead ph-lime"><div class="w-in"><h1 class="ph-h">' + esc(t('pg.thanks.h1')) + '</h1><div class="w-row">' + btn(pgName('home'), 'home') + '</div></div></section>';
+    if (!r) return '<section class="w-pagehead ph-lime"><div class="w-in"><h2 class="ph-h">' + esc(t('pg.thanks.h1')) + '</h2><div class="w-row">' + btn(pgName('home'), 'home') + '</div></div></section>';
     return pagehead(r.ref, false, r.ref, t('th.h', { name: r.name.split(' ')[0] }), t('th.p')) + '<section class="w-sec"><div class="w-in w-two"><div><h2>' + esc(t('th.auto')) + '</h2><blockquote class="w-quote">' + esc(t('th.auto.t', { name: r.name.split(' ')[0], ref: r.ref })) + '</blockquote></div><aside class="w-side"><h3>' + esc(t('th.steps')) + '</h3><ol class="w-mini"><li>' + esc(t('th.s1')) + '</li><li>' + esc(t('th.s2')) + '</li><li>' + esc(t('th.s3')) + '</li></ol>' + btn(t('th.panel'), 'panel', '', 'hot block') + btn(pgName('home'), 'home', '', 'light block') + '</aside></div></section>';
   }
 
@@ -431,13 +433,13 @@
     if (hero && !reduced()) {
       var rw = root.querySelectorAll('.rw');
       R.rot = w.setInterval(function () {
-        if (!R.heroVis || doc.hidden || !rw.length) return;
+        if (!R.heroVis || P.mqPaused || doc.hidden || !rw.length) return;
         rw[R.ri].classList.remove('on'); rw[R.ri].classList.add('out');
         var prev = rw[R.ri]; w.setTimeout(function () { prev.classList.remove('out'); }, 700);
         R.ri = (R.ri + 1) % rw.length; rw[R.ri].classList.add('on');
       }, 2300);
       R.tick = w.setInterval(function () {
-        if (!R.heroVis || doc.hidden) return;
+        if (!R.heroVis || P.mqPaused || doc.hidden) return;
         R.ti = (R.ti + 1) % TICK.length;
         var d = tickText(R.ti), j = $('tkJob'); if (!j) return;
         j.textContent = d.job; tween($('tkLo'), d.lo); tween($('tkHi'), d.hi);
@@ -516,6 +518,7 @@
         site.go(g, el.getAttribute('data-v'), { pre: el.getAttribute('data-pre'), area: el.getAttribute('data-area') }); return;
       }
       var a = el.getAttribute('data-act');
+      if (a === 'mq') { P.mqPaused = !P.mqPaused; var mw = el.closest('.mq-wrap'); if (mw) mw.classList.toggle('paused', P.mqPaused); el.setAttribute('aria-pressed', String(P.mqPaused)); return; }
       if (a === 'menu') { P.menu = !P.menu; var nv = $('wNav'); if (nv) nv.classList.toggle('open', P.menu); el.setAttribute('aria-expanded', String(P.menu)); return; }
       if (el.hasAttribute('data-quick')) {
         W.type = el.getAttribute('data-quick'); W.size = EX.SERV[W.type].def;

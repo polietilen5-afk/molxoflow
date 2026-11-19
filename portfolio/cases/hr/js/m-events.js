@@ -188,13 +188,13 @@
     var dl = el('dl', { cls: 'kv' });
     rows.forEach(function (r) { dl.appendChild(el('div', {}, [el('dt', { text: r[0] }), el('dd', {}, [r[1] === null ? CL.locked() : r[1]])])); });
     body.appendChild(dl);
-    body.appendChild(el('h4', { cls: 'sub-h', text: T('ev.approval') }));
+    body.appendChild(el('h3', { cls: 'sub-h', text: T('ev.approval') }));
     body.appendChild(chainView(ev));
     if (ev.st === 'rejected' && ev.why) body.appendChild(el('p', { cls: 'note-r', text: T('ev.rejectedWhy', { why: ev.why }) }));
     if (ev.st === 'applied' && ev.fx) body.appendChild(el('p', { cls: 'note-ok' }, [CL.icon('check'), el('span', { text: T(ev.fx, { n: ev.fxN || 0 }) })]));
     var logs = CL.DB.audit.filter(function (a) { return a.ref === ev.id; });
     if (logs.length) {
-      body.appendChild(el('h4', { cls: 'sub-h', text: T('ev.history') }));
+      body.appendChild(el('h3', { cls: 'sub-h', text: T('ev.history') }));
       body.appendChild(el('ul', { cls: 'mini' }, logs.map(function (a) { return el('li', {}, [el('time', { text: a.t }), el('span', { text: CL.auditText(a) })]); })));
     }
     var btns = [];

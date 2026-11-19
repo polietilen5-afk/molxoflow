@@ -178,7 +178,7 @@
   AD.openModule = m => {
     const S = AD.S, def = AD.MODS[m]; if (!def) return;
     let p = {};
-    if (m === 'chat') { const d = AD.ensureDraft(); if (!d.chat.length) d.step = 3; if (!d.sym.length) d.sym = ['br_squeal']; }
+    if (m === 'chat') { const d = AD.ensureDraft(); if (!d.chat.length) d.step = 3; if (!d.sym.length) d.sym = ['br_squeal']; if (!d.cat) d.cat = 'brakes'; }
     if (m === 'result' || m === 'cost') { const d = S.diags[0]; if (!d) { AD.openIn('diagnose', 'diag'); return; } p = { id: d.id, cause: AD.analyze(d).causes[0].id }; }
     AD.openIn(def[0], def[1], p);
     const r = $('ad-phone'); if (r && r.scrollIntoView && window.innerWidth < 1100) r.scrollIntoView({ block: 'start' });

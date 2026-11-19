@@ -6,29 +6,40 @@
 <title data-i18n="meta.title">Portfolio</title>
 <meta name="description" content="" data-i18n-attr="content:meta.desc">
 <meta name="theme-color" content="#0b0d11">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="shared/kit.i18n.css?v=3">
 <link rel="stylesheet" href="shared/pf.css?v=3">
 <style>
-.hero { padding: clamp(40px, 8vw, 96px) 0 clamp(16px, 3vw, 32px); }
+.pf-wrap.hero, .pf-wrap.pf-sec { padding-inline: var(--gut); }
+.hero { padding-block: clamp(40px, 8vw, 96px) clamp(16px, 3vw, 32px); }
+.hero-in { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px clamp(24px, 5vw, 72px); align-items: end; }
+.hero-count { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 0 0 8px; border-bottom: 2px solid var(--accent); min-width: 180px; }
+.hero-count b { font: 700 clamp(72px, 9vw, 132px)/.9 var(--disp); letter-spacing: -.05em; color: var(--accent); }
+.hero-count span { font: 500 14px/1.3 var(--mono); color: var(--muted); letter-spacing: .02em; }
 .cases { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; padding: 0; margin: 0; list-style: none; }
-.case { display: flex; flex-direction: column; gap: 12px; height: 100%; background: var(--s1); border: 1px solid var(--line); border-radius: 18px; padding: 24px; text-decoration: none; transition: border-color .18s var(--ease), transform .18s var(--ease), background .18s; }
+.cases > li { display: flex; }
+.case { display: flex; flex-direction: column; width: 100%; overflow: hidden; background: var(--s1); border: 1px solid var(--line); border-radius: 18px; text-decoration: none; transition: border-color .18s var(--ease), transform .18s var(--ease), background .18s; }
 .case:hover, .case:focus-visible { border-color: var(--accent); background: var(--s2); transform: translateY(-2px); }
+.case-img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; background: var(--s2); border-bottom: 1px solid var(--line); }
+.case-body { display: flex; flex-direction: column; flex: 1; gap: 12px; padding: 20px 24px 24px; }
 .case-k { font: 500 12px/1.4 var(--mono); color: var(--accent); letter-spacing: .04em; text-transform: uppercase; }
-.case h2 { margin: 0; font: 700 clamp(22px, 2.2vw, 28px)/1.15 var(--disp); letter-spacing: -.03em; }
+.case h3 { margin: 0; font: 700 clamp(24px, 2.2vw, 28px)/1.15 var(--disp); letter-spacing: -.03em; }
 .case p { margin: 0; color: var(--muted); font-size: 16px; }
-.case ul.pts { margin: 0; padding: 0 0 0 18px; color: var(--muted); font-size: 15px; display: grid; gap: 6px; }
-.case .pf-tags { margin: auto 0 0; }
-.case-go { display: inline-flex; align-items: center; min-height: 44px; font: 700 15px/1 var(--font); color: var(--text); }
-.case-go::after { content: "\2192"; margin-left: 8px; color: var(--accent); transition: transform .18s var(--ease); }
-.case:hover .case-go::after { transform: translateX(4px); }
+.case .pf-tags { margin: auto 0 0; padding-top: 4px; }
+.case-go { display: inline-flex; align-items: center; align-self: flex-start; min-height: 44px; padding: 0 20px; border: 1px solid var(--accent); border-radius: 999px; font: 700 15px/1 var(--font); color: var(--text); transition: background .18s, color .18s; }
+.case-go::after { content: "\2192"; margin-left: 8px; color: var(--accent); transition: transform .18s var(--ease), color .18s; }
+.case:hover .case-go, .case:focus-visible .case-go { background: var(--accent); color: var(--accent-ink); }
+.case:hover .case-go::after, .case:focus-visible .case-go::after { transform: translateX(4px); color: var(--accent-ink); }
 .grp { margin: 0 0 clamp(36px, 5vw, 64px); }
-.grp-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; margin: 0 0 18px; }
-.grp-n { font: 500 13px/1 var(--mono); color: var(--accent); letter-spacing: .06em; }
+.grp-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; margin: 0 0 20px; }
+.grp-n { font: 500 15px/1 var(--mono); color: var(--accent); letter-spacing: .06em; }
 .grp-t { margin: 0; font: 700 clamp(22px, 2.6vw, 32px)/1.1 var(--disp); letter-spacing: -.03em; }
 .grp-l { flex-basis: 100%; margin: 0; color: var(--muted); max-width: 46em; }
 @media (max-width: 1060px) { .cases { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 680px) { .cases { grid-template-columns: 1fr; } }
+@media (max-width: 680px) { .cases { grid-template-columns: 1fr; } .hero-in { grid-template-columns: 1fr; } .hero-count { flex-direction: row; align-items: baseline; gap: 14px; min-width: 0; } .hero-count b { font-size: 64px; } }
 .note { max-width: 46em; margin-top: 36px; }
 @media (hover: none) { .case:hover { transform: none; } }
 </style>
@@ -44,9 +55,14 @@
 </header>
 <main>
   <section class="pf-wrap hero">
-    <p class="eyebrow" data-i18n="hero.eyebrow"></p>
-    <h1 class="pf-h1" data-i18n="hero.title"></h1>
-    <p class="pf-lead" data-i18n="hero.lead"></p>
+    <div class="hero-in">
+      <div>
+        <p class="eyebrow" data-i18n="hero.eyebrow"></p>
+        <h1 class="pf-h1" data-i18n="hero.title"></h1>
+        <p class="pf-lead" data-i18n="hero.lead"></p>
+      </div>
+      <p class="hero-count"><b data-i18n="hero.count"></b><span data-i18n="hero.countl"></span></p>
+    </div>
   </section>
   <section class="pf-wrap pf-sec" id="cases" style="padding-top:8px">
     <div id="groups"></div>
@@ -73,19 +89,19 @@
   ];
   var root = document.getElementById('groups');
   function card(c, t) {
-    var j, li, a, el, ul, tg;
+    var li, a, el, bd, tg;
     li = document.createElement('li');
     a = document.createElement('a'); a.className = 'case'; a.href = 'cases/' + c.slug + '/index.html?lang=' + MFI18N.lang();
-    el = document.createElement('span'); el.className = 'case-k'; el.textContent = t(c.k + '.kind'); a.appendChild(el);
-    el = document.createElement('h3'); el.textContent = t(c.k + '.name'); a.appendChild(el);
-    el = document.createElement('p'); el.textContent = t(c.k + '.tag'); a.appendChild(el);
-    ul = document.createElement('ul'); ul.className = 'pts';
-    for (j = 1; j <= 3; j++) { el = document.createElement('li'); el.textContent = t(c.k + '.p' + j); ul.appendChild(el); }
-    a.appendChild(ul);
+    el = document.createElement('img'); el.className = 'case-img'; el.src = 'img/' + c.slug + '.jpg'; el.width = 640; el.height = 400; el.loading = 'lazy'; el.decoding = 'async'; el.alt = t(c.k + '.alt'); a.appendChild(el);
+    bd = document.createElement('div'); bd.className = 'case-body';
+    el = document.createElement('span'); el.className = 'case-k'; el.textContent = t(c.k + '.kind'); bd.appendChild(el);
+    el = document.createElement('h3'); el.textContent = t(c.k + '.name'); bd.appendChild(el);
+    el = document.createElement('p'); el.textContent = t(c.k + '.tag'); bd.appendChild(el);
     tg = document.createElement('ul'); tg.className = 'pf-tags';
-    t(c.k + '.stack').split('|').forEach(function (s) { var x = document.createElement('li'); x.className = 'pf-tag'; x.textContent = s; tg.appendChild(x); });
-    a.appendChild(tg);
-    el = document.createElement('span'); el.className = 'case-go'; el.textContent = t('open'); a.appendChild(el);
+    t(c.k + '.stack').split('|').slice(0, 3).forEach(function (s) { var x = document.createElement('li'); x.className = 'pf-tag'; x.textContent = s; tg.appendChild(x); });
+    bd.appendChild(tg);
+    el = document.createElement('span'); el.className = 'case-go'; el.textContent = t('open'); bd.appendChild(el);
+    a.appendChild(bd);
     li.appendChild(a);
     return li;
   }

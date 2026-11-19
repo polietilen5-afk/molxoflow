@@ -103,7 +103,7 @@
           S.nav.tab = 'diagnose'; S.nav.stack = [{ id: 'diag', p: {} }, { id: 'result', p: { id: rec.id, fresh: true } }]; AD.render(true);
         }
       });
-      const f = $('ad-send');
+      const f = $('ad-send'); if (!f) return;
       f.onsubmit = e => {
         e.preventDefault(); const inp = $('ad-say'), v = inp.value.trim(); if (!v || d.typing) return;
         d.chat.push({ type: 'free', from: 'me', txt: v }); d.note = (d.note ? d.note + ' ' : '') + v;

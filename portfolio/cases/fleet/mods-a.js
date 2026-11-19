@@ -10,7 +10,7 @@
     if (v.doc) v.doc = t('doc.' + v.doc);
     if (v.what) v.what = FD.cpName(v.what);
     if (v.sys) v.sys = t('sys.' + v.sys);
-    if (v.state) v.state = t('vstate.' + v.state);
+    if (v.state && e.key === 'vstate') v.state = t('vstate.' + v.state);
     return t('a.' + e.key, v);
   };
   const drivers = freeFor => S.people.filter(p => p.role === 'driver' && p.active && (!S.vehicles.some(v => v.driver === p.id && v.id !== freeFor)));

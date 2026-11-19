@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Route Match: chat requests to structured leads</title>
+<title>Route Match: chat requests in one table</title>
 <meta name="description" content="A desktop assistant that reads carrier group chats, extracts transport requests with a language model and matches them to routes with a confidence level.">
 <meta name="theme-color" content="#0b0d11">
 <link rel="icon" href="data:,">
@@ -29,14 +29,14 @@
 <section class="pf-sec hero">
   <div class="pf-wrap">
     <p class="eyebrow" data-i18n="hero.eyebrow">Case study / desktop assistant</p>
-    <h1 class="pf-h1" data-i18n="hero.title">Carrier requests buried in group chats, turned into structured leads</h1>
+    <h1 class="pf-h1" data-i18n="hero.title">Requests from group chats are collected into one tidy table</h1>
     <p class="pf-lead" data-i18n="hero.lead">A dispatcher follows dozens of chats to spot people who need a ride or a parcel delivered. The assistant reads the chats for them, extracts each request into clean fields and shows which route fits.</p>
     <ul class="pf-tags" aria-label="Stack">
       <li class="pf-tag" data-i18n="tag.desktop">Desktop app</li>
-      <li class="pf-tag" data-i18n="tag.llm">LLM extraction</li>
-      <li class="pf-tag" data-i18n="tag.regex">Regex fallback</li>
+      <li class="pf-tag" data-i18n="tag.llm">AI extraction</li>
+      <li class="pf-tag" data-i18n="tag.regex">Pattern-matching fallback</li>
       <li class="pf-tag" data-i18n="tag.match">Route matching</li>
-      <li class="pf-tag" data-i18n="tag.local">Local SQLite</li>
+      <li class="pf-tag" data-i18n="tag.local">Database on the computer</li>
     </ul>
     <p class="hero-cta">
       <a class="btn" href="#demo" data-i18n="cta.demo">Try the demo</a>
@@ -47,6 +47,7 @@
 
 <section class="pf-sec sec-tight">
   <div class="pf-wrap">
+    <h2 class="sr-only" data-i18n="brief.h">The problem, the solution, the result</h2>
     <div class="pf-grid3">
       <article class="pf-card"><span class="pf-num">1</span><h3 data-i18n="g.task.h">The problem</h3><p data-i18n="g.task.p">Requests arrive as free text in many chats, with typos and shorthand. Finding the relevant ones and comparing them with the timetable took the manager hours of scrolling and copy-pasting.</p></article>
       <article class="pf-card"><span class="pf-num">2</span><h3 data-i18n="g.did.h">What we built</h3><p data-i18n="g.did.p">A desktop app that watches the chats, extracts type, route, date and volume with a language model (with a rule-based fallback), and scores every request against the carrier's routes.</p></article>
@@ -71,7 +72,7 @@
       </div>
       <div class="rm-shell">
         <nav class="rm-side" id="rm-side" data-i18n-attr="aria-label:app.modules"></nav>
-        <main class="rm-main" id="rm-main" tabindex="-1"></main>
+        <div class="rm-main" id="rm-main" tabindex="-1" role="region" data-i18n-attr="aria-label:app.work" aria-label="Workspace"></div>
       </div>
       <nav class="rm-bnav" id="rm-bnav" data-i18n-attr="aria-label:app.modules"></nav>
       <div class="rm-drawer" id="rm-drawer" hidden></div>
@@ -109,7 +110,7 @@
     <ol class="how">
       <li class="pf-card"><span class="pf-num">1</span><h3 data-i18n="how.1.h">Read</h3><p data-i18n="how.1.p">The app reads new messages from the manager's own chats on the same computer, nothing leaves the machine except the text sent for extraction.</p></li>
       <li class="pf-card"><span class="pf-num">2</span><h3 data-i18n="how.2.h">Extract</h3><p data-i18n="how.2.p">A language model returns type, origin, destination, date and volume. If it is unavailable, a pattern-based parser takes over.</p></li>
-      <li class="pf-card"><span class="pf-num">3</span><h3 data-i18n="how.3.h">Match</h3><p data-i18n="how.3.p">Cities are normalised and compared with each active route: exact, nearby or reversed, plus service type and running days.</p></li>
+      <li class="pf-card"><span class="pf-num">3</span><h3 data-i18n="how.3.h">Match</h3><p data-i18n="how.3.p">City names are standardized and compared with each active route: exact, nearby or reversed, plus service type and running days.</p></li>
       <li class="pf-card"><span class="pf-num">4</span><h3 data-i18n="how.4.h">Reply</h3><p data-i18n="how.4.p">The manager sees a confidence level, picks a trip and gets a ready reply to send. Nothing is sent automatically.</p></li>
     </ol>
   </div>
@@ -120,7 +121,7 @@
     <p class="eyebrow" data-i18n="stack.eyebrow">Stack</p>
     <ul class="pf-tags">
       <li class="pf-tag">Python</li><li class="pf-tag">FastAPI</li><li class="pf-tag">SQLite</li><li class="pf-tag">React</li>
-      <li class="pf-tag" data-i18n="stack.llm">Language model API</li><li class="pf-tag" data-i18n="stack.fuzzy">Fuzzy city matching</li><li class="pf-tag" data-i18n="stack.pack">Windows installer</li>
+      <li class="pf-tag" data-i18n="stack.llm">Language model connection</li><li class="pf-tag" data-i18n="stack.fuzzy">Fuzzy city matching</li><li class="pf-tag" data-i18n="stack.pack">Windows installer</li>
     </ul>
   </div>
 </section>

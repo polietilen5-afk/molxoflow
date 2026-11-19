@@ -67,7 +67,7 @@
     var cite = '';
     if (C.cite) {
       var c = KB.chunk(C.cite), s = c ? KB.src(c.src) : null;
-      if (c && s) cite = '<div class="card citecard"><div class="mh"><h4>' + e(KB.cTitle(c)) + '</h4><button type="button" class="rm-mini" data-act="cite" data-id="">' + e(t('btn.close')) + '</button></div>' +
+      if (c && s) cite = '<div class="card citecard"><div class="mh"><h3>' + e(KB.cTitle(c)) + '</h3><button type="button" class="rm-mini" data-act="cite" data-id="">' + e(t('btn.close')) + '</button></div>' +
         '<p class="meta">' + UI.svg(s.type, 14) + ' ' + e(KB.srcName(s)) + ' · ' + e(t('aud.' + s.aud)) + ' · ' + e(t('src.age', { n: s.age })) + '</p><p>' + e(KB.cText(c)) + '</p>' +
         '<div class="acts"><button type="button" class="btn btn-ghost btn-sm" data-act="gosrc" data-id="' + s.id + '">' + e(t('ch.opensrc')) + '</button></div></div>';
     }
@@ -83,7 +83,7 @@
       '<div class="msgs" id="msgs" role="log" aria-live="polite">' + msgs + tail + '</div>' + cite +
       '<div class="chips">' + SUGGEST.map(function (k) { return '<button type="button" class="tagb" data-act="suggest" data-qk="' + k + '">' + e(t(k)) + '</button>'; }).join('') + '</div>' +
       '<form class="askf" data-form="ask"><label class="sr" for="ask-q">' + e(t('ch.input')) + '</label><input class="inp" id="ask-q" name="q" data-in="chatq" autocomplete="off" maxlength="200" placeholder="' + e(t('ch.input')) + '" value="' + e(C.fresh) + '"><button class="btn btn-sm" type="submit">' + UI.svg('send', 16) + '<span>' + e(t('ch.send')) + '</span></button></form>' +
-      '</div><aside class="chat-side card"><h4>' + e(t('ch.trace.h')) + '</h4>' + trace() + '</aside></div>';
+      '</div><aside class="chat-side card"><h3>' + e(t('ch.trace.h')) + '</h3>' + trace() + '</aside></div>';
   };
   function ask(q) {
     var S = KB.S, C = U.chat, i, qk = null;

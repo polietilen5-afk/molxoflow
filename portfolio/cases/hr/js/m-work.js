@@ -14,7 +14,7 @@
     var dl = el('dl', { cls: 'kv' });
     [[T('f.type'), T('pt.' + p.type)], [T('f.date'), p.date], [T('piece.qty'), p.qty + ' ' + T('u.' + p.unit)], [T('f.status'), T('ps.' + p.st)], [T('piece.price'), p.price ? (CL.can('price') ? T('piece.tariff', { t: p.price }) : T('piece.priceSet')) : T('piece.priceNone')], [T('f.createdBy'), T('role.' + p.by)]].forEach(function (r) { dl.appendChild(el('div', {}, [el('dt', { text: r[0] }), el('dd', { text: r[1] })])); });
     body.appendChild(dl);
-    body.appendChild(el('h4', { cls: 'sub-h', text: T('piece.shares') }));
+    body.appendChild(el('h3', { cls: 'sub-h', text: T('piece.shares') }));
     body.appendChild(CL.table([{ h: T('f.employee'), f: function (s) { return CL.emp(s.emp).n; } }, { h: T('piece.sharePct'), f: function (s) { return s.pct + ' %'; } }], p.shares));
     if (p.st === 'confirmed') body.appendChild(el('p', { cls: 'note-ok' }, [CL.icon('check'), el('span', { text: T('piece.immutable') })]));
     var btns = [];
@@ -87,7 +87,7 @@
     var e = CL.emp(m.emp), body = el('div', { cls: 'detail' }), dl = el('dl', { cls: 'kv' });
     [[T('f.employee'), e.n], [T('f.type'), T('mk.' + m.kind)], [T('memo.month'), m.month], [T('f.status'), T('ms.' + m.st)], [T('memo.amount'), m.priced ? (CL.can('price') ? T('memo.amountSet') : T('memo.amountMarked')) : T('memo.amountNone')], [T('memo.basis'), m.file || T('memo.noFile')], [T('f.createdBy'), T('role.' + m.by)]].forEach(function (r) { dl.appendChild(el('div', {}, [el('dt', { text: r[0] }), el('dd', { text: r[1] })])); });
     body.appendChild(dl);
-    body.appendChild(el('h4', { cls: 'sub-h', text: T('memo.reason') }));
+    body.appendChild(el('h3', { cls: 'sub-h', text: T('memo.reason') }));
     body.appendChild(el('p', { text: m.reason }));
     if (m.st === 'rejected' && m.why) body.appendChild(el('p', { cls: 'note-r', text: T('ev.rejectedWhy', { why: m.why }) }));
     if (m.st === 'approved') body.appendChild(el('p', { cls: 'note-ok' }, [CL.icon('check'), el('span', { text: T('memo.inCalc') })]));

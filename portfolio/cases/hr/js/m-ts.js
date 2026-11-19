@@ -238,7 +238,7 @@
     }, 'btn-ghost'));
     panel.appendChild(acts);
     box.appendChild(panel);
-    box.appendChild(el('h4', { cls: 'sub-h', text: T('ts.versions') }));
+    box.appendChild(el('h3', { cls: 'sub-h', text: T('ts.versions') }));
     box.appendChild(CL.table([
       { h: T('ts.rev'), f: function (v) { return 'v' + v.rev; } }, { h: T('f.date'), f: function (v) { return v.at; } },
       { h: T('f.createdBy'), f: function (v) { return T('role.' + v.by); } }, { h: T('ts.hash'), f: function (v) { return el('code', { text: v.hash }); } },
