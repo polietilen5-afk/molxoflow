@@ -629,9 +629,8 @@
 
   /* ---------- сборка и пересборка при смене языка ---------- */
   var pending = null;
-  I.onChange(function () {
-    if (pauseBtn) { pauseBtn.classList.add('rdy'); }
-    doc.documentElement.classList.add('rdy');
+  var firstBuild = true;
+  function rebuildAll() {
     buildChips();
     renderLive(curPain, false);
     buildSteps();
@@ -644,5 +643,20 @@
     readProgress();
     if (fbRepaint) { fbRepaint(); }
     pending = null;
+  }
+  I.onChange(function () {
+    if (pauseBtn) { pauseBtn.classList.add('rdy'); }
+    doc.documentElement.classList.add('rdy');
+    window.setTimeout(function () { doc.documentElement.classList.add('rdy2'); }, 1000);
+    /* первая сборка уступает отрисовке: герой (LCP) показывается до тяжёлой сборки блоков ниже */
+    if (firstBuild) {
+      firstBuild = false;
+      var ran = false, go = function () { if (!ran) { ran = true; rebuildAll(); } };
+      if (window.requestAnimationFrame) { window.requestAnimationFrame(function () { window.setTimeout(go, 0); }); }
+      window.setTimeout(go, 400);
+      return;
+    }
+    firstBuild = false;
+    rebuildAll();
   });
 }());

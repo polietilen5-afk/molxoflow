@@ -8,6 +8,7 @@
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="index,follow,max-image-preview:large">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script id="i18n-pend">(function(){var d=document.documentElement,l='',m,s,n,i,b,q=/^(en|ru|uk|ua)/;try{m=/[?&]lang=([a-zA-Z]+)/.exec(location.search);if(m){b=m[1].toLowerCase().slice(0,2);if(q.test(b))l=b}}catch(e){}if(!l)try{b=String(localStorage.getItem('molxo-variant-lang')||'').toLowerCase().slice(0,2);if(q.test(b))l=b}catch(e){}if(!l)try{n=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language];for(i=0;i<n.length;i++){b=String(n[i]||'').toLowerCase().slice(0,2);if(q.test(b)){l=b;break}}}catch(e){}if(l==='ua')l='uk';if(l!=='ru'&&l!=='uk')return;var F=["manrope-400-cyrillic.woff2","unbounded-500-cyrillic.woff2"],k,a;for(k=0;k<F.length;k++){a=document.createElement('link');a.rel='preload';a.as='font';a.type='font/woff2';a.crossOrigin='';a.href='fonts/'+F[k];document.head.appendChild(a)}})();</script>
 <link rel="stylesheet" href="fonts/fonts.css?v=1e6a8860">
 <link rel="preload" href="fonts/manrope-400-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/unbounded-500-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -34,7 +35,7 @@
 <meta name="description" content="We automate business routine: AI agents, bots, CRM and integrations built for your task. Tell us the task, we will suggest a solution scheme." data-i18n-attr="content:meta.desc">
 <meta name="theme-color" content="#0b0d11">
 <link rel="stylesheet" href="kit/kit.i18n.css?v=8146a404">
-<link rel="stylesheet" href="style.css?v=2db0e001">
+<link rel="stylesheet" href="style.css?v=127a8a5e">
 <link rel="stylesheet" href="agent/agent.css?v=7ee377e0">
 <noscript><style>html:not(.rdy) .hero, html:not(.rdy) .top-r, html:not(.rdy) .after { visibility: visible; }</style></noscript>
 </head>
@@ -102,7 +103,7 @@
       <p class="kicker" data-i18n="reel.kicker">How it looks at work</p>
       <h2 id="reelT" data-i18n="reel.h2">The client writes, the agent replies, the request lands in the CRM</h2>
       <figure class="reel">
-        <video id="reelVid" muted loop playsinline preload="none" poster="assets/reel-poster.en.jpg" data-i18n-attr="aria-label:reel.aria" aria-label="Loop: a chat with a client, the AI agent panel and a CRM with a new request. Demo, data is fictional.">
+        <video id="reelVid" muted loop playsinline preload="none" data-i18n-attr="aria-label:reel.aria" aria-label="Loop: a chat with a client, the AI agent panel and a CRM with a new request. Demo, data is fictional.">
           <source id="reelSrc" src="assets/reel.en.mp4" type="video/mp4">
         </video>
         <figcaption data-i18n="reel.cap">Interface animation. Data is fictional.</figcaption>
@@ -134,7 +135,7 @@
 <script defer src="i18n/ru.js?v=f69abc6e"></script>
 <script defer src="i18n/uk.js?v=7b6736b4"></script>
 <script defer src="wins.js?v=44b273b0"></script>
-<script defer src="app.js?v=8650977d"></script>
+<script defer src="app.js?v=c9ad495f"></script>
 <script defer src="agent/config.js?v=483f465f"></script>
 <script defer src="agent/agent.js?v=a3196a34"></script>
 <!-- сцену three.js (scene.js, type=module) подгружает app.js после первой отрисовки: не при Save-Data и не при prefers-reduced-motion -->

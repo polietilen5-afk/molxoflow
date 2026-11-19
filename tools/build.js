@@ -59,8 +59,8 @@ function cyrFonts(file) {
  * Если не en: класс i18n-pending на <html> прячет body (визуально) и подгружается кириллица;
  * kit.i18n.js снимает класс после подстановки словаря и загрузки шрифтов, страховочный таймаут 1500 мс.
  * Без JS класс не ставится, контент виден. */
-function pendingBlock(page, fdir, nl) {
-  var hide = true;
+function pendingBlock(page, fdir, nl, soft) {
+  var hide = !soft; /* soft: главная, только ранний preload кириллицы без скрытия */
   var js = "(function(){var d=document.documentElement,l='',m,s,n,i,b,q=/^(en|ru|uk|ua)/;" +
     "try{m=/[?&]lang=([a-zA-Z]+)/.exec(location.search);if(m){b=m[1].toLowerCase().slice(0,2);if(q.test(b))l=b}}catch(e){}" +
     "if(!l)try{b=String(localStorage.getItem('molxo-variant-lang')||'').toLowerCase().slice(0,2);if(q.test(b))l=b}catch(e){}" +
@@ -68,7 +68,7 @@ function pendingBlock(page, fdir, nl) {
     "if(l==='ua')l='uk';if(l!=='ru'&&l!=='uk')return;" +
     (hide ? "d.classList.add('i18n-pending');" +
     "var f=function(){d.classList.remove('i18n-pending')};setTimeout(f,6000);document.addEventListener('DOMContentLoaded',function(){setTimeout(f,1500)});" : "") +
-    "var F=" + JSON.stringify(hide ? cyrFonts(page.file) : []) + ",k,a;" +
+    "var F=" + JSON.stringify(cyrFonts(page.file)) + ",k,a;" +
     "for(k=0;k<F.length;k++){a=document.createElement('link');a.rel='preload';a.as='font';a.type='font/woff2';a.crossOrigin='';a.href='" + fdir + "'+F[k];document.head.appendChild(a)}" +
     "})();";
   return ['<script id="i18n-pend">' + js + '</script>',
@@ -179,7 +179,8 @@ function metaBlock(page, title, desc, nl) {
   L.push('<link rel="icon" type="image/svg+xml" href="/favicon.svg">');
   var up = path.relative(path.dirname(abs(page.file)), ROOT).split(path.sep).join('/');
   var fdir = (up ? up + '/' : '') + 'fonts/';
-  if (page.file !== 'index.html') L.push(pendingBlock(page, fdir, nl)); /* главная: свой гейт T07 (html:not(.rdy)) */
+  if (page.url === null) fdir = '/fonts/'; /* 404.html отдаётся на любой глубине URL: путь только корневой */
+  L.push(pendingBlock(page, fdir, nl, page.file === 'index.html')); /* главная: свой гейт T07 (html:not(.rdy)), тут только preload кириллицы при ru/uk */
   L.push('<link rel="stylesheet" href="' + fdir + 'fonts.css">');
   if (PRELOAD_PAGES[page.file]) PRELOAD_FONTS.forEach(function (f) {
     L.push('<link rel="preload" href="' + fdir + f + '" as="font" type="font/woff2" crossorigin>');

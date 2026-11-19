@@ -42,7 +42,9 @@ html.no3d #fallback { display: block; }
 
 /* герой и путь */
 #journey { position: relative; z-index: 1; height: 700vh; height: 700svh; }
-.hero { position: fixed; z-index: 6; left: var(--gut); top: 50%; transform: translateY(-50%); width: min(520px, 40vw); transition: visibility 0s .3s; }
+.hero { position: fixed; z-index: 6; left: var(--gut); top: 50%; transform: translateY(-50%); width: min(520px, 40vw); }
+/* задержка скрытия при прокрутке включается после первой отрисовки: иначе она на 0,3 с откладывает показ героя (LCP) */
+html.rdy2 .hero { transition: visibility 0s .3s; }
 .eyebrow { margin: 0 0 18px; font: 500 13px/1.4 var(--mono); color: var(--muted); letter-spacing: .02em; }
 .hero h1 { margin: 0 0 20px; font: 700 clamp(32px, 3.5vw, 52px)/1.06 var(--disp); letter-spacing: -.035em; text-wrap: balance; }
 .lead { margin: 0 0 28px; font-size: clamp(16px, 1.25vw, 19px); color: var(--muted); max-width: 34em; }

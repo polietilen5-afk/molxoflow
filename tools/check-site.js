@@ -85,7 +85,7 @@ PAGES.forEach(function (p) {
   if (!metaContent(html, 'http-equiv', 'Content-Security-Policy')) fail(p.file + ': нет CSP');
   if (metaContent(html, 'name', 'referrer') !== 'no-referrer') fail(p.file + ': нет referrer');
   if (/fonts\.(googleapis|gstatic)\.com/i.test(html)) fail(p.file + ': осталась ссылка на Google Fonts');
-  if (!/<link rel="stylesheet" href="(\.\.\/)*fonts\/fonts\.css\?v=[0-9a-f]{8}">/.test(html)) fail(p.file + ': не подключён fonts/fonts.css');
+  if (!/<link rel="stylesheet" href="((\.\.\/)*|\/)fonts\/fonts\.css\?v=[0-9a-f]{8}">/.test(html)) fail(p.file + ': не подключён fonts/fonts.css');
   /* [ключи] в видимом HTML */
   m = /\[[a-z][a-z0-9]*(\.[a-z0-9]+)+\]/i.exec(html.replace(/<script[\s\S]*?<\/script>/g, ''));
   if (m) fail(p.file + ': в HTML виден ключ ' + m[0]);
