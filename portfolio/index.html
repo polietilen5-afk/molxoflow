@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title data-i18n="meta.title">Portfolio</title>
+<meta name="description" content="" data-i18n-attr="content:meta.desc">
+<meta name="theme-color" content="#0b0d11">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="shared/kit.i18n.css?v=2">
+<link rel="stylesheet" href="shared/pf.css?v=2">
+<style>
+.hero { padding: clamp(40px, 8vw, 96px) 0 clamp(16px, 3vw, 32px); }
+.cases { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; padding: 0; margin: 0; list-style: none; }
+.case { display: flex; flex-direction: column; gap: 12px; height: 100%; background: var(--s1); border: 1px solid var(--line); border-radius: 18px; padding: 24px; text-decoration: none; transition: border-color .18s var(--ease), transform .18s var(--ease), background .18s; }
+.case:hover, .case:focus-visible { border-color: var(--accent); background: var(--s2); transform: translateY(-2px); }
+.case-k { font: 500 12px/1.4 var(--mono); color: var(--accent); letter-spacing: .04em; text-transform: uppercase; }
+.case h2 { margin: 0; font: 700 clamp(22px, 2.2vw, 28px)/1.15 var(--disp); letter-spacing: -.03em; }
+.case p { margin: 0; color: var(--muted); font-size: 16px; }
+.case ul.pts { margin: 0; padding: 0 0 0 18px; color: var(--muted); font-size: 15px; display: grid; gap: 6px; }
+.case .pf-tags { margin: auto 0 0; }
+.case-go { display: inline-flex; align-items: center; min-height: 44px; font: 700 15px/1 var(--font); color: var(--text); }
+.case-go::after { content: "\2192"; margin-left: 8px; color: var(--accent); transition: transform .18s var(--ease); }
+.case:hover .case-go::after { transform: translateX(4px); }
+.grp { margin: 0 0 clamp(36px, 5vw, 64px); }
+.grp-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; margin: 0 0 18px; }
+.grp-n { font: 500 13px/1 var(--mono); color: var(--accent); letter-spacing: .06em; }
+.grp-t { margin: 0; font: 700 clamp(22px, 2.6vw, 32px)/1.1 var(--disp); letter-spacing: -.03em; }
+.grp-l { flex-basis: 100%; margin: 0; color: var(--muted); max-width: 46em; }
+@media (max-width: 1060px) { .cases { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 680px) { .cases { grid-template-columns: 1fr; } }
+.note { max-width: 46em; margin-top: 36px; }
+@media (hover: none) { .case:hover { transform: none; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#cases" data-i18n="skip"></a>
+<header class="pf-top">
+  <a class="pf-brand" href="/" data-i18n-attr="aria-label:brand.aria">Molxo<span>Flow</span></a>
+  <div class="pf-nav">
+    <div class="lang-sw" data-i18n-switch></div>
+    <a class="btn btn-sm" href="https://t.me/Molxo1" target="_blank" rel="noopener" data-i18n="nav.talk"></a>
+  </div>
+</header>
+<main>
+  <section class="pf-wrap hero">
+    <p class="eyebrow" data-i18n="hero.eyebrow"></p>
+    <h1 class="pf-h1" data-i18n="hero.title"></h1>
+    <p class="pf-lead" data-i18n="hero.lead"></p>
+  </section>
+  <section class="pf-wrap pf-sec" id="cases" style="padding-top:8px">
+    <div id="groups"></div>
+    <p class="demo-note note" data-i18n="note"></p>
+  </section>
+  <section class="pf-wrap pf-sec pf-cta">
+    <h2 class="pf-h2" data-i18n="cta.title"></h2>
+    <p class="pf-lead" style="margin-inline:auto" data-i18n="cta.lead"></p>
+    <a class="btn" href="https://t.me/Molxo1" target="_blank" rel="noopener" data-i18n="cta.btn"></a>
+  </section>
+</main>
+<footer class="pf-foot" data-i18n="foot"></footer>
+<script src="shared/kit.i18n.js?v=2"></script>
+<script src="i18n/en.js"></script>
+<script src="i18n/ru.js"></script>
+<script src="i18n/uk.js"></script>
+<script>
+(function () {
+  'use strict';
+  var GROUPS = [
+    { k: 'g1', cases: [{ slug: 'fleet', k: 'fleet' }, { slug: 'dispatch', k: 'dispatch' }, { slug: 'hr', k: 'hr' }] },
+    { k: 'g2', cases: [{ slug: 'tender', k: 'tender' }, { slug: 'kb', k: 'kb' }, { slug: 'autodiag', k: 'autodiag' }] },
+    { k: 'g3', cases: [{ slug: 'excavation', k: 'exc' }, { slug: 'booking', k: 'booking' }, { slug: 'recovery', k: 'recovery' }] }
+  ];
+  var root = document.getElementById('groups');
+  function card(c, t) {
+    var j, li, a, el, ul, tg;
+    li = document.createElement('li');
+    a = document.createElement('a'); a.className = 'case'; a.href = 'cases/' + c.slug + '/index.html?lang=' + MFI18N.lang();
+    el = document.createElement('span'); el.className = 'case-k'; el.textContent = t(c.k + '.kind'); a.appendChild(el);
+    el = document.createElement('h3'); el.textContent = t(c.k + '.name'); a.appendChild(el);
+    el = document.createElement('p'); el.textContent = t(c.k + '.tag'); a.appendChild(el);
+    ul = document.createElement('ul'); ul.className = 'pts';
+    for (j = 1; j <= 3; j++) { el = document.createElement('li'); el.textContent = t(c.k + '.p' + j); ul.appendChild(el); }
+    a.appendChild(ul);
+    tg = document.createElement('ul'); tg.className = 'pf-tags';
+    t(c.k + '.stack').split('|').forEach(function (s) { var x = document.createElement('li'); x.className = 'pf-tag'; x.textContent = s; tg.appendChild(x); });
+    a.appendChild(tg);
+    el = document.createElement('span'); el.className = 'case-go'; el.textContent = t('open'); a.appendChild(el);
+    li.appendChild(a);
+    return li;
+  }
+  function render() {
+    var t = MFI18N.t, i, j, g, sec, h, el, ul;
+    root.innerHTML = '';
+    for (i = 0; i < GROUPS.length; i++) {
+      g = GROUPS[i];
+      sec = document.createElement('section'); sec.className = 'grp';
+      h = document.createElement('div'); h.className = 'grp-h';
+      el = document.createElement('span'); el.className = 'grp-n'; el.textContent = '0' + (i + 1); h.appendChild(el);
+      el = document.createElement('h2'); el.className = 'grp-t'; el.textContent = t(g.k + '.title'); h.appendChild(el);
+      el = document.createElement('p'); el.className = 'grp-l'; el.textContent = t(g.k + '.lead'); h.appendChild(el);
+      sec.appendChild(h);
+      ul = document.createElement('ul'); ul.className = 'cases';
+      for (j = 0; j < g.cases.length; j++) ul.appendChild(card(g.cases[j], t));
+      sec.appendChild(ul);
+      root.appendChild(sec);
+    }
+  }
+  MFI18N.onChange(render);
+}());
+</script>
+</body>
+</html>

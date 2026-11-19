@@ -358,3 +358,6 @@ html.no3d #fallback { display: block; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+.top-link { color: var(--text, #eee); text-decoration: none; font-size: 14px; padding: 10px 12px; min-height: 44px; display: inline-flex; align-items: center; opacity: .85; }
+.top-link:hover, .top-link:focus-visible { opacity: 1; text-decoration: underline; }

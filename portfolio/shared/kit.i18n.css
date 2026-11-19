@@ -1,0 +1,7 @@
+/* Переключатель языка MFI18N. Цвета через переменные варианта; значения по умолчанию нейтральные. */
+.mfi-switch { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--mfi-line, currentColor); border-radius: 999px; font: 600 12px/1 system-ui, sans-serif; letter-spacing: .04em; }
+.mfi-switch[hidden] { display: none; }
+.mfi-switch button { all: unset; box-sizing: border-box; min-width: 36px; min-height: 28px; padding: 0 10px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; cursor: pointer; color: var(--mfi-fg, inherit); opacity: .7; }
+.mfi-switch button:hover { opacity: 1; }
+.mfi-switch button[aria-pressed="true"] { background: var(--mfi-on-bg, currentColor); color: var(--mfi-on-fg, #000); opacity: 1; }
+.mfi-switch button:focus-visible { outline: 2px solid var(--mfi-focus, currentColor); outline-offset: 2px; }

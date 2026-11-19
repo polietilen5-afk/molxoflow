@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-i18n="meta.title">Auto Diagnostic: an AI car diagnosis app with repair cost estimates</title>
+<meta name="description" content="Case study: a mobile app that turns symptoms into likely causes, urgency and a repair cost range, with a garage, error code catalog, service booking, history and reminders. Live demo with fictional data." data-i18n-attr="content:meta.desc">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../shared/pf.css?v=2">
+<link rel="stylesheet" href="../../shared/kit.i18n.css?v=2">
+<link rel="stylesheet" href="case.css">
+</head>
+<body>
+<a class="skip" href="#demo" data-i18n="skip">Skip to the demo</a>
+
+<header class="pf-top">
+  <a class="pf-brand" href="/">Molxo<span>Flow</span></a>
+  <nav class="pf-nav" data-i18n-attr="aria-label:nav.main" aria-label="Case navigation">
+    <a class="pf-back" href="../../index.html" data-i18n="nav.back">&larr; Portfolio</a>
+    <div class="lang-sw" data-i18n-switch></div>
+  </nav>
+</header>
+
+<main>
+<section class="pf-sec ad-hero">
+  <div class="pf-wrap">
+    <p class="eyebrow" data-i18n="hero.eyebrow">Case / Mobile app / AI</p>
+    <h1 class="pf-h1" data-i18n="hero.title">Know what is wrong with the car before you reach the garage</h1>
+    <p class="pf-lead" data-i18n="hero.lead1"></p>
+    <p class="pf-lead" data-i18n="hero.lead2"></p>
+    <ul class="pf-tags">
+      <li class="pf-tag" data-i18n="tag.1">Mobile app</li>
+      <li class="pf-tag" data-i18n="tag.2">AI diagnosis</li>
+      <li class="pf-tag" data-i18n="tag.3">Local fallback</li>
+      <li class="pf-tag" data-i18n="tag.4">Cost engine</li>
+      <li class="pf-tag" data-i18n="tag.5">On-device storage</li>
+      <li class="pf-tag" data-i18n="tag.6">Three languages</li>
+    </ul>
+    <div class="ad-cta-row">
+      <a class="btn" href="#demo" data-i18n="hero.try">Try the demo</a>
+      <a class="btn btn-ghost" href="https://t.me/Molxo1" data-i18n="hero.discuss">Discuss a similar project</a>
+    </div>
+  </div>
+</section>
+
+<section class="ad-brief" data-i18n-attr="aria-label:brief.h" aria-label="Task, solution, result">
+  <div class="pf-wrap">
+    <div class="pf-grid3">
+      <article class="pf-card"><span class="pf-num">1</span><h3 data-i18n="task.h">Task</h3><p data-i18n="task.p"></p></article>
+      <article class="pf-card"><span class="pf-num">2</span><h3 data-i18n="did.h">What we built</h3><p data-i18n="did.p"></p></article>
+      <article class="pf-card"><span class="pf-num">3</span><h3 data-i18n="res.h">Result</h3><p data-i18n="res.p"></p></article>
+    </div>
+  </div>
+</section>
+
+<section class="pf-sec ad-caps" id="caps">
+  <div class="pf-wrap">
+    <h2 class="pf-h2" data-i18n="cap.h">What the system does</h2>
+    <p class="pf-lead" data-i18n="cap.lead"></p>
+    <ul class="ad-capgrid">
+      <li><a href="#demo" data-go="garage"><b data-i18n="mod.garage"></b><span data-i18n="cap.garage"></span><em data-i18n="cap.open"></em></a></li>
+      <li><a href="#demo" data-go="diagnose"><b data-i18n="mod.diagnose"></b><span data-i18n="cap.diagnose"></span><em data-i18n="cap.open"></em></a></li>
+      <li><a href="#demo" data-go="chat"><b data-i18n="mod.chat"></b><span data-i18n="cap.chat"></span><em data-i18n="cap.open"></em></a></li>
+      <li><a href="#demo" data-go="result"><b data-i18n="mod.result"></b><span data-i18n="cap.result"></span><em data-i18n="cap.open"></em></a></li>
+      <li><a href="#demo" data-go="cost"><b data-i18n="mod.cost"></b><span data-i18n="cap.cost"></span><em data-i18n="cap.open"></em></a></li>
+      <li><a href="#demo" data-go="codes"><b data-i18n="mod.codes"></b><span data-i18n="cap.codes"></span><em data-i18n="cap.open"></em></a></li>
+      <li><a href="#demo" data-go="book"><b data-i18n="mod.book"></b><span data-i18n="cap.book"></span><em data-i18n="cap.open"></em></a></li>
+      <li><a href="#demo" data-go="history"><b data-i18n="mod.history"></b><span data-i18n="cap.history"></span><em data-i18n="cap.open"></em></a></li>
+      <li><a href="#demo" data-go="reminders"><b data-i18n="mod.reminders"></b><span data-i18n="cap.reminders"></span><em data-i18n="cap.open"></em></a></li>
+      <li><a href="#demo" data-go="profile"><b data-i18n="mod.profile"></b><span data-i18n="cap.profile"></span><em data-i18n="cap.open"></em></a></li>
+      <li><a href="#demo" data-go="plan"><b data-i18n="mod.plan"></b><span data-i18n="cap.plan"></span><em data-i18n="cap.open"></em></a></li>
+      <li><a href="#demo" data-go="log"><b data-i18n="mod.log"></b><span data-i18n="cap.log"></span><em data-i18n="cap.open"></em></a></li>
+    </ul>
+  </div>
+</section>
+
+<section class="pf-sec" id="demo">
+  <div class="pf-wrap">
+    <p class="eyebrow" data-i18n="demo.eyebrow">Live demo</p>
+    <h2 class="pf-h2" data-i18n="demo.h2">The mobile app, in your browser</h2>
+    <p class="pf-lead" data-i18n="demo.lead"></p>
+
+    <div class="ad-stage">
+      <div class="ad-phone-wrap">
+        <div class="ad-phone" id="ad-phone">
+          <div class="ad-notch" aria-hidden="true"></div>
+          <div class="ad-status" aria-hidden="true"><span>9:41</span><span class="ad-batt"><i></i></span></div>
+          <div class="ad-screen" id="ad-screen" tabindex="-1"></div>
+          <nav class="ad-tabs" id="ad-tabs" data-i18n-attr="aria-label:nav.app" aria-label="App navigation"></nav>
+          <div class="ad-toast" id="ad-toast" role="status" aria-live="polite" hidden></div>
+          <div class="ad-sheet" id="ad-sheet" hidden></div>
+        </div>
+      </div>
+      <aside class="ad-side" data-i18n-attr="aria-label:side.label" aria-label="Demo guide">
+        <h3 class="ad-side-h" data-i18n="side.caps">What it can do</h3>
+        <ul class="ad-side-mods" id="ad-side-mods"></ul>
+        <h3 class="ad-side-h" data-i18n="side.scn">Try a scenario</h3>
+        <ul class="ad-scn" id="ad-scn"></ul>
+        <p class="ad-scn-hint" id="ad-scn-hint" role="status" hidden></p>
+        <h3 class="ad-side-h" data-i18n="side.live">Shared data, live</h3>
+        <ul class="ad-live" id="ad-live"></ul>
+      </aside>
+    </div>
+    <p class="demo-note" data-i18n="demo.note">Demo, data is fictional.</p>
+  </div>
+</section>
+
+<section class="pf-sec ad-ix">
+  <div class="pf-wrap">
+    <h2 class="pf-h2" data-i18n="ix.h">Integrations and behind the screen</h2>
+    <div class="pf-grid3">
+      <article class="pf-card"><h3 data-i18n="ix.1.h"></h3><p data-i18n="ix.1.p"></p></article>
+      <article class="pf-card"><h3 data-i18n="ix.2.h"></h3><p data-i18n="ix.2.p"></p></article>
+      <article class="pf-card"><h3 data-i18n="ix.3.h"></h3><p data-i18n="ix.3.p"></p></article>
+    </div>
+  </div>
+</section>
+
+<section class="pf-sec ad-how">
+  <div class="pf-wrap">
+    <h2 class="pf-h2" data-i18n="how.h2">How it works</h2>
+    <ol class="ad-steps4">
+      <li class="pf-card"><span class="pf-num">1</span><h3 data-i18n="how.1.h"></h3><p data-i18n="how.1.p"></p></li>
+      <li class="pf-card"><span class="pf-num">2</span><h3 data-i18n="how.2.h"></h3><p data-i18n="how.2.p"></p></li>
+      <li class="pf-card"><span class="pf-num">3</span><h3 data-i18n="how.3.h"></h3><p data-i18n="how.3.p"></p></li>
+      <li class="pf-card"><span class="pf-num">4</span><h3 data-i18n="how.4.h"></h3><p data-i18n="how.4.p"></p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="pf-sec ad-stack">
+  <div class="pf-wrap">
+    <h2 class="pf-h2" data-i18n="stack.h2">Stack and building blocks</h2>
+    <ul class="pf-tags">
+      <li class="pf-tag" data-i18n="tag.1">Mobile app</li>
+      <li class="pf-tag" data-i18n="tag.2">AI diagnosis</li>
+      <li class="pf-tag" data-i18n="tag.3">Local fallback</li>
+      <li class="pf-tag" data-i18n="tag.4">Cost engine</li>
+      <li class="pf-tag" data-i18n="tag.5">On-device storage</li>
+      <li class="pf-tag" data-i18n="tag.6">Three languages</li>
+    </ul>
+  </div>
+</section>
+
+<section class="pf-sec pf-cta">
+  <div class="pf-wrap">
+    <h2 class="pf-h2" data-i18n="cta.h2">Have a service idea that fits in a pocket?</h2>
+    <p class="pf-lead ad-mid" data-i18n="cta.p"></p>
+    <a class="btn" href="https://t.me/Molxo1" data-i18n="hero.discuss">Discuss a similar project</a>
+  </div>
+</section>
+</main>
+
+<footer class="pf-foot" data-i18n="foot">Molxo Flow. Case study, interface and data are fictional.</footer>
+
+<script src="../../shared/kit.i18n.js?v=2"></script>
+<script src="i18n/en.js"></script>
+<script src="i18n/ru.js"></script>
+<script src="i18n/uk.js"></script>
+<script src="../../shared/pf.js?v=2"></script>
+<script src="data.js"></script>
+<script src="core.js"></script>
+<script src="screens-a.js"></script>
+<script src="screens-b.js"></script>
+<script src="screens-c.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

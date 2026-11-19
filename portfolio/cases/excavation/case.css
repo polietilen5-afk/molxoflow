@@ -1,0 +1,43 @@
+/* Case page chrome: hero, capabilities grid, browser frame, tabs, preview width. */
+#demo { scroll-margin-top: 72px; }
+.hero-btns { display: flex; flex-wrap: wrap; gap: 12px; }
+.pf-sec.tight { padding: clamp(32px, 5vw, 56px) 0; }
+.cta-p { margin-inline: auto; }
+.how { list-style: none; margin: 18px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.caps { list-style: none; margin: 22px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.cap { display: flex; flex-direction: column; }
+.cap p { flex: 1; }
+.cap-open { display: inline-flex; align-items: center; min-height: 44px; margin-top: 12px; color: var(--accent); font: 600 14px/1 var(--font); text-decoration: none; }
+.cap-open:hover { text-decoration: underline; }
+@media (max-width: 1100px) { .caps { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 960px) { .how, .caps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .how, .caps { grid-template-columns: 1fr; } }
+.pf-tag, .eyebrow, .demo-note { font-size: 14px; }
+.pf-top .lang-sw button { min-height: 44px; min-width: 44px; }
+
+/* frame: clip (not hidden) so that sticky elements inside the site stick to the page on narrow screens */
+.pf-app.demo { overflow: clip; }
+.demo .bar-url { flex: 1 1 160px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 9px 12px; background: var(--s1); border: 1px solid var(--line); border-radius: 8px; font-size: 14px; color: var(--text); }
+.demo .bar-url span:first-child { color: var(--faint); }
+.pf-app-bar { flex-wrap: wrap; }
+.vp-switch { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--line-s); border-radius: 999px; }
+.vp-switch button { all: unset; box-sizing: border-box; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: 999px; cursor: pointer; color: var(--muted); font: 600 14px/1 var(--font); touch-action: manipulation; }
+.vp-switch button:hover { color: var(--text); }
+.vp-switch button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.vp-switch button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.demo-tabs { padding: 12px 14px 0; background: var(--s1); }
+.demo-tabs .pf-tabs { margin: 0; }
+.tab-badge[hidden] { display: none; }
+.tab-badge { display: inline-grid; place-items: center; min-width: 22px; height: 22px; margin-left: 8px; padding: 0 6px; border-radius: 999px; background: var(--info); color: var(--accent-ink); font: 700 14px/1 var(--mono); }
+.pf-tabs button[aria-selected="true"] .tab-badge { background: var(--accent-ink); color: var(--accent); }
+.pf-tabs button { border-radius: 6px; }
+.vp-switch, .vp-switch button { border-radius: 6px; }
+.stage { padding: 14px; background: var(--s1); }
+.vp-in { container: site / inline-size; width: 100%; margin: 0 auto; transition: width .45s var(--ease); border-radius: 12px; border: 1px solid var(--line); background: var(--bg); }
+.vp-in.is-tablet { width: 768px; max-width: 100%; border-color: var(--line-s); }
+.vp-in.is-phone { width: 390px; max-width: 100%; border-color: var(--line-s); border-width: 6px 3px; border-radius: 22px; border-style: solid; }
+.pane[hidden] { display: none; }
+@media (min-width: 900px) { .vp-in { max-height: min(82dvh, 900px); overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; } }
+@media (max-width: 899px) { .vp-in { overflow: clip; } }
+@media (max-width: 560px) { .vp-switch { display: none; } .stage { padding: 8px; } .demo-tabs { padding: 10px 8px 0; } .vp-in { width: 100% !important; border-width: 1px; border-radius: 8px; } }
+@media (prefers-reduced-motion: reduce) { .vp-in { transition: none; } }

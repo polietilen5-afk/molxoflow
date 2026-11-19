@@ -6,7 +6,7 @@ MFI18N.register('en', {
   'stage.aria': 'A 3D space of windows: a client message, an AI agent, a CRM entry, a notification to the manager',
   'scene.text': 'A dark space with application windows floating in the depth. The camera slowly flies through them. First window: a messenger, a client asks about delivery and an AI agent replies. Next to it, an inbox with mail, Telegram and website messages. Further on, an "AI agent at work" panel with a short action feed, then a document from which the agent pulls fields. Then a CRM kanban board: a new request moves to the "In progress" column by itself and a "Request created" message appears. At the end, a phone with a notification to the manager about a new request. All data in the windows is fictional.',
   'brand.aria': 'Molxo Flow, back to top',
-  'nav.start': 'Start',
+  'nav.start': 'Start', 'nav.portfolio': 'Portfolio',
   'demo': 'demo, data is fictional',
 
   'hero.eyebrow': 'Molxo Flow · software, bots, websites and process automation',

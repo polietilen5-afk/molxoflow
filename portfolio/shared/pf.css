@@ -1,0 +1,90 @@
+/* Molxo portfolio: общий дизайн-каркас кейсов. Тёмная тема, один янтарный акцент (как на молxoflow.com). */
+:root {
+  --bg: #0b0d11; --s1: #12151b; --s2: #191d25; --s3: #232834;
+  --line: rgba(255, 255, 255, .10); --line-s: #7d8596;
+  --text: #eceff4; --muted: #a1a9b8; --faint: #8a92a3;
+  --accent: #ffb23e; --accent-ink: #1a1000; --ok: #5bd08a; --warn: #ffb23e; --bad: #ff6b5e; --info: #6ab0ff;
+  --font: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --disp: "Unbounded", "Manrope", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", Consolas, monospace;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --gut: clamp(16px, 4vw, 56px);
+  --wide: 1240px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 400 17px/1.55 var(--font); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+a { color: inherit; }
+img, svg { max-width: 100%; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+.skip { position: fixed; left: 12px; top: -60px; z-index: 50; background: var(--accent); color: var(--accent-ink); padding: 12px 16px; border-radius: 8px; font-weight: 700; }
+.skip:focus { top: 12px; }
+
+/* шапка кейса */
+.pf-top { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px var(--gut); background: rgba(11, 13, 17, .92); border-bottom: 1px solid var(--line); }
+.pf-brand { display: inline-flex; align-items: center; min-height: 44px; font: 700 18px/1 var(--disp); letter-spacing: -.02em; text-decoration: none; }
+.pf-brand span { color: var(--accent); margin-left: 4px; }
+.pf-nav { display: flex; align-items: center; gap: 8px 14px; flex-wrap: wrap; justify-content: flex-end; }
+.pf-back { display: inline-flex; align-items: center; min-height: 44px; padding: 0 6px; color: var(--muted); text-decoration: none; font: 500 14px/1 var(--mono); }
+.pf-back:hover { color: var(--text); }
+.lang-sw { --mfi-line: var(--line-s); --mfi-fg: var(--text); --mfi-on-bg: var(--accent); --mfi-on-fg: var(--accent-ink); --mfi-focus: var(--accent); font-family: var(--mono); }
+.lang-sw.mfi-switch button { min-height: 44px; min-width: 44px; touch-action: manipulation; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 26px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font: 700 16px/1 var(--font); text-decoration: none; border: 1px solid transparent; cursor: pointer; transition: transform .18s var(--ease), background .18s; }
+.btn:hover { background: #ffc15f; transform: translateY(-1px); }
+.btn-ghost { background: transparent; color: var(--text); border-color: var(--line-s); }
+.btn-ghost:hover { background: var(--s2); }
+.btn-sm { min-height: 44px; padding: 0 20px; font-size: 15px; }
+
+/* разметка секций */
+.pf-wrap { max-width: var(--wide); margin: 0 auto; padding: 0 var(--gut); }
+.pf-sec { padding: clamp(48px, 8vw, 96px) 0; }
+.eyebrow { margin: 0 0 14px; font: 500 13px/1.4 var(--mono); color: var(--muted); letter-spacing: .02em; }
+.pf-h1 { margin: 0 0 18px; font: 700 clamp(30px, 4.4vw, 60px)/1.05 var(--disp); letter-spacing: -.035em; text-wrap: balance; }
+.pf-h2 { margin: 0 0 12px; font: 700 clamp(24px, 3vw, 38px)/1.12 var(--disp); letter-spacing: -.03em; text-wrap: balance; }
+.pf-lead { margin: 0 0 24px; font-size: clamp(16px, 1.3vw, 20px); color: var(--muted); max-width: 40em; }
+.pf-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 24px; padding: 0; list-style: none; }
+.pf-tag { padding: 6px 12px; border: 1px solid var(--line-s); border-radius: 999px; font: 500 13px/1.2 var(--mono); color: var(--muted); }
+.demo-note { margin: 14px 0 0; font: 500 12px/1.5 var(--mono); color: var(--faint); }
+
+/* карточки и «задача / сделали / результат» */
+.pf-grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.pf-card { background: var(--s1); border: 1px solid var(--line); border-radius: 16px; padding: 22px; }
+.pf-card h3 { margin: 0 0 8px; font: 700 18px/1.3 var(--font); }
+.pf-card p { margin: 0; color: var(--muted); font-size: 15px; }
+.pf-num { display: inline-grid; place-items: center; width: 30px; height: 30px; margin-bottom: 12px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font: 700 14px/1 var(--mono); }
+
+/* окно приложения: рамка для демо */
+.pf-app { background: var(--s1); border: 1px solid var(--line-s); border-radius: 14px; overflow: hidden; }
+.pf-app-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: var(--s2); border-bottom: 1px solid var(--line); font: 500 13px/1 var(--mono); color: var(--muted); }
+.pf-app-bar i { width: 10px; height: 10px; border-radius: 50%; background: var(--s3); display: inline-block; }
+.pf-app-body { padding: clamp(12px, 2vw, 20px); }
+.pf-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 14px; }
+.pf-tabs button { min-height: 44px; padding: 0 16px; border: 1px solid var(--line); border-radius: 999px; background: var(--s1); color: var(--muted); font: 600 14px/1 var(--font); cursor: pointer; touch-action: manipulation; }
+.pf-tabs button:hover { color: var(--text); }
+.pf-tabs button[aria-selected="true"], .pf-tabs button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.pf-badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font: 600 12px/1.3 var(--mono); border: 1px solid currentColor; }
+.pf-badge.ok { color: var(--ok); } .pf-badge.warn { color: var(--warn); } .pf-badge.bad { color: var(--bad); } .pf-badge.info { color: var(--info); }
+
+.pf-cta { text-align: center; }
+.pf-foot { padding: 32px var(--gut) 48px; border-top: 1px solid var(--line); color: var(--faint); font: 500 13px/1.6 var(--mono); text-align: center; }
+
+@media (max-width: 860px) { .pf-grid3 { grid-template-columns: 1fr; } .pf-top { padding-block: 8px; } }
+@media (max-width: 420px) { .pf-brand { font-size: 16px; } .pf-back { display: none; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation-duration: .001s !important; transition-duration: .001s !important; } }
+@media (hover: none) { .btn:hover { transform: none; } }
+
+/* Переключатель языка: «рулетка». Одна кнопка с кодом языка и столбиком из трёх точек (положение в списке); при нажатии код прокручивается вверх и выезжает следующий. */
+.pf-top .lang-sw.mfi-switch { border: 0; padding: 0; gap: 0; border-radius: 0; background: none; font-size: 13px; }
+.pf-top .lang-sw.mfi-switch button { display: none; }
+.pf-top .lang-sw.mfi-switch button[aria-pressed="true"] { position: relative; display: inline-flex; align-items: center; min-width: 0; height: 28px; min-height: 28px; padding: 0 14px 0 4px; overflow: hidden; background: none; border: 0; border-radius: 0; color: var(--text); opacity: 1; letter-spacing: .08em; font-weight: 700; box-shadow: none; }
+.pf-top .lang-sw.mfi-switch button[aria-pressed="true"]::before { content: ""; position: absolute; inset: -8px -4px; }
+.pf-top .lang-sw.mfi-switch button[aria-pressed="true"]::after { content: ""; position: absolute; right: 3px; top: 50%; width: 4px; height: 16px; transform: translateY(-50%); background: radial-gradient(circle, var(--line-s) 1.6px, transparent 2px) 0 0 / 4px 8px repeat-y; }
+.pf-top .lang-sw.mfi-switch[data-pos="0"] button[aria-pressed="true"]::after { background: radial-gradient(circle, var(--accent) 1.8px, transparent 2.2px) 0 0 / 4px 8px no-repeat, radial-gradient(circle, var(--line-s) 1.6px, transparent 2px) 0 0 / 4px 8px repeat-y; }
+.pf-top .lang-sw.mfi-switch[data-pos="1"] button[aria-pressed="true"]::after { background: radial-gradient(circle, var(--accent) 1.8px, transparent 2.2px) 0 4px / 4px 8px no-repeat, radial-gradient(circle, var(--line-s) 1.6px, transparent 2px) 0 0 / 4px 8px repeat-y; }
+.pf-top .lang-sw.mfi-switch[data-pos="2"] button[aria-pressed="true"]::after { background: radial-gradient(circle, var(--accent) 1.8px, transparent 2.2px) 0 8px / 4px 8px no-repeat, radial-gradient(circle, var(--line-s) 1.6px, transparent 2px) 0 0 / 4px 8px repeat-y; }
+.pf-top .lang-sw.mfi-switch button[aria-pressed="true"]:hover, .pf-top .lang-sw.mfi-switch button[aria-pressed="true"]:focus-visible { color: var(--accent); }
+.mfi-roll { display: block; height: 28px; overflow: visible; transition: transform .26s cubic-bezier(.3, .7, .2, 1); }
+.mfi-roll i { display: block; font-style: normal; height: 28px; line-height: 28px; }
+.mfi-roll.mfi-go { transform: translateY(-28px); }

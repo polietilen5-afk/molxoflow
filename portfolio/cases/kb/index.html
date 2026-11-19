@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Knowledge Agent: answers only from your sources</title>
+<meta name="description" content="An assistant that answers customers only from the company's own sources, cites them, says it does not know when there is no data, and runs on a local or a cloud model.">
+<meta name="theme-color" content="#0b0d11">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../../shared/pf.css?v=2">
+<link rel="stylesheet" href="../../shared/kit.i18n.css?v=2">
+<link rel="stylesheet" href="case.css">
+</head>
+<body>
+<a class="skip" href="#demo" data-i18n="skip">Skip to the demo</a>
+
+<header class="pf-top">
+  <a class="pf-brand" href="/">Molxo<span>Flow</span></a>
+  <nav class="pf-nav" data-i18n-attr="aria-label:nav.label" aria-label="Case navigation">
+    <a class="pf-back" href="../../index.html" data-i18n="nav.back">&larr; Portfolio</a>
+    <div class="lang-sw" data-i18n-switch></div>
+  </nav>
+</header>
+
+<main>
+<section class="pf-sec hero">
+  <div class="pf-wrap">
+    <p class="eyebrow" data-i18n="hero.eyebrow">Case study / AI assistant</p>
+    <h1 class="pf-h1" data-i18n="hero.title">An assistant that answers only from your own sources, and says so when it does not know</h1>
+    <p class="pf-lead" data-i18n="hero.lead">Support teams answer the same questions all day, and a generic chatbot invents facts. This agent reads the company's site, files and systems, answers strictly from them with a citation under every claim, and hands unclear questions to people.</p>
+    <ul class="pf-tags" aria-label="Stack">
+      <li class="pf-tag" data-i18n="tag.rag">Search plus language model</li>
+      <li class="pf-tag" data-i18n="tag.cite">Citations</li>
+      <li class="pf-tag" data-i18n="tag.local">Local or cloud model</li>
+      <li class="pf-tag" data-i18n="tag.roles">Roles and closed sources</li>
+      <li class="pf-tag" data-i18n="tag.eval">Quality test set</li>
+    </ul>
+    <p class="hero-cta">
+      <a class="btn" href="#demo" data-i18n="cta.demo">Try the demo</a>
+      <a class="btn btn-ghost" href="https://t.me/Molxo1" data-i18n="cta.discuss">Discuss a similar project</a>
+    </p>
+  </div>
+</section>
+
+<section class="pf-sec sec-tight">
+  <div class="pf-wrap">
+    <div class="pf-grid3">
+      <article class="pf-card"><span class="pf-num">1</span><h3 data-i18n="g.task.h">The problem</h3><p data-i18n="g.task.p">Answers live in a site, a price sheet, a policy file and the heads of a few people. Customers wait, staff repeat themselves, and chatbots that guess put wrong prices and terms in writing.</p></article>
+      <article class="pf-card"><span class="pf-num">2</span><h3 data-i18n="g.did.h">What we built</h3><p data-i18n="g.did.p">A knowledge agent that collects the company's sources, keeps them in sync, answers only from the fragments it found, cites each one, refuses when nothing fits and routes the case to a person. It runs on a local model on the company's server or on a cloud model.</p></article>
+      <article class="pf-card"><span class="pf-num">3</span><h3 data-i18n="g.res.h">The result</h3><p data-i18n="g.res.p">Repeated questions answered at any hour with a source behind every answer. Gaps in the knowledge become a visible to-do list, and a test set shows whether a change made answers better or worse.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="pf-sec demo-sec" id="demo" aria-labelledby="demo-h">
+  <div class="pf-wrap">
+    <p class="eyebrow" data-i18n="demo.eyebrow">Interactive demo</p>
+    <h2 class="pf-h2" id="demo-h" data-i18n="demo.title">The whole agent, on one fictional shop</h2>
+    <p class="pf-lead" data-i18n="demo.lead">Ask a question and open the citations. Ask something the sources do not cover, then add the answer and ask again. Switch to the staff audience, change the model, resolve a conflict or sign in as another role and watch the other modules follow.</p>
+    <div class="pf-app kb" id="kb">
+      <div class="pf-app-bar kb-bar">
+        <span class="kb-logo" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4zM9 9h6M9 13h6"/></svg></span>
+        <strong class="kb-name" data-i18n="app.name">Knowledge Agent</strong>
+        <span class="kb-co" data-i18n="app.company">Brightwell Appliances</span>
+        <div class="kb-stats" id="kb-stats"></div>
+        <label class="kb-rolebox"><span id="kb-rolel">Signed in as</span><select id="kb-role"></select></label>
+      </div>
+      <div class="kb-shell">
+        <nav class="kb-side" id="kb-side" data-i18n-attr="aria-label:app.modules"></nav>
+        <main class="kb-main" id="kb-main" tabindex="-1"></main>
+      </div>
+      <nav class="kb-bnav" id="kb-bnav" data-i18n-attr="aria-label:app.modules"></nav>
+      <div class="kb-drawer" id="kb-drawer" hidden></div>
+      <div class="toast" id="kb-toast" role="status" aria-live="polite"></div>
+    </div>
+    <p class="demo-note" data-i18n="demo.note">demo, data is fictional</p>
+  </div>
+</section>
+
+<section class="pf-sec sec-tight" id="features">
+  <div class="pf-wrap">
+    <p class="eyebrow" data-i18n="feat.eyebrow">What the system does</p>
+    <h2 class="pf-h2" data-i18n="feat.title">Twelve working modules, one connected data set</h2>
+    <ul class="feat">
+      <li class="pf-card"><h3 data-i18n="mod.chat">chat</h3><p data-i18n="feat.chat">...</p><a class="open" href="#demo" data-open="chat" data-i18n="feat.open">Open in the demo</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.dialogs">dialogs</h3><p data-i18n="feat.dialogs">...</p><a class="open" href="#demo" data-open="dialogs" data-i18n="feat.open">Open in the demo</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.unanswered">unanswered</h3><p data-i18n="feat.unanswered">...</p><a class="open" href="#demo" data-open="unanswered" data-i18n="feat.open">Open in the demo</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.sources">sources</h3><p data-i18n="feat.sources">...</p><a class="open" href="#demo" data-open="sources" data-i18n="feat.open">Open in the demo</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.conflicts">conflicts</h3><p data-i18n="feat.conflicts">...</p><a class="open" href="#demo" data-open="conflicts" data-i18n="feat.open">Open in the demo</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.quality">quality</h3><p data-i18n="feat.quality">...</p><a class="open" href="#demo" data-open="quality" data-i18n="feat.open">Open in the demo</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.analytics">analytics</h3><p data-i18n="feat.analytics">...</p><a class="open" href="#demo" data-open="analytics" data-i18n="feat.open">Open in the demo</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.access">access</h3><p data-i18n="feat.access">...</p><a class="open" href="#demo" data-open="access" data-i18n="feat.open">Open in the demo</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.model">model</h3><p data-i18n="feat.model">...</p><a class="open" href="#demo" data-open="model" data-i18n="feat.open">Open in the demo</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.privacy">privacy</h3><p data-i18n="feat.privacy">...</p><a class="open" href="#demo" data-open="privacy" data-i18n="feat.open">Open in the demo</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.channels">channels</h3><p data-i18n="feat.channels">...</p><a class="open" href="#demo" data-open="channels" data-i18n="feat.open">Open in the demo</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.journal">journal</h3><p data-i18n="feat.journal">...</p><a class="open" href="#demo" data-open="journal" data-i18n="feat.open">Open in the demo</a></li>
+    </ul>
+    <div class="pf-card integ"><h3 data-i18n="integ.h">Integrations and delivery</h3><p data-i18n="integ.p">...</p></div>
+  </div>
+</section>
+
+<section class="pf-sec">
+  <div class="pf-wrap">
+    <p class="eyebrow" data-i18n="how.eyebrow">How it works</p>
+    <h2 class="pf-h2" data-i18n="how.title">Four steps from a source to a cited answer</h2>
+    <ol class="how">
+      <li class="pf-card"><span class="pf-num">1</span><h3 data-i18n="how.1.h">Collect</h3><p data-i18n="how.1.p">Pages, files and system records are split into short fragments. Each source has an audience, a last-sync date and a schedule.</p></li>
+      <li class="pf-card"><span class="pf-num">2</span><h3 data-i18n="how.2.h">Find</h3><p data-i18n="how.2.p">A question is matched against fragments the asker is allowed to see. Weak matches are dropped before the model is asked anything.</p></li>
+      <li class="pf-card"><span class="pf-num">3</span><h3 data-i18n="how.3.h">Answer</h3><p data-i18n="how.3.p">The model may use only the fragments found. Every statement carries a citation, and with no fragment the answer is a plain "I do not know".</p></li>
+      <li class="pf-card"><span class="pf-num">4</span><h3 data-i18n="how.4.h">Improve</h3><p data-i18n="how.4.p">Unanswered questions, thumbs-down ratings and conflicts between sources become tasks. A test set checks that fixes did not break other answers.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="pf-sec">
+  <div class="pf-wrap">
+    <p class="eyebrow" data-i18n="stack.eyebrow">Stack</p>
+    <ul class="pf-tags">
+      <li class="pf-tag">Python</li><li class="pf-tag">FastAPI</li><li class="pf-tag">SQLite</li><li class="pf-tag">Docker</li>
+      <li class="pf-tag" data-i18n="stack.hybrid">Hybrid search</li><li class="pf-tag" data-i18n="stack.local">Local model server</li><li class="pf-tag" data-i18n="stack.cloud">Cloud model API</li>
+    </ul>
+  </div>
+</section>
+
+<section class="pf-sec pf-cta">
+  <div class="pf-wrap">
+    <h2 class="pf-h2" data-i18n="cta.title">Answers scattered across files and people?</h2>
+    <p class="pf-lead cta-lead" data-i18n="cta.lead">Tell us where your knowledge lives and which questions repeat. We will sketch an agent that answers from it and nothing else.</p>
+    <a class="btn" href="https://t.me/Molxo1" data-i18n="cta.discuss">Discuss a similar project</a>
+  </div>
+</section>
+</main>
+
+<footer class="pf-foot"><span data-i18n="foot">Molxo Flow / portfolio. Demo data is fictional.</span></footer>
+
+<script src="../../shared/kit.i18n.js?v=2"></script>
+<script src="i18n/en.js"></script>
+<script src="i18n/ru.js"></script>
+<script src="i18n/uk.js"></script>
+<script src="../../shared/pf.js?v=2"></script>
+<script src="core.js"></script>
+<script src="mods-a.js"></script>
+<script src="mods-b.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
