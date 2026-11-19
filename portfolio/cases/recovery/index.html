@@ -3,14 +3,38 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- build:meta -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://molxoflow.com/portfolio/cases/recovery/">
+<link rel="alternate" hreflang="ru" href="https://molxoflow.com/portfolio/cases/recovery/?lang=ru">
+<link rel="alternate" hreflang="uk" href="https://molxoflow.com/portfolio/cases/recovery/?lang=uk">
+<link rel="alternate" hreflang="en" href="https://molxoflow.com/portfolio/cases/recovery/?lang=en">
+<link rel="alternate" hreflang="x-default" href="https://molxoflow.com/portfolio/cases/recovery/">
+<meta property="og:url" content="https://molxoflow.com/portfolio/cases/recovery/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Molxo Flow">
+<meta property="og:title" content="Recovery Desk: win back failed subscription payments">
+<meta property="og:description" content="Case study: a payment recovery system that turns failed subscription payments into short, polite campaigns with AI-written emails, rules, a customer update page, a queue, analytics and an audit log. Live demo with fictional data.">
+<meta property="og:image" content="https://molxoflow.com/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Recovery Desk: win back failed subscription payments">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Recovery Desk: win back failed subscription payments">
+<meta name="twitter:description" content="Case study: a payment recovery system that turns failed subscription payments into short, polite campaigns with AI-written emails, rules, a customer update page, a queue, analytics and an audit log. Live demo with fictional data.">
+<meta name="twitter:image" content="https://molxoflow.com/og.jpg">
+<!-- /build:meta -->
 <title data-i18n="meta.title">Recovery Desk: win back failed subscription payments</title>
 <meta name="description" content="Case study: a payment recovery system that turns failed subscription payments into short, polite campaigns with AI-written emails, rules, a customer update page, a queue, analytics and an audit log. Live demo with fictional data." data-i18n-attr="content:meta.desc">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="../../shared/pf.css?v=3">
-<link rel="stylesheet" href="../../shared/kit.i18n.css?v=3">
-<link rel="stylesheet" href="case.css">
+<link rel="stylesheet" href="../../shared/pf.css?v=635519e3">
+<link rel="stylesheet" href="../../shared/kit.i18n.css?v=8146a404">
+<link rel="stylesheet" href="case.css?v=649f1998">
 </head>
 <body>
 <a class="skip" href="#demo" data-i18n="skip">Skip to the demo</a>
@@ -18,7 +42,7 @@
 <header class="pf-top">
   <a class="pf-brand" href="/">Molxo<span>Flow</span></a>
   <nav class="pf-nav" data-i18n-attr="aria-label:nav.main" aria-label="Case navigation">
-    <a class="pf-back" href="../../index.html" data-i18n="nav.back">&larr; Portfolio</a>
+    <a class="pf-back" href="../../index.html" data-i18n="nav.back">← Portfolio</a>
     <div class="lang-sw" data-i18n-switch></div>
   </nav>
 </header>
@@ -28,15 +52,15 @@
   <div class="pf-wrap">
     <p class="eyebrow" data-i18n="hero.eyebrow">Case / Subscription billing / Payment recovery</p>
     <h1 class="pf-h1" data-i18n="hero.title">Failed card payments should not end a subscription</h1>
-    <p class="pf-lead" data-i18n="hero.lead1"></p>
-    <p class="pf-lead" data-i18n="hero.lead2"></p>
+    <p class="pf-lead" data-i18n="hero.lead1">A subscription business was losing paying customers to expired cards and declined charges. Most of them never meant to leave, they simply never noticed the failed payment.</p>
+    <p class="pf-lead" data-i18n="hero.lead2">We built a system that listens to payment events, opens a request, picks a tone by the reason of the failure, writes a short human email and gives the customer a one-click page to fix the card. Recovery Desk below is a fictional reworking of this idea, and everything in it works.</p>
     <ul class="pf-tags">
-      <li class="pf-tag" data-i18n="tag.1"></li>
-      <li class="pf-tag" data-i18n="tag.2"></li>
-      <li class="pf-tag" data-i18n="tag.3"></li>
-      <li class="pf-tag" data-i18n="tag.4"></li>
-      <li class="pf-tag" data-i18n="tag.5"></li>
-      <li class="pf-tag" data-i18n="tag.6"></li>
+      <li class="pf-tag" data-i18n="tag.1">Web app</li>
+      <li class="pf-tag" data-i18n="tag.2">Payment notifications</li>
+      <li class="pf-tag" data-i18n="tag.3">Email queue with retries</li>
+      <li class="pf-tag" data-i18n="tag.4">AI-written emails</li>
+      <li class="pf-tag" data-i18n="tag.5">Automatic rules</li>
+      <li class="pf-tag" data-i18n="tag.6">Audit log and roles</li>
     </ul>
     <div class="rc-cta-row">
       <a class="btn" href="#demo" data-i18n="hero.try">Try the demo</a>
@@ -48,9 +72,9 @@
 <section class="rc-brief" data-i18n-attr="aria-label:brief.h" aria-label="Task, solution, result">
   <div class="pf-wrap">
     <div class="pf-grid3">
-      <article class="pf-card"><span class="pf-num">1</span><h3 data-i18n="task.h">Task</h3><p data-i18n="task.p"></p></article>
-      <article class="pf-card"><span class="pf-num">2</span><h3 data-i18n="did.h">What we built</h3><p data-i18n="did.p"></p></article>
-      <article class="pf-card"><span class="pf-num">3</span><h3 data-i18n="res.h">Result</h3><p data-i18n="res.p"></p></article>
+      <article class="pf-card"><span class="pf-num">1</span><h3 data-i18n="task.h">Task</h3><p data-i18n="task.p">Stop losing subscribers to payment failures that are easy to fix, without nagging anyone and without a person chasing every case by hand.</p></article>
+      <article class="pf-card"><span class="pf-num">2</span><h3 data-i18n="did.h">What we built</h3><p data-i18n="did.p">Fourteen connected modules: events, cases, customers, campaigns, rules, an AI email studio, an outbox, a customer update page, analytics, integrations, privacy settings, access and an audit log.</p></article>
+      <article class="pf-card"><span class="pf-num">3</span><h3 data-i18n="res.h">Result</h3><p data-i18n="res.p">Every failure is picked up the moment it happens and handled the same careful way. The team sees what was sent, what worked and what needs a human.</p></article>
     </div>
   </div>
 </section>
@@ -58,22 +82,22 @@
 <section class="pf-sec rc-caps" id="caps">
   <div class="pf-wrap">
     <h2 class="pf-h2" data-i18n="cap.h">What the system does</h2>
-    <p class="pf-lead" data-i18n="cap.lead"></p>
+    <p class="pf-lead" data-i18n="cap.lead">Every module below is working in the demo and shares the same data: a failed payment in one place becomes a request, an email, a recovery and a line in the log.</p>
     <ul class="rc-capgrid">
-      <li><a href="#demo" data-go="overview"><b data-i18n="mod.overview"></b><span data-i18n="cap.overview"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="events"><b data-i18n="mod.events"></b><span data-i18n="cap.events"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="cases"><b data-i18n="mod.cases"></b><span data-i18n="cap.cases"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="customers"><b data-i18n="mod.customers"></b><span data-i18n="cap.customers"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="campaigns"><b data-i18n="mod.campaigns"></b><span data-i18n="cap.campaigns"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="rules"><b data-i18n="mod.rules"></b><span data-i18n="cap.rules"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="studio"><b data-i18n="mod.studio"></b><span data-i18n="cap.studio"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="outbox"><b data-i18n="mod.outbox"></b><span data-i18n="cap.outbox"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="portal"><b data-i18n="mod.portal"></b><span data-i18n="cap.portal"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="analytics"><b data-i18n="mod.analytics"></b><span data-i18n="cap.analytics"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="integrations"><b data-i18n="mod.integrations"></b><span data-i18n="cap.integrations"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="privacy"><b data-i18n="mod.privacy"></b><span data-i18n="cap.privacy"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="access"><b data-i18n="mod.access"></b><span data-i18n="cap.access"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="audit"><b data-i18n="mod.audit"></b><span data-i18n="cap.audit"></span><em data-i18n="cap.open"></em></a></li>
+      <li><a href="#demo" data-go="overview"><b data-i18n="mod.overview">Overview</b><span data-i18n="cap.overview">Open cases, recovered amount, funnel, next scheduled emails and what needs attention.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="events"><b data-i18n="mod.events">Payment events</b><span data-i18n="cap.events">Payment events with signature and duplicate checks, payload view and a simulator.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="cases"><b data-i18n="mod.cases">Failed payments</b><span data-i18n="cap.cases">Every failed payment as a case with steps, timeline, emails, notes and actions.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="customers"><b data-i18n="mod.customers">Customers</b><span data-i18n="cap.customers">Subscription status, recovery state, card expiry, opt-out and history per customer.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="campaigns"><b data-i18n="mod.campaigns">Campaigns</b><span data-i18n="cap.campaigns">Active campaigns, an editable email sequence and a scheduler with a demo clock.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="rules"><b data-i18n="mod.rules">Rules</b><span data-i18n="cap.rules">Reason codes mapped to category, template, retry delay and attempts, with a rule tester.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="studio"><b data-i18n="mod.studio">AI email studio</b><span data-i18n="cap.studio">AI drafts the email by tone and reason, checks it against guardrails, saves drafts.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="outbox"><b data-i18n="mod.outbox">Outbox</b><span data-i18n="cap.outbox">Email queue with human review, retries, bounces and automatic notifications from the email service.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="portal"><b data-i18n="mod.portal">Customer page</b><span data-i18n="cap.portal">The page the customer opens from the email: card form, validation and a result.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="analytics"><b data-i18n="mod.analytics">Analytics</b><span data-i18n="cap.analytics">Recovery rate, weekly recovered amount, results by reason, step and plan.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="integrations"><b data-i18n="mod.integrations">Integrations</b><span data-i18n="cap.integrations">Payment provider connection, email provider, AI model, queue worker and backups.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="privacy"><b data-i18n="mod.privacy">Settings and privacy</b><span data-i18n="cap.privacy">Send hour, frequency cap, review mode, opt-outs, data export and deletion.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="access"><b data-i18n="mod.access">Users and roles</b><span data-i18n="cap.access">Users, roles and a permission matrix: admin, support and finance.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="audit"><b data-i18n="mod.audit">Audit log</b><span data-i18n="cap.audit">Append-only log of every system and human action, filterable.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
     </ul>
   </div>
 </section>
@@ -82,13 +106,13 @@
   <div class="pf-wrap">
     <p class="eyebrow" data-i18n="demo.eyebrow">Live demo</p>
     <h2 class="pf-h2" data-i18n="demo.h2">The payment recovery app</h2>
-    <p class="pf-lead" data-i18n="demo.lead"></p>
+    <p class="pf-lead" data-i18n="demo.lead">Use the menu to move between modules. Press "Next day" to let the scheduler send the next emails, simulate a failed payment in Payment events, then open the customer page. Switch the role to see rights change.</p>
 
     <div class="pf-app rc" id="rc">
       <div class="pf-app-bar"><i></i><i></i><i></i><span class="rc-url">recovery.demo</span></div>
       <div class="rc-shell">
         <aside class="rc-side">
-          <div class="rc-brandrow"><p class="rc-title" data-i18n="app.title">Recovery Desk</p><p class="rc-org" data-i18n="app.org"></p></div>
+          <div class="rc-brandrow"><p class="rc-title" data-i18n="app.title">Recovery Desk</p><p class="rc-org" data-i18n="app.org">Brightlane, subscription billing</p></div>
           <nav id="rc-nav" class="rc-nav" data-i18n-attr="aria-label:nav.label" aria-label="Modules"></nav>
         </aside>
         <div class="rc-body">
@@ -117,9 +141,9 @@
   <div class="pf-wrap">
     <h2 class="pf-h2" data-i18n="ix.h">Integrations, queue and notifications</h2>
     <div class="pf-grid3">
-      <article class="pf-card"><h3 data-i18n="ix.1.h"></h3><p data-i18n="ix.1.p"></p></article>
-      <article class="pf-card"><h3 data-i18n="ix.2.h"></h3><p data-i18n="ix.2.p"></p></article>
-      <article class="pf-card"><h3 data-i18n="ix.3.h"></h3><p data-i18n="ix.3.p"></p></article>
+      <article class="pf-card"><h3 data-i18n="ix.1.h">Payment provider</h3><p data-i18n="ix.1.p">Events arrive as signed automatic notifications from the payment system. A bad signature is rejected, a repeated event is recognised and ignored, and a second failure for the same customer joins the open case.</p></article>
+      <article class="pf-card"><h3 data-i18n="ix.2.h">Email and AI</h3><p data-i18n="ix.2.p">Letters go through a queue with retries and delivery tracking. If the email provider or the AI model is down, the system keeps working: messages wait, and drafts fall back to fixed templates.</p></article>
+      <article class="pf-card"><h3 data-i18n="ix.3.h">Notifications that respect people</h3><p data-i18n="ix.3.p">A send hour, a weekly cap per customer, opt-outs and a spam-complaint stop. Serious cases such as suspected fraud skip the campaign and go to a person.</p></article>
     </div>
   </div>
 </section>
@@ -128,10 +152,10 @@
   <div class="pf-wrap">
     <h2 class="pf-h2" data-i18n="how.h2">How it works</h2>
     <ol class="rc-steps">
-      <li class="pf-card"><span class="pf-num">1</span><h3 data-i18n="how.1.h"></h3><p data-i18n="how.1.p"></p></li>
-      <li class="pf-card"><span class="pf-num">2</span><h3 data-i18n="how.2.h"></h3><p data-i18n="how.2.p"></p></li>
-      <li class="pf-card"><span class="pf-num">3</span><h3 data-i18n="how.3.h"></h3><p data-i18n="how.3.p"></p></li>
-      <li class="pf-card"><span class="pf-num">4</span><h3 data-i18n="how.4.h"></h3><p data-i18n="how.4.p"></p></li>
+      <li class="pf-card"><span class="pf-num">1</span><h3 data-i18n="how.1.h">Listen</h3><p data-i18n="how.1.p">The payment provider sends an event. The system checks the signature, ignores repeats and opens a request.</p></li>
+      <li class="pf-card"><span class="pf-num">2</span><h3 data-i18n="how.2.h">Decide</h3><p data-i18n="how.2.p">Rules read the reason of the failure and choose the tone, the template and the timing. Serious cases go to a person.</p></li>
+      <li class="pf-card"><span class="pf-num">3</span><h3 data-i18n="how.3.h">Write and send</h3><p data-i18n="how.3.p">An AI model drafts a short human letter inside guardrails; a queue sends it with retries and tracks delivery.</p></li>
+      <li class="pf-card"><span class="pf-num">4</span><h3 data-i18n="how.4.h">Recover and learn</h3><p data-i18n="how.4.p">The customer updates the card in one click, the case closes and analytics show which step worked.</p></li>
     </ol>
   </div>
 </section>
@@ -140,12 +164,12 @@
   <div class="pf-wrap">
     <h2 class="pf-h2" data-i18n="stack.h2">Stack and building blocks</h2>
     <ul class="pf-tags">
-      <li class="pf-tag" data-i18n="tag.1"></li>
-      <li class="pf-tag" data-i18n="tag.2"></li>
-      <li class="pf-tag" data-i18n="tag.3"></li>
-      <li class="pf-tag" data-i18n="tag.4"></li>
-      <li class="pf-tag" data-i18n="tag.5"></li>
-      <li class="pf-tag" data-i18n="tag.6"></li>
+      <li class="pf-tag" data-i18n="tag.1">Web app</li>
+      <li class="pf-tag" data-i18n="tag.2">Payment notifications</li>
+      <li class="pf-tag" data-i18n="tag.3">Email queue with retries</li>
+      <li class="pf-tag" data-i18n="tag.4">AI-written emails</li>
+      <li class="pf-tag" data-i18n="tag.5">Automatic rules</li>
+      <li class="pf-tag" data-i18n="tag.6">Audit log and roles</li>
     </ul>
   </div>
 </section>
@@ -153,7 +177,7 @@
 <section class="pf-sec pf-cta">
   <div class="pf-wrap">
     <h2 class="pf-h2" data-i18n="cta.h2">Losing customers to expired cards?</h2>
-    <p class="pf-lead rc-mid" data-i18n="cta.p"></p>
+    <p class="pf-lead rc-mid" data-i18n="cta.p">Tell us how you bill and what happens after a failed payment today. We will sketch a recovery flow that fits.</p>
     <a class="btn" href="https://t.me/Molxo1" data-i18n="hero.discuss">Discuss a similar project</a>
   </div>
 </section>
@@ -161,16 +185,16 @@
 
 <footer class="pf-foot" data-i18n="foot">Molxo Flow. Case study, interface and data are fictional.</footer>
 
-<script src="../../shared/kit.i18n.js?v=3"></script>
-<script src="i18n/en.js"></script>
-<script src="i18n/ru.js"></script>
-<script src="i18n/uk.js"></script>
-<script src="../../shared/pf.js?v=3"></script>
-<script src="data.js"></script>
-<script src="core.js"></script>
-<script src="mods-a.js"></script>
-<script src="mods-b.js"></script>
-<script src="mods-c.js"></script>
-<script src="app.js"></script>
+<script src="../../shared/kit.i18n.js?v=11f91763"></script>
+<script src="i18n/en.js?v=90788e76"></script>
+<script src="i18n/ru.js?v=43765f6d"></script>
+<script src="i18n/uk.js?v=090c162d"></script>
+<script src="../../shared/pf.js?v=7b97cb85"></script>
+<script src="data.js?v=839324c1"></script>
+<script src="core.js?v=942ca9ce"></script>
+<script src="mods-a.js?v=78629d89"></script>
+<script src="mods-b.js?v=4dd900e7"></script>
+<script src="mods-c.js?v=3b291365"></script>
+<script src="app.js?v=1cf0e613"></script>
 </body>
 </html>

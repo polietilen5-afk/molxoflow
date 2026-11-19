@@ -3,14 +3,38 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- build:meta -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://molxoflow.com/portfolio/cases/fleet/">
+<link rel="alternate" hreflang="ru" href="https://molxoflow.com/portfolio/cases/fleet/?lang=ru">
+<link rel="alternate" hreflang="uk" href="https://molxoflow.com/portfolio/cases/fleet/?lang=uk">
+<link rel="alternate" hreflang="en" href="https://molxoflow.com/portfolio/cases/fleet/?lang=en">
+<link rel="alternate" hreflang="x-default" href="https://molxoflow.com/portfolio/cases/fleet/">
+<meta property="og:url" content="https://molxoflow.com/portfolio/cases/fleet/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Molxo Flow">
+<meta property="og:title" content="Fleet Desk: a fleet management system that reminds you before a deadline is missed">
+<meta property="og:description" content="Case study: a full fleet management app with a vehicle register, documents and deadlines, repairs, fuel, directories, reminders, reports, import and export, roles and an audit log. Live demo with fictional data.">
+<meta property="og:image" content="https://molxoflow.com/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Fleet Desk: a fleet management system that reminds you before a deadline is missed">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Fleet Desk: a fleet management system that reminds you before a deadline is missed">
+<meta name="twitter:description" content="Case study: a full fleet management app with a vehicle register, documents and deadlines, repairs, fuel, directories, reminders, reports, import and export, roles and an audit log. Live demo with fictional data.">
+<meta name="twitter:image" content="https://molxoflow.com/og.jpg">
+<!-- /build:meta -->
 <title data-i18n="meta.title">Fleet Desk: a fleet management system that reminds you before a deadline is missed</title>
 <meta name="description" content="Case study: a full fleet management app with a vehicle register, documents and deadlines, repairs, fuel, directories, reminders, reports, import and export, roles and an audit log. Live demo with fictional data." data-i18n-attr="content:meta.desc">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="../../shared/pf.css?v=3">
-<link rel="stylesheet" href="../../shared/kit.i18n.css?v=3">
-<link rel="stylesheet" href="case.css">
+<link rel="stylesheet" href="../../shared/pf.css?v=635519e3">
+<link rel="stylesheet" href="../../shared/kit.i18n.css?v=8146a404">
+<link rel="stylesheet" href="case.css?v=32f21b30">
 </head>
 <body>
 <a class="skip" href="#demo" data-i18n="skip">Skip to the demo</a>
@@ -18,7 +42,7 @@
 <header class="pf-top">
   <a class="pf-brand" href="/">Molxo<span>Flow</span></a>
   <nav class="pf-nav" data-i18n-attr="aria-label:nav.main" aria-label="Case navigation">
-    <a class="pf-back" href="../../index.html" data-i18n="nav.back">&larr; Portfolio</a>
+    <a class="pf-back" href="../../index.html" data-i18n="nav.back">← Portfolio</a>
     <div class="lang-sw" data-i18n-switch></div>
   </nav>
 </header>
@@ -28,8 +52,8 @@
   <div class="pf-wrap">
     <p class="eyebrow" data-i18n="hero.eyebrow">Case / Internal software / Fleet operations</p>
     <h1 class="pf-h1" data-i18n="hero.title">Stop chasing fleet deadlines across spreadsheets</h1>
-    <p class="pf-lead" data-i18n="hero.lead1"></p>
-    <p class="pf-lead" data-i18n="hero.lead2"></p>
+    <p class="pf-lead" data-i18n="hero.lead1">A logistics company kept every vehicle, insurance date, repair and fuel record in a shared spreadsheet. Expired papers were found by accident, usually at a roadside check.</p>
+    <p class="pf-lead" data-i18n="hero.lead2">We built one system: a register, cards, repairs, fuel, directories, reports and reminders, with roles and an audit trail. Fleet Desk below is a fictional rebuild of that idea and every module works.</p>
     <ul class="pf-tags">
       <li class="pf-tag" data-i18n="tag.1">Web app</li>
       <li class="pf-tag" data-i18n="tag.2">Relational database</li>
@@ -49,9 +73,9 @@
   <div class="pf-wrap">
     <h2 class="sr-only" data-i18n="brief.h">Problem, solution, result</h2>
     <div class="pf-grid3">
-      <article class="pf-card"><span class="pf-num">1</span><h3 data-i18n="task.h">The problem</h3><p data-i18n="task.p"></p></article>
-      <article class="pf-card"><span class="pf-num">2</span><h3 data-i18n="did.h">What we built</h3><p data-i18n="did.p"></p></article>
-      <article class="pf-card"><span class="pf-num">3</span><h3 data-i18n="res.h">Result</h3><p data-i18n="res.p"></p></article>
+      <article class="pf-card"><span class="pf-num">1</span><h3 data-i18n="task.h">The problem</h3><p data-i18n="task.p">Replace a shared fleet spreadsheet with a system that never forgets an insurance, inspection or service date, and keeps a trace of every change.</p></article>
+      <article class="pf-card"><span class="pf-num">2</span><h3 data-i18n="did.h">What we built</h3><p data-i18n="did.p">Twelve connected modules on one database: registry, cards, deadlines, repairs, fuel, directories, notifications, reports, import and export, integrations, access and an audit log.</p></article>
+      <article class="pf-card"><span class="pf-num">3</span><h3 data-i18n="res.h">Result</h3><p data-i18n="res.p">All the data in one place instead of scattered copies. Deadlines are found by the system, not by memory.</p></article>
     </div>
   </div>
 </section>
@@ -59,20 +83,20 @@
 <section class="pf-sec fd-caps" id="caps">
   <div class="pf-wrap">
     <h2 class="pf-h2" data-i18n="cap.h">What the system does</h2>
-    <p class="pf-lead" data-i18n="cap.lead"></p>
+    <p class="pf-lead" data-i18n="cap.lead">Every module below is working in the demo and shares the same data: an action in one place shows up in the others.</p>
     <ul class="fd-capgrid">
-      <li><a href="#demo" data-go="overview"><b data-i18n="mod.overview"></b><span data-i18n="cap.overview"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="vehicles"><b data-i18n="mod.vehicles"></b><span data-i18n="cap.vehicles"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="deadlines"><b data-i18n="mod.deadlines"></b><span data-i18n="cap.deadlines"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="repairs"><b data-i18n="mod.repairs"></b><span data-i18n="cap.repairs"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="fuel"><b data-i18n="mod.fuel"></b><span data-i18n="cap.fuel"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="directories"><b data-i18n="mod.directories"></b><span data-i18n="cap.directories"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="notifications"><b data-i18n="mod.notifications"></b><span data-i18n="cap.notifications"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="reports"><b data-i18n="mod.reports"></b><span data-i18n="cap.reports"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="import"><b data-i18n="mod.import"></b><span data-i18n="cap.import"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="integrations"><b data-i18n="mod.integrations"></b><span data-i18n="cap.integrations"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="access"><b data-i18n="mod.access"></b><span data-i18n="cap.access"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="audit"><b data-i18n="mod.audit"></b><span data-i18n="cap.audit"></span><em data-i18n="cap.open"></em></a></li>
+      <li><a href="#demo" data-go="overview"><b data-i18n="mod.overview">Overview</b><span data-i18n="cap.overview">Fleet totals, department breakdown, nearest deadlines and recent activity.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="vehicles"><b data-i18n="mod.vehicles">Vehicles</b><span data-i18n="cap.vehicles">Register with filters, search and export; strict rules for plates and VIN; a card with six tabs.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="deadlines"><b data-i18n="mod.deadlines">Deadlines</b><span data-i18n="cap.deadlines">Every document and service deadline as a list and a month calendar.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="repairs"><b data-i18n="mod.repairs">Repairs</b><span data-i18n="cap.repairs">Request, approval, work and completion, parts with analogs, cost, vehicle status.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="fuel"><b data-i18n="mod.fuel">Fuel</b><span data-i18n="cap.fuel">Fuel log, one-card-per-vehicle rule, norms by season and deviation control.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="directories"><b data-i18n="mod.directories">Directories</b><span data-i18n="cap.directories">Employees and drivers, garages, insurers and labs, departments, companies.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="notifications"><b data-i18n="mod.notifications">Notifications</b><span data-i18n="cap.notifications">Ten rules with thresholds and channels, preview, test send, daily check without repeats, delivery log.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="reports"><b data-i18n="mod.reports">Reports</b><span data-i18n="cap.reports">Fuel consumption, downtime, repair costs and document completeness.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="import"><b data-i18n="mod.import">Import and export</b><span data-i18n="cap.import">Import from a spreadsheet with a data-problem report, and export of selected sections.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="integrations"><b data-i18n="mod.integrations">Integrations</b><span data-i18n="cap.integrations">Fuel-card system sync, messenger, team chat, email, backups and an exchange journal.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="access"><b data-i18n="mod.access">Access and settings</b><span data-i18n="cap.access">Roles with rights per module and action, users, and system settings.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
+      <li><a href="#demo" data-go="audit"><b data-i18n="mod.audit">Audit log</b><span data-i18n="cap.audit">Append-only log: who changed what and when.</span><em data-i18n="cap.open">Open in the demo</em></a></li>
     </ul>
   </div>
 </section>
@@ -81,13 +105,13 @@
   <div class="pf-wrap">
     <p class="eyebrow" data-i18n="demo.eyebrow">Live demo</p>
     <h2 class="pf-h2" data-i18n="demo.h2">The fleet management app</h2>
-    <p class="pf-lead" data-i18n="demo.lead"></p>
+    <p class="pf-lead" data-i18n="demo.lead">Use the menu to move between modules, or switch the role to see how rights change what is visible and allowed. Everything you do is kept while you browse.</p>
 
     <div class="pf-app fd" id="fd">
       <div class="pf-app-bar"><i></i><i></i><i></i><span class="fd-url">fleetdesk.demo</span></div>
       <div class="fd-shell">
         <aside class="fd-side">
-          <div class="fd-brandrow"><p class="fd-title" data-i18n="app.title">Fleet Desk</p><p class="fd-org" data-i18n="app.org"></p></div>
+          <div class="fd-brandrow"><p class="fd-title" data-i18n="app.title">Fleet Desk</p><p class="fd-org" data-i18n="app.org">Northline Logistics, Riverton depot</p></div>
           <nav id="fd-nav" class="fd-nav" data-i18n-attr="aria-label:nav.label" aria-label="Modules"></nav>
         </aside>
         <div class="fd-body">
@@ -96,7 +120,7 @@
             <h3 class="fd-modname" id="fd-modname"></h3>
             <label class="fd-rolesel"><span data-i18n="role.label">View as</span><select id="fd-role"></select></label>
           </div>
-          <p class="fd-ribbon" id="fd-ribbon" hidden data-i18n="ribbon.head"></p>
+          <p class="fd-ribbon" id="fd-ribbon" hidden data-i18n="ribbon.head">View-only role: you see the Dispatch department only.</p>
           <div id="fd-mod" class="fd-mod" tabindex="-1"></div>
         </div>
       </div>
@@ -111,9 +135,9 @@
   <div class="pf-wrap">
     <h2 class="pf-h2" data-i18n="ix.h">Integrations, import and reminders</h2>
     <div class="pf-grid3">
-      <article class="pf-card"><h3 data-i18n="ix.1.h"></h3><p data-i18n="ix.1.p"></p></article>
-      <article class="pf-card"><h3 data-i18n="ix.2.h"></h3><p data-i18n="ix.2.p"></p></article>
-      <article class="pf-card"><h3 data-i18n="ix.3.h"></h3><p data-i18n="ix.3.p"></p></article>
+      <article class="pf-card"><h3 data-i18n="ix.1.h">Fuel-card system</h3><p data-i18n="ix.1.p">Refueling data is pulled on a schedule. A failed sync is logged and raises an alert to the administrators.</p></article>
+      <article class="pf-card"><h3 data-i18n="ix.2.h">Spreadsheet in and out</h3><p data-i18n="ix.2.p">The old file is imported with a report: what is fine, what imports with a warning, what is skipped and why. Any section can be exported back.</p></article>
+      <article class="pf-card"><h3 data-i18n="ix.3.h">Reminders that do not repeat</h3><p data-i18n="ix.3.p">A daily check applies ten rules and sends one reminder per event to a messenger, team chat or email. If a channel is down, the message waits for a retry.</p></article>
     </div>
   </div>
 </section>
@@ -122,10 +146,10 @@
   <div class="pf-wrap">
     <h2 class="pf-h2" data-i18n="how.h2">How it works</h2>
     <ol class="fd-steps">
-      <li class="pf-card"><span class="pf-num">1</span><h3 data-i18n="how.1.h"></h3><p data-i18n="how.1.p"></p></li>
-      <li class="pf-card"><span class="pf-num">2</span><h3 data-i18n="how.2.h"></h3><p data-i18n="how.2.p"></p></li>
-      <li class="pf-card"><span class="pf-num">3</span><h3 data-i18n="how.3.h"></h3><p data-i18n="how.3.p"></p></li>
-      <li class="pf-card"><span class="pf-num">4</span><h3 data-i18n="how.4.h"></h3><p data-i18n="how.4.p"></p></li>
+      <li class="pf-card"><span class="pf-num">1</span><h3 data-i18n="how.1.h">Import once</h3><p data-i18n="how.1.p">The old spreadsheet is loaded into the register with a report of data problems, so nothing is silently lost.</p></li>
+      <li class="pf-card"><span class="pf-num">2</span><h3 data-i18n="how.2.h">One register</h3><p data-i18n="how.2.p">Vehicles, documents, service, repairs, fuel cards and history live in a single database with roles and departments.</p></li>
+      <li class="pf-card"><span class="pf-num">3</span><h3 data-i18n="how.3.h">Daily check</h3><p data-i18n="how.3.p">A scheduled job counts every deadline, sets the color status and finds what crossed a warning threshold.</p></li>
+      <li class="pf-card"><span class="pf-num">4</span><h3 data-i18n="how.4.h">Right person, right time</h3><p data-i18n="how.4.p">Reminders go to a messenger, team chat or email once per event, with a log of everything that was sent.</p></li>
     </ol>
   </div>
 </section>
@@ -147,7 +171,7 @@
 <section class="pf-sec pf-cta">
   <div class="pf-wrap">
     <h2 class="pf-h2" data-i18n="cta.h2">Have a spreadsheet that runs your business?</h2>
-    <p class="pf-lead fd-mid" data-i18n="cta.p"></p>
+    <p class="pf-lead fd-mid" data-i18n="cta.p">Tell us what you track today and who needs to be reminded. We will suggest a first working version.</p>
     <a class="btn" href="https://t.me/Molxo1" data-i18n="hero.discuss">Discuss a similar project</a>
   </div>
 </section>
@@ -155,16 +179,16 @@
 
 <footer class="pf-foot" data-i18n="foot">Molxo Flow. Case study, interface and data are fictional.</footer>
 
-<script src="../../shared/kit.i18n.js?v=3"></script>
-<script src="i18n/en.js"></script>
-<script src="i18n/ru.js"></script>
-<script src="i18n/uk.js"></script>
-<script src="../../shared/pf.js?v=3"></script>
-<script src="data.js"></script>
-<script src="core.js"></script>
-<script src="mods-a.js"></script>
-<script src="mods-b.js"></script>
-<script src="mods-c.js"></script>
-<script src="app.js"></script>
+<script src="../../shared/kit.i18n.js?v=11f91763"></script>
+<script src="i18n/en.js?v=b5611aa1"></script>
+<script src="i18n/ru.js?v=1104df74"></script>
+<script src="i18n/uk.js?v=f07b8693"></script>
+<script src="../../shared/pf.js?v=7b97cb85"></script>
+<script src="data.js?v=0702d59a"></script>
+<script src="core.js?v=e2ed94f9"></script>
+<script src="mods-a.js?v=e7e0663b"></script>
+<script src="mods-b.js?v=678f8e64"></script>
+<script src="mods-c.js?v=3078c533"></script>
+<script src="app.js?v=4b920a3e"></script>
 </body>
 </html>

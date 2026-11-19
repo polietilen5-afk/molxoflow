@@ -3,16 +3,39 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- build:meta -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://molxoflow.com/portfolio/cases/dispatch/">
+<link rel="alternate" hreflang="ru" href="https://molxoflow.com/portfolio/cases/dispatch/?lang=ru">
+<link rel="alternate" hreflang="uk" href="https://molxoflow.com/portfolio/cases/dispatch/?lang=uk">
+<link rel="alternate" hreflang="en" href="https://molxoflow.com/portfolio/cases/dispatch/?lang=en">
+<link rel="alternate" hreflang="x-default" href="https://molxoflow.com/portfolio/cases/dispatch/">
+<meta property="og:url" content="https://molxoflow.com/portfolio/cases/dispatch/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Molxo Flow">
+<meta property="og:title" content="Route Match: chat requests in one table">
+<meta property="og:description" content="A desktop assistant that reads carrier group chats, extracts transport requests with a language model and matches them to routes with a confidence level.">
+<meta property="og:image" content="https://molxoflow.com/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Route Match: chat requests in one table">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Route Match: chat requests in one table">
+<meta name="twitter:description" content="A desktop assistant that reads carrier group chats, extracts transport requests with a language model and matches them to routes with a confidence level.">
+<meta name="twitter:image" content="https://molxoflow.com/og.jpg">
+<!-- /build:meta -->
 <title>Route Match: chat requests in one table</title>
 <meta name="description" content="A desktop assistant that reads carrier group chats, extracts transport requests with a language model and matches them to routes with a confidence level.">
 <meta name="theme-color" content="#0b0d11">
-<link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="../../shared/pf.css?v=3">
-<link rel="stylesheet" href="../../shared/kit.i18n.css?v=3">
-<link rel="stylesheet" href="case.css">
+<link rel="stylesheet" href="../../shared/pf.css?v=635519e3">
+<link rel="stylesheet" href="../../shared/kit.i18n.css?v=8146a404">
+<link rel="stylesheet" href="case.css?v=f0ff949c">
 </head>
 <body>
 <a class="skip" href="#demo" data-i18n="skip">Skip to the demo</a>
@@ -20,7 +43,7 @@
 <header class="pf-top">
   <a class="pf-brand" href="/">Molxo<span>Flow</span></a>
   <nav class="pf-nav" data-i18n-attr="aria-label:nav.label" aria-label="Case navigation">
-    <a class="pf-back" href="../../index.html" data-i18n="nav.back">&larr; Portfolio</a>
+    <a class="pf-back" href="../../index.html" data-i18n="nav.back">← Portfolio</a>
     <div class="lang-sw" data-i18n-switch></div>
   </nav>
 </header>
@@ -28,9 +51,9 @@
 <main>
 <section class="pf-sec hero">
   <div class="pf-wrap">
-    <p class="eyebrow" data-i18n="hero.eyebrow">Case study / desktop assistant</p>
+    <p class="eyebrow" data-i18n="hero.eyebrow">Case study / desktop application</p>
     <h1 class="pf-h1" data-i18n="hero.title">Requests from group chats are collected into one tidy table</h1>
-    <p class="pf-lead" data-i18n="hero.lead">A dispatcher follows dozens of chats to spot people who need a ride or a parcel delivered. The assistant reads the chats for them, extracts each request into clean fields and shows which route fits.</p>
+    <p class="pf-lead" data-i18n="hero.lead">A dispatcher follows dozens of chats to spot people who need a ride or a parcel delivered. The application reads the chats for them, extracts each request into clean fields, matches it with the timetable and keeps a journal of every decision.</p>
     <ul class="pf-tags" aria-label="Stack">
       <li class="pf-tag" data-i18n="tag.desktop">Desktop app</li>
       <li class="pf-tag" data-i18n="tag.llm">AI extraction</li>
@@ -50,7 +73,7 @@
     <h2 class="sr-only" data-i18n="brief.h">The problem, the solution, the result</h2>
     <div class="pf-grid3">
       <article class="pf-card"><span class="pf-num">1</span><h3 data-i18n="g.task.h">The problem</h3><p data-i18n="g.task.p">Requests arrive as free text in many chats, with typos and shorthand. Finding the relevant ones and comparing them with the timetable took the manager hours of scrolling and copy-pasting.</p></article>
-      <article class="pf-card"><span class="pf-num">2</span><h3 data-i18n="g.did.h">What we built</h3><p data-i18n="g.did.p">A desktop app that watches the chats, extracts type, route, date and volume with a language model (with a rule-based fallback), and scores every request against the carrier's routes.</p></article>
+      <article class="pf-card"><span class="pf-num">2</span><h3 data-i18n="g.did.h">What we built</h3><p data-i18n="g.did.p">A desktop application that watches the chats, extracts type, route, date and volume with a language model (with a rule-based fallback) and scores every request against the carrier's routes.</p></article>
       <article class="pf-card"><span class="pf-num">3</span><h3 data-i18n="g.res.h">The result</h3><p data-i18n="g.res.p">From hours of scrolling to a short list of ready matches. One place for every request, a confidence level on each and a reply template one click away.</p></article>
     </div>
   </div>
@@ -59,8 +82,8 @@
 <section class="pf-sec demo-sec" id="demo" aria-labelledby="demo-h">
   <div class="pf-wrap">
     <p class="eyebrow" data-i18n="demo.eyebrow">Interactive demo</p>
-    <h2 class="pf-h2" id="demo-h" data-i18n="demo.title">Watch chat messages become matched leads</h2>
-    <p class="pf-lead" data-i18n="demo.lead">New messages arrive on their own. Open one to see how it was parsed, then offer a trip or skip it. Switch to Routes to change the timetable.</p>
+    <h2 class="pf-h2" id="demo-h" data-i18n="demo.title">The whole application, on one fictional data set</h2>
+    <p class="pf-lead" data-i18n="demo.lead">Messages arrive on their own. Work a lead, change a rule, add a route or switch the language model off, and watch the other modules follow. Everything is shared: leads, routes, cities, rules and the journal.</p>
     <div class="pf-app rm" id="rm">
       <div class="pf-app-bar rm-bar">
         <span class="rm-logo" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H14a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h5.5"/></svg></span>
@@ -71,10 +94,10 @@
         <div class="rm-stats" id="rm-stats"></div>
       </div>
       <div class="rm-shell">
-        <nav class="rm-side" id="rm-side" data-i18n-attr="aria-label:app.modules"></nav>
+        <nav class="rm-side" id="rm-side" data-i18n-attr="aria-label:app.modules" aria-label="Modules"></nav>
         <div class="rm-main" id="rm-main" tabindex="-1" role="region" data-i18n-attr="aria-label:app.work" aria-label="Workspace"></div>
       </div>
-      <nav class="rm-bnav" id="rm-bnav" data-i18n-attr="aria-label:app.modules"></nav>
+      <nav class="rm-bnav" id="rm-bnav" data-i18n-attr="aria-label:app.modules" aria-label="Modules"></nav>
       <div class="rm-drawer" id="rm-drawer" hidden></div>
       <div class="toast" id="rm-toast" role="status" aria-live="polite"></div>
     </div>
@@ -87,19 +110,19 @@
     <p class="eyebrow" data-i18n="feat.eyebrow">What the system does</p>
     <h2 class="pf-h2" data-i18n="feat.title">Eleven working modules, one connected data set</h2>
     <ul class="feat">
-      <li class="pf-card"><h3 data-i18n="mod.leads">leads</h3><p data-i18n="feat.leads">...</p><a class="open" href="#demo" data-open="leads" data-i18n="feat.open">Open in the demo</a></li>
-      <li class="pf-card"><h3 data-i18n="mod.messages">messages</h3><p data-i18n="feat.messages">...</p><a class="open" href="#demo" data-open="messages" data-i18n="feat.open">Open in the demo</a></li>
-      <li class="pf-card"><h3 data-i18n="mod.routes">routes</h3><p data-i18n="feat.routes">...</p><a class="open" href="#demo" data-open="routes" data-i18n="feat.open">Open in the demo</a></li>
-      <li class="pf-card"><h3 data-i18n="mod.cities">cities</h3><p data-i18n="feat.cities">...</p><a class="open" href="#demo" data-open="cities" data-i18n="feat.open">Open in the demo</a></li>
-      <li class="pf-card"><h3 data-i18n="mod.rules">rules</h3><p data-i18n="feat.rules">...</p><a class="open" href="#demo" data-open="rules" data-i18n="feat.open">Open in the demo</a></li>
-      <li class="pf-card"><h3 data-i18n="mod.templates">templates</h3><p data-i18n="feat.templates">...</p><a class="open" href="#demo" data-open="templates" data-i18n="feat.open">Open in the demo</a></li>
-      <li class="pf-card"><h3 data-i18n="mod.groups">groups</h3><p data-i18n="feat.groups">...</p><a class="open" href="#demo" data-open="groups" data-i18n="feat.open">Open in the demo</a></li>
-      <li class="pf-card"><h3 data-i18n="mod.analytics">analytics</h3><p data-i18n="feat.analytics">...</p><a class="open" href="#demo" data-open="analytics" data-i18n="feat.open">Open in the demo</a></li>
-      <li class="pf-card"><h3 data-i18n="mod.journal">journal</h3><p data-i18n="feat.journal">...</p><a class="open" href="#demo" data-open="journal" data-i18n="feat.open">Open in the demo</a></li>
-      <li class="pf-card"><h3 data-i18n="mod.export">export</h3><p data-i18n="feat.export">...</p><a class="open" href="#demo" data-open="export" data-i18n="feat.open">Open in the demo</a></li>
-      <li class="pf-card"><h3 data-i18n="mod.settings">settings</h3><p data-i18n="feat.settings">...</p><a class="open" href="#demo" data-open="settings" data-i18n="feat.open">Open in the demo</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.leads">Leads</h3><p data-i18n="feat.leads">Cards with status, priority, duplicate and stale flags, manual corrections and a reason for every match.</p><a class="open" href="#demo" data-open="leads" data-i18n="feat.open">Open in the demo</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.messages">Messages</h3><p data-i18n="feat.messages">Live feed of group chats with filters and a step-by-step trace of how each message was processed.</p><a class="open" href="#demo" data-open="messages" data-i18n="feat.open">Open in the demo</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.routes">Routes</h3><p data-i18n="feat.routes">Point-to-point routes and multi-stop circuits, schedule, capacity, road geometry and route suggestions.</p><a class="open" href="#demo" data-open="routes" data-i18n="feat.open">Open in the demo</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.cities">Cities</h3><p data-i18n="feat.cities">City dictionary with aliases, a spelling checker and a queue of spellings that need a decision.</p><a class="open" href="#demo" data-open="cities" data-i18n="feat.open">Open in the demo</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.rules">Matching rules</h3><p data-i18n="feat.rules">Thresholds, nearby radius, typo tolerance and penalties, with a live preview on current leads.</p><a class="open" href="#demo" data-open="rules" data-i18n="feat.open">Open in the demo</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.templates">Reply templates</h3><p data-i18n="feat.templates">Reply templates with placeholders for passengers, parcels, no-route and decline cases.</p><a class="open" href="#demo" data-open="templates" data-i18n="feat.open">Open in the demo</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.groups">Chat monitoring</h3><p data-i18n="feat.groups">Which chats are listened to, keyword exclusions and the state of the background collector.</p><a class="open" href="#demo" data-open="groups" data-i18n="feat.open">Open in the demo</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.analytics">Analytics</h3><p data-i18n="feat.analytics">Funnel from messages to confirmed leads, load by weekday and group, extraction source and quality.</p><a class="open" href="#demo" data-open="analytics" data-i18n="feat.open">Open in the demo</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.journal">Journal</h3><p data-i18n="feat.journal">Searchable journal of parsing, status changes, rule edits, alerts and errors, with diagnostics export.</p><a class="open" href="#demo" data-open="journal" data-i18n="feat.open">Open in the demo</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.export">Export</h3><p data-i18n="feat.export">Export of leads to a spreadsheet for Excel and to a file for other programs, plus a queue for a customer portal.</p><a class="open" href="#demo" data-open="export" data-i18n="feat.open">Open in the demo</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.settings">Settings</h3><p data-i18n="feat.settings">Language model provider and budget, notifications and quiet hours, backups, pre-filter and a setup checklist.</p><a class="open" href="#demo" data-open="settings" data-i18n="feat.open">Open in the demo</a></li>
     </ul>
-    <div class="pf-card integ"><h3 data-i18n="integ.h">Integrations and delivery</h3><p data-i18n="integ.p">...</p></div>
+    <div class="pf-card integ"><h3 data-i18n="integ.h">Integrations and delivery</h3><p data-i18n="integ.p">A connection to a language model for extraction, a messenger bot channel for high-priority alerts, a connection to a customer portal for confirmed leads, export to a spreadsheet for Excel and to a file for other programs, scheduled local backups and a diagnostics bundle without secrets. Delivered as a Windows installer.</p></div>
   </div>
 </section>
 
@@ -108,9 +131,9 @@
     <p class="eyebrow" data-i18n="how.eyebrow">How it works</p>
     <h2 class="pf-h2" data-i18n="how.title">Four steps from a chat line to a reply</h2>
     <ol class="how">
-      <li class="pf-card"><span class="pf-num">1</span><h3 data-i18n="how.1.h">Read</h3><p data-i18n="how.1.p">The app reads new messages from the manager's own chats on the same computer, nothing leaves the machine except the text sent for extraction.</p></li>
+      <li class="pf-card"><span class="pf-num">1</span><h3 data-i18n="how.1.h">Read</h3><p data-i18n="how.1.p">The app reads new messages from the manager's own chats on the same computer. Nothing leaves the machine except the text sent for extraction.</p></li>
       <li class="pf-card"><span class="pf-num">2</span><h3 data-i18n="how.2.h">Extract</h3><p data-i18n="how.2.p">A language model returns type, origin, destination, date and volume. If it is unavailable, a pattern-based parser takes over.</p></li>
-      <li class="pf-card"><span class="pf-num">3</span><h3 data-i18n="how.3.h">Match</h3><p data-i18n="how.3.p">City names are standardized and compared with each active route: exact, nearby or reversed, plus service type and running days.</p></li>
+      <li class="pf-card"><span class="pf-num">3</span><h3 data-i18n="how.3.h">Match</h3><p data-i18n="how.3.p">City names are standardized and compared with each active route: exact, nearby or fuzzy, plus service type, running days and free seats.</p></li>
       <li class="pf-card"><span class="pf-num">4</span><h3 data-i18n="how.4.h">Reply</h3><p data-i18n="how.4.p">The manager sees a confidence level, picks a trip and gets a ready reply to send. Nothing is sent automatically.</p></li>
     </ol>
   </div>
@@ -137,14 +160,14 @@
 
 <footer class="pf-foot"><span data-i18n="foot">Molxo Flow / portfolio. Demo data is fictional.</span></footer>
 
-<script src="../../shared/kit.i18n.js?v=3"></script>
-<script src="i18n/en.js"></script>
-<script src="i18n/ru.js"></script>
-<script src="i18n/uk.js"></script>
-<script src="../../shared/pf.js?v=3"></script>
-<script src="engine.js"></script>
-<script src="modules1.js"></script>
-<script src="modules2.js"></script>
-<script src="app.js"></script>
+<script src="../../shared/kit.i18n.js?v=11f91763"></script>
+<script src="i18n/en.js?v=f999c125"></script>
+<script src="i18n/ru.js?v=e9a49426"></script>
+<script src="i18n/uk.js?v=0d947fa3"></script>
+<script src="../../shared/pf.js?v=7b97cb85"></script>
+<script src="engine.js?v=d3ed53de"></script>
+<script src="modules1.js?v=d5375d5c"></script>
+<script src="modules2.js?v=7b4e2e95"></script>
+<script src="app.js?v=e810418c"></script>
 </body>
 </html>

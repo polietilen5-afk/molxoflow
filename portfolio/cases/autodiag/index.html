@@ -3,14 +3,38 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- build:meta -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://molxoflow.com/portfolio/cases/autodiag/">
+<link rel="alternate" hreflang="ru" href="https://molxoflow.com/portfolio/cases/autodiag/?lang=ru">
+<link rel="alternate" hreflang="uk" href="https://molxoflow.com/portfolio/cases/autodiag/?lang=uk">
+<link rel="alternate" hreflang="en" href="https://molxoflow.com/portfolio/cases/autodiag/?lang=en">
+<link rel="alternate" hreflang="x-default" href="https://molxoflow.com/portfolio/cases/autodiag/">
+<meta property="og:url" content="https://molxoflow.com/portfolio/cases/autodiag/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Molxo Flow">
+<meta property="og:title" content="Auto Diagnostic: an AI car diagnosis app with repair cost estimates">
+<meta property="og:description" content="Case study: a mobile app that turns symptoms into likely causes, urgency and a repair cost range, with a garage, error code catalog, service booking, history and reminders. Live demo with fictional data.">
+<meta property="og:image" content="https://molxoflow.com/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Auto Diagnostic: an AI car diagnosis app with repair cost estimates">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Auto Diagnostic: an AI car diagnosis app with repair cost estimates">
+<meta name="twitter:description" content="Case study: a mobile app that turns symptoms into likely causes, urgency and a repair cost range, with a garage, error code catalog, service booking, history and reminders. Live demo with fictional data.">
+<meta name="twitter:image" content="https://molxoflow.com/og.jpg">
+<!-- /build:meta -->
 <title data-i18n="meta.title">Auto Diagnostic: an AI car diagnosis app with repair cost estimates</title>
 <meta name="description" content="Case study: a mobile app that turns symptoms into likely causes, urgency and a repair cost range, with a garage, error code catalog, service booking, history and reminders. Live demo with fictional data." data-i18n-attr="content:meta.desc">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="../../shared/pf.css?v=3">
-<link rel="stylesheet" href="../../shared/kit.i18n.css?v=3">
-<link rel="stylesheet" href="case.css">
+<link rel="stylesheet" href="../../shared/pf.css?v=635519e3">
+<link rel="stylesheet" href="../../shared/kit.i18n.css?v=8146a404">
+<link rel="stylesheet" href="case.css?v=34292512">
 </head>
 <body>
 <a class="skip" href="#demo" data-i18n="skip">Skip to the demo</a>
@@ -18,7 +42,7 @@
 <header class="pf-top">
   <a class="pf-brand" href="/">Molxo<span>Flow</span></a>
   <nav class="pf-nav" data-i18n-attr="aria-label:nav.main" aria-label="Case navigation">
-    <a class="pf-back" href="../../index.html" data-i18n="nav.back">&larr; Portfolio</a>
+    <a class="pf-back" href="../../index.html" data-i18n="nav.back">← Portfolio</a>
     <div class="lang-sw" data-i18n-switch></div>
   </nav>
 </header>
@@ -28,13 +52,13 @@
   <div class="pf-wrap">
     <p class="eyebrow" data-i18n="hero.eyebrow">Case / Mobile app / AI</p>
     <h1 class="pf-h1" data-i18n="hero.title">Know what is wrong with the car before you reach the garage</h1>
-    <p class="pf-lead" data-i18n="hero.lead1"></p>
-    <p class="pf-lead" data-i18n="hero.lead2"></p>
+    <p class="pf-lead" data-i18n="hero.lead1">A car owner hears a noise or sees a warning light and has no idea whether it is a minor fix or a safety risk, or what a fair price looks like.</p>
+    <p class="pf-lead" data-i18n="hero.lead2">We built a mobile app: pick the symptoms, answer a few questions from an AI diagnostician and get ranked causes, urgency, a check list and a price range, then book a service in the same app.</p>
     <ul class="pf-tags">
       <li class="pf-tag" data-i18n="tag.1">Mobile app</li>
       <li class="pf-tag" data-i18n="tag.2">AI diagnosis</li>
       <li class="pf-tag" data-i18n="tag.3">Local fallback</li>
-      <li class="pf-tag" data-i18n="tag.4">Cost engine</li>
+      <li class="pf-tag" data-i18n="tag.4">Cost calculator</li>
       <li class="pf-tag" data-i18n="tag.5">On-device storage</li>
       <li class="pf-tag" data-i18n="tag.6">Three languages</li>
     </ul>
@@ -45,12 +69,12 @@
   </div>
 </section>
 
-<section class="ad-brief" data-i18n-attr="aria-label:brief.h" aria-label="Task, solution, result">
+<section class="ad-brief" data-i18n-attr="aria-label:brief.h" aria-label="Problem, solution, result">
   <div class="pf-wrap">
     <div class="pf-grid3">
-      <article class="pf-card"><span class="pf-num">1</span><h2 data-i18n="task.h">Problem</h2><p data-i18n="task.p"></p></article>
-      <article class="pf-card"><span class="pf-num">2</span><h2 data-i18n="did.h">What we built</h2><p data-i18n="did.p"></p></article>
-      <article class="pf-card"><span class="pf-num">3</span><h2 data-i18n="res.h">Result</h2><p data-i18n="res.p"></p></article>
+      <article class="pf-card"><span class="pf-num">1</span><h2 data-i18n="task.h">Problem</h2><p data-i18n="task.p">Help drivers understand a car problem in plain words: how serious it is, what is probably broken, what it may cost, and what to do next, without a call to a garage first.</p></article>
+      <article class="pf-card"><span class="pf-num">2</span><h2 data-i18n="did.h">What we built</h2><p data-i18n="did.p">A cross-platform mobile app with a symptom wizard, a scripted-and-AI dialogue, ranked causes with confidence, a price calculator by car class, region and service level, an error code catalog, booking, history and reminders.</p></article>
+      <article class="pf-card"><span class="pf-num">3</span><h2 data-i18n="res.h">Result</h2><p data-i18n="res.p">One place for a car’s story: every diagnosis, estimate, booking and service reminder is linked to the car, and the app still answers when the AI model is unavailable.</p></article>
     </div>
   </div>
 </section>
@@ -58,20 +82,20 @@
 <section class="pf-sec ad-caps" id="caps">
   <div class="pf-wrap">
     <h2 class="pf-h2" data-i18n="cap.h">What the system does</h2>
-    <p class="pf-lead" data-i18n="cap.lead"></p>
+    <p class="pf-lead" data-i18n="cap.lead">Twelve connected modules on one set of data. Open any of them in the phone below.</p>
     <ul class="ad-capgrid">
-      <li><a href="#demo" data-go="garage"><b data-i18n="mod.garage"></b><span data-i18n="cap.garage"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="diagnose"><b data-i18n="mod.diagnose"></b><span data-i18n="cap.diagnose"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="chat"><b data-i18n="mod.chat"></b><span data-i18n="cap.chat"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="result"><b data-i18n="mod.result"></b><span data-i18n="cap.result"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="cost"><b data-i18n="mod.cost"></b><span data-i18n="cap.cost"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="codes"><b data-i18n="mod.codes"></b><span data-i18n="cap.codes"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="book"><b data-i18n="mod.book"></b><span data-i18n="cap.book"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="history"><b data-i18n="mod.history"></b><span data-i18n="cap.history"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="reminders"><b data-i18n="mod.reminders"></b><span data-i18n="cap.reminders"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="profile"><b data-i18n="mod.profile"></b><span data-i18n="cap.profile"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="plan"><b data-i18n="mod.plan"></b><span data-i18n="cap.plan"></span><em data-i18n="cap.open"></em></a></li>
-      <li><a href="#demo" data-go="log"><b data-i18n="mod.log"></b><span data-i18n="cap.log"></span><em data-i18n="cap.open"></em></a></li>
+      <li><a href="#demo" data-go="garage"><b data-i18n="mod.garage">Garage</b><span data-i18n="cap.garage">Cars with mileage, documents and their expiry, attached error codes and quick links.</span><em data-i18n="cap.open">Open in demo →</em></a></li>
+      <li><a href="#demo" data-go="diagnose"><b data-i18n="mod.diagnose">New diagnosis</b><span data-i18n="cap.diagnose">Three-step wizard: car, system, symptoms, with notes and a start from an error code.</span><em data-i18n="cap.open">Open in demo →</em></a></li>
+      <li><a href="#demo" data-go="chat"><b data-i18n="mod.chat">AI dialogue</b><span data-i18n="cap.chat">The AI diagnostician asks follow-up questions; quick replies and free text sharpen the result.</span><em data-i18n="cap.open">Open in demo →</em></a></li>
+      <li><a href="#demo" data-go="result"><b data-i18n="mod.result">Result</b><span data-i18n="cap.result">Ranked causes with confidence level, urgency, a stop-driving banner and a check list.</span><em data-i18n="cap.open">Open in demo →</em></a></li>
+      <li><a href="#demo" data-go="cost"><b data-i18n="mod.cost">Cost estimate</b><span data-i18n="cap.cost">Works and parts with a price range; change region and service class and watch the total move.</span><em data-i18n="cap.open">Open in demo →</em></a></li>
+      <li><a href="#demo" data-go="codes"><b data-i18n="mod.codes">Error codes</b><span data-i18n="cap.codes">Searchable catalog of error codes with meaning, severity and a one-tap diagnosis.</span><em data-i18n="cap.open">Open in demo →</em></a></li>
+      <li><a href="#demo" data-go="book"><b data-i18n="mod.book">Service booking</b><span data-i18n="cap.book">Pick a service, a day and a free slot, confirm, reschedule, cancel or mark as done.</span><em data-i18n="cap.open">Open in demo →</em></a></li>
+      <li><a href="#demo" data-go="history"><b data-i18n="mod.history">History</b><span data-i18n="cap.history">Every diagnosis with status, search, filters and the saved estimate.</span><em data-i18n="cap.open">Open in demo →</em></a></li>
+      <li><a href="#demo" data-go="reminders"><b data-i18n="mod.reminders">Reminders</b><span data-i18n="cap.reminders">Maintenance by mileage and by date, status colours, mark as done, book a visit.</span><em data-i18n="cap.open">Open in demo →</em></a></li>
+      <li><a href="#demo" data-go="profile"><b data-i18n="mod.profile">Profile and settings</b><span data-i18n="cap.profile">Language, region, service class, units, notifications and data reset.</span><em data-i18n="cap.open">Open in demo →</em></a></li>
+      <li><a href="#demo" data-go="plan"><b data-i18n="mod.plan">Plan and limits</b><span data-i18n="cap.plan">Free and Plus plans with monthly diagnosis and garage limits that really apply.</span><em data-i18n="cap.open">Open in demo →</em></a></li>
+      <li><a href="#demo" data-go="log"><b data-i18n="mod.log">Activity log</b><span data-i18n="cap.log">A timeline of everything that changed: diagnoses, mileage, bookings, settings.</span><em data-i18n="cap.open">Open in demo →</em></a></li>
     </ul>
   </div>
 </section>
@@ -80,7 +104,7 @@
   <div class="pf-wrap">
     <p class="eyebrow" data-i18n="demo.eyebrow">Live demo</p>
     <h2 class="pf-h2" data-i18n="demo.h2">The mobile app, in your browser</h2>
-    <p class="pf-lead" data-i18n="demo.lead"></p>
+    <p class="pf-lead" data-i18n="demo.lead">On a phone the app fills the screen. On a desktop it sits in a phone frame, with a guide beside it: jump to any module or run a ready scenario.</p>
 
     <div class="ad-stage">
       <div class="ad-phone-wrap">
@@ -111,9 +135,9 @@
   <div class="pf-wrap">
     <h2 class="pf-h2" data-i18n="ix.h">Integrations and behind the screen</h2>
     <div class="pf-grid3">
-      <article class="pf-card"><h3 data-i18n="ix.1.h"></h3><p data-i18n="ix.1.p"></p></article>
-      <article class="pf-card"><h3 data-i18n="ix.2.h"></h3><p data-i18n="ix.2.p"></p></article>
-      <article class="pf-card"><h3 data-i18n="ix.3.h"></h3><p data-i18n="ix.3.p"></p></article>
+      <article class="pf-card"><h3 data-i18n="ix.1.h">AI model with a local fallback</h3><p data-i18n="ix.1.p">Diagnosis goes to a language model through a single gateway with a timeout and a retry. If it is slow or down, a built-in knowledge base answers, so the app never ends on an error screen.</p></article>
+      <article class="pf-card"><h3 data-i18n="ix.2.h">Price calculator</h3><p data-i18n="ix.2.p">Prices are calculated from labour hours, a car class factor, a regional factor and a service level, with a range instead of a false exact number. Currency and rates are configuration.</p></article>
+      <article class="pf-card"><h3 data-i18n="ix.3.h">Data on the device</h3><p data-i18n="ix.3.p">Cars, history and settings are stored on the phone, with secure storage for secrets. Calendar and push notifications connect to the reminders and bookings.</p></article>
     </div>
   </div>
 </section>
@@ -122,10 +146,10 @@
   <div class="pf-wrap">
     <h2 class="pf-h2" data-i18n="how.h2">How it works</h2>
     <ol class="ad-steps4">
-      <li class="pf-card"><span class="pf-num">1</span><h3 data-i18n="how.1.h"></h3><p data-i18n="how.1.p"></p></li>
-      <li class="pf-card"><span class="pf-num">2</span><h3 data-i18n="how.2.h"></h3><p data-i18n="how.2.p"></p></li>
-      <li class="pf-card"><span class="pf-num">3</span><h3 data-i18n="how.3.h"></h3><p data-i18n="how.3.p"></p></li>
-      <li class="pf-card"><span class="pf-num">4</span><h3 data-i18n="how.4.h"></h3><p data-i18n="how.4.p"></p></li>
+      <li class="pf-card"><span class="pf-num">1</span><h3 data-i18n="how.1.h">Describe</h3><p data-i18n="how.1.p">Choose the car and the system, tick the symptoms and add a note.</p></li>
+      <li class="pf-card"><span class="pf-num">2</span><h3 data-i18n="how.2.h">Clarify</h3><p data-i18n="how.2.p">The AI diagnostician asks two or three targeted questions to separate close causes.</p></li>
+      <li class="pf-card"><span class="pf-num">3</span><h3 data-i18n="how.3.h">Understand</h3><p data-i18n="how.3.p">Ranked causes, urgency, a check list and a price range by region and service level.</p></li>
+      <li class="pf-card"><span class="pf-num">4</span><h3 data-i18n="how.4.h">Act</h3><p data-i18n="how.4.p">Book a service, track the status, get reminders and keep the car’s full history.</p></li>
     </ol>
   </div>
 </section>
@@ -137,7 +161,7 @@
       <li class="pf-tag" data-i18n="tag.1">Mobile app</li>
       <li class="pf-tag" data-i18n="tag.2">AI diagnosis</li>
       <li class="pf-tag" data-i18n="tag.3">Local fallback</li>
-      <li class="pf-tag" data-i18n="tag.4">Cost engine</li>
+      <li class="pf-tag" data-i18n="tag.4">Cost calculator</li>
       <li class="pf-tag" data-i18n="tag.5">On-device storage</li>
       <li class="pf-tag" data-i18n="tag.6">Three languages</li>
     </ul>
@@ -147,7 +171,7 @@
 <section class="pf-sec pf-cta">
   <div class="pf-wrap">
     <h2 class="pf-h2" data-i18n="cta.h2">Have a service idea that fits in a pocket?</h2>
-    <p class="pf-lead ad-mid" data-i18n="cta.p"></p>
+    <p class="pf-lead ad-mid" data-i18n="cta.p">We design and build mobile apps with AI inside: from the knowledge base and prompts to the price logic and the store release.</p>
     <a class="btn" href="https://t.me/Molxo1" data-i18n="hero.discuss">Discuss a similar project</a>
   </div>
 </section>
@@ -155,16 +179,16 @@
 
 <footer class="pf-foot" data-i18n="foot">Molxo Flow. Case study, interface and data are fictional.</footer>
 
-<script src="../../shared/kit.i18n.js?v=3"></script>
-<script src="i18n/en.js"></script>
-<script src="i18n/ru.js"></script>
-<script src="i18n/uk.js"></script>
-<script src="../../shared/pf.js?v=3"></script>
-<script src="data.js"></script>
-<script src="core.js"></script>
-<script src="screens-a.js"></script>
-<script src="screens-b.js"></script>
-<script src="screens-c.js"></script>
-<script src="app.js"></script>
+<script src="../../shared/kit.i18n.js?v=11f91763"></script>
+<script src="i18n/en.js?v=16df5fb1"></script>
+<script src="i18n/ru.js?v=626883fc"></script>
+<script src="i18n/uk.js?v=f113c58e"></script>
+<script src="../../shared/pf.js?v=7b97cb85"></script>
+<script src="data.js?v=10bcd8ec"></script>
+<script src="core.js?v=04b28440"></script>
+<script src="screens-a.js?v=14c4b19e"></script>
+<script src="screens-b.js?v=d1f50ebf"></script>
+<script src="screens-c.js?v=5fa5165d"></script>
+<script src="app.js?v=b0ef5e13"></script>
 </body>
 </html>

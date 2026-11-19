@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://molxoflow.com/</loc>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://molxoflow.com/?lang=ru"/>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://molxoflow.com/?lang=uk"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://molxoflow.com/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://molxoflow.com/"/>
+  </url>
+  <url>
+    <loc>https://molxoflow.com/portfolio/</loc>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://molxoflow.com/portfolio/?lang=ru"/>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://molxoflow.com/portfolio/?lang=uk"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://molxoflow.com/portfolio/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://molxoflow.com/portfolio/"/>
+  </url>
+  <url>
+    <loc>https://molxoflow.com/privacy/</loc>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://molxoflow.com/privacy/?lang=ru"/>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://molxoflow.com/privacy/?lang=uk"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://molxoflow.com/privacy/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://molxoflow.com/privacy/"/>
+  </url>
+  <url>
+    <loc>https://molxoflow.com/portfolio/cases/fleet/</loc>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://molxoflow.com/portfolio/cases/fleet/?lang=ru"/>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://molxoflow.com/portfolio/cases/fleet/?lang=uk"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://molxoflow.com/portfolio/cases/fleet/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://molxoflow.com/portfolio/cases/fleet/"/>
+  </url>
+  <url>
+    <loc>https://molxoflow.com/portfolio/cases/dispatch/</loc>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://molxoflow.com/portfolio/cases/dispatch/?lang=ru"/>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://molxoflow.com/portfolio/cases/dispatch/?lang=uk"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://molxoflow.com/portfolio/cases/dispatch/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://molxoflow.com/portfolio/cases/dispatch/"/>
+  </url>
+  <url>
+    <loc>https://molxoflow.com/portfolio/cases/hr/</loc>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://molxoflow.com/portfolio/cases/hr/?lang=ru"/>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://molxoflow.com/portfolio/cases/hr/?lang=uk"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://molxoflow.com/portfolio/cases/hr/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://molxoflow.com/portfolio/cases/hr/"/>
+  </url>
+  <url>
+    <loc>https://molxoflow.com/portfolio/cases/tender/</loc>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://molxoflow.com/portfolio/cases/tender/?lang=ru"/>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://molxoflow.com/portfolio/cases/tender/?lang=uk"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://molxoflow.com/portfolio/cases/tender/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://molxoflow.com/portfolio/cases/tender/"/>
+  </url>
+  <url>
+    <loc>https://molxoflow.com/portfolio/cases/kb/</loc>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://molxoflow.com/portfolio/cases/kb/?lang=ru"/>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://molxoflow.com/portfolio/cases/kb/?lang=uk"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://molxoflow.com/portfolio/cases/kb/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://molxoflow.com/portfolio/cases/kb/"/>
+  </url>
+  <url>
+    <loc>https://molxoflow.com/portfolio/cases/autodiag/</loc>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://molxoflow.com/portfolio/cases/autodiag/?lang=ru"/>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://molxoflow.com/portfolio/cases/autodiag/?lang=uk"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://molxoflow.com/portfolio/cases/autodiag/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://molxoflow.com/portfolio/cases/autodiag/"/>
+  </url>
+  <url>
+    <loc>https://molxoflow.com/portfolio/cases/excavation/</loc>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://molxoflow.com/portfolio/cases/excavation/?lang=ru"/>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://molxoflow.com/portfolio/cases/excavation/?lang=uk"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://molxoflow.com/portfolio/cases/excavation/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://molxoflow.com/portfolio/cases/excavation/"/>
+  </url>
+  <url>
+    <loc>https://molxoflow.com/portfolio/cases/booking/</loc>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://molxoflow.com/portfolio/cases/booking/?lang=ru"/>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://molxoflow.com/portfolio/cases/booking/?lang=uk"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://molxoflow.com/portfolio/cases/booking/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://molxoflow.com/portfolio/cases/booking/"/>
+  </url>
+  <url>
+    <loc>https://molxoflow.com/portfolio/cases/recovery/</loc>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://molxoflow.com/portfolio/cases/recovery/?lang=ru"/>
+    <xhtml:link rel="alternate" hreflang="uk" href="https://molxoflow.com/portfolio/cases/recovery/?lang=uk"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://molxoflow.com/portfolio/cases/recovery/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://molxoflow.com/portfolio/cases/recovery/"/>
+  </url>
+</urlset>

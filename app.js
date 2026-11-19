@@ -137,7 +137,7 @@
   function loadScene() {
     if (MX.mode !== 'init') { return; }
     var s = doc.createElement('script');
-    s.type = 'module'; s.src = 'scene.js?v=2';
+    s.type = 'module'; s.src = 'scene.js?v=4a367764';
     s.onerror = function () { MX.fallback(); };
     doc.head.appendChild(s);
     window.setTimeout(function () { if (!MX.ready && MX.mode === 'init') { MX.fallback(); } }, 30000);
