@@ -122,6 +122,21 @@
       var b = e.target && e.target.closest ? e.target.closest('[data-i18n-switch] [data-lang]') : null;
       if (b) setLang(b.getAttribute('data-lang'));
     });
+    w.document.addEventListener('click', function (e) {
+      var bt = e.target && e.target.closest ? e.target.closest('.mfi-switch button') : null, sw, all, k;
+      all = w.document.querySelectorAll('.mfi-switch.mfi-open');
+      if (!bt) { for (k = 0; k < all.length; k++) all[k].classList.remove('mfi-open'); return; }
+      sw = bt.parentNode;
+      for (k = 0; k < all.length; k++) if (all[k] !== sw) all[k].classList.remove('mfi-open');
+      if (!sw.classList.contains('mfi-open')) { e.stopPropagation(); sw.classList.add('mfi-open'); return; }
+      if (bt.getAttribute('aria-pressed') === 'true') { e.stopPropagation(); sw.classList.remove('mfi-open'); return; }
+      sw.classList.remove('mfi-open');
+    }, true);
+    w.document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      var all = w.document.querySelectorAll('.mfi-switch.mfi-open'), k;
+      for (k = 0; k < all.length; k++) all[k].classList.remove('mfi-open');
+    });
     for (var i = 0; i < subs.length; i++) { try { subs[i](lang); } catch (e3) { if (w.console) w.console.error(e3); } }
   }
   w.MFI18N = {

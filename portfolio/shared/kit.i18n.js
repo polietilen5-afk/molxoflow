@@ -78,12 +78,9 @@
       els[i].setAttribute('aria-label', 'Language');
       els[i].className = (els[i].className.replace(/\bmfi-switch\b/, '') + ' mfi-switch').replace(/^\s+/, '');
       els[i].innerHTML = '';
-      var pos = 0, cnt = 0;
       for (j = 0; j < ORDER.length; j++) {
         l = ORDER[j];
         if (!has(l)) continue;
-        if (l === lang) pos = cnt;
-        cnt++;
         b = w.document.createElement('button');
         b.type = 'button';
         b.setAttribute('data-lang', l);
@@ -93,7 +90,6 @@
         b.textContent = LABEL[l];
         els[i].appendChild(b);
       }
-      els[i].setAttribute('data-pos', String(pos));
       els[i].hidden = els[i].children.length < 2;
     }
   }
@@ -127,23 +123,20 @@
       if (b) setLang(b.getAttribute('data-lang'));
     });
     w.document.addEventListener('click', function (e) {
-      var bt = e.target && e.target.closest ? e.target.closest('.mfi-switch button') : null, list, k, n, box, reduce;
-      if (!bt || bt.getAttribute('aria-pressed') !== 'true') return;
-      e.stopPropagation();
-      list = bt.parentNode.querySelectorAll('button');
-      for (k = 0; k < list.length; k++) if (list[k] === bt) break;
-      n = list[(k + 1) % list.length];
-      if (bt.getAttribute('data-busy')) return;
-      reduce = w.matchMedia && w.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (reduce) { setLang(n.getAttribute('data-lang')); return; }
-      bt.setAttribute('data-busy', '1');
-      box = w.document.createElement('span'); box.className = 'mfi-roll';
-      box.innerHTML = '<i></i><i></i>';
-      box.firstChild.textContent = bt.textContent; box.lastChild.textContent = n.textContent;
-      bt.textContent = ''; bt.appendChild(box);
-      w.requestAnimationFrame(function () { w.requestAnimationFrame(function () { box.className = 'mfi-roll mfi-go'; }); });
-      w.setTimeout(function () { setLang(n.getAttribute('data-lang')); }, 260);
+      var bt = e.target && e.target.closest ? e.target.closest('.mfi-switch button') : null, sw, all, k;
+      all = w.document.querySelectorAll('.mfi-switch.mfi-open');
+      if (!bt) { for (k = 0; k < all.length; k++) all[k].classList.remove('mfi-open'); return; }
+      sw = bt.parentNode;
+      for (k = 0; k < all.length; k++) if (all[k] !== sw) all[k].classList.remove('mfi-open');
+      if (!sw.classList.contains('mfi-open')) { e.stopPropagation(); sw.classList.add('mfi-open'); return; }
+      if (bt.getAttribute('aria-pressed') === 'true') { e.stopPropagation(); sw.classList.remove('mfi-open'); return; }
+      sw.classList.remove('mfi-open');
     }, true);
+    w.document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      var all = w.document.querySelectorAll('.mfi-switch.mfi-open'), k;
+      for (k = 0; k < all.length; k++) all[k].classList.remove('mfi-open');
+    });
     for (var i = 0; i < subs.length; i++) { try { subs[i](lang); } catch (e3) { if (w.console) w.console.error(e3); } }
   }
   w.MFI18N = {

@@ -1,7 +1,13 @@
-/* Переключатель языка MFI18N. Цвета через переменные варианта; значения по умолчанию нейтральные. */
-.mfi-switch { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--mfi-line, currentColor); border-radius: 999px; font: 600 12px/1 system-ui, sans-serif; letter-spacing: .04em; }
+/* Переключатель языка MFI18N: в покое виден только код текущего языка; нажатие раскрывает ряд EN RU UA, выбор или Esc сворачивает. Цвета через переменные: --mfi-fg, --mfi-focus. */
+.mfi-switch { display: inline-flex; align-items: center; gap: 0; padding: 0; border: 0; border-radius: 0; background: none; font: 600 13px/1 system-ui, sans-serif; letter-spacing: .06em; }
 .mfi-switch[hidden] { display: none; }
-.mfi-switch button { all: unset; box-sizing: border-box; min-width: 36px; min-height: 28px; padding: 0 10px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; cursor: pointer; color: var(--mfi-fg, inherit); opacity: .7; }
+.mfi-switch button { all: unset; box-sizing: border-box; position: relative; min-width: 0; height: 28px; padding: 0 8px; display: none; align-items: center; justify-content: center; cursor: pointer; color: var(--mfi-fg, inherit); opacity: .72; touch-action: manipulation; }
+.mfi-switch button::before { content: ""; position: absolute; inset: -8px -2px; }
 .mfi-switch button:hover { opacity: 1; }
-.mfi-switch button[aria-pressed="true"] { background: var(--mfi-on-bg, currentColor); color: var(--mfi-on-fg, #000); opacity: 1; }
-.mfi-switch button:focus-visible { outline: 2px solid var(--mfi-focus, currentColor); outline-offset: 2px; }
+.mfi-switch button[aria-pressed="true"] { display: inline-flex; opacity: 1; }
+.mfi-switch:not(.mfi-open) button[aria-pressed="true"]::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: 3px; height: 1px; background: repeating-linear-gradient(90deg, currentColor 0 2px, transparent 2px 4px); opacity: .55; }
+.mfi-switch.mfi-open button { display: inline-flex; animation: mfi-in .2s ease both; }
+.mfi-switch.mfi-open button[aria-pressed="true"] { color: var(--mfi-focus, currentColor); animation: none; }
+.mfi-switch button:focus-visible { outline: 2px solid var(--mfi-focus, currentColor); outline-offset: 2px; border-radius: 4px; }
+@keyframes mfi-in { from { opacity: 0; transform: translateX(-6px); } to { opacity: .72; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .mfi-switch.mfi-open button { animation: none; opacity: .72; } .mfi-switch.mfi-open button[aria-pressed="true"] { opacity: 1; } }
