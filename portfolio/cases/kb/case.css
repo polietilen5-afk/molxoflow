@@ -146,8 +146,8 @@ select.inp { padding: 0 10px; }
 .bub.usr { align-self: flex-end; background: var(--s3); }
 .bub.op { align-self: flex-start; border-left: 3px solid var(--info); }
 .who { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 6px; color: var(--faint); font: 500 12px/1.4 var(--mono); }
-.cite { position: relative; min-width: 44px; min-height: 44px; margin: -8px 1px; vertical-align: middle; padding: 0 6px; border: 1px solid var(--accent); border-radius: 8px; background: transparent; color: var(--accent); font: 700 12px/1 var(--mono); cursor: pointer; }
-.cite::after { content: ""; position: absolute; inset: -4px; }
+.cite { position: relative; min-width: 26px; height: 22px; margin: 0 3px; vertical-align: baseline; padding: 0 6px; border: 1px solid var(--accent); border-radius: 6px; background: transparent; color: var(--accent); font: 700 12px/1 var(--mono); cursor: pointer; }
+.cite::after { content: ""; position: absolute; inset: -11px -9px; }
 .cite:hover { background: var(--accent); color: var(--accent-ink); }
 .flags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .flag { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 10px; border: 1px solid var(--line-s); border-radius: 999px; background: transparent; color: var(--muted); font: 500 12px/1.2 var(--font); cursor: pointer; }
