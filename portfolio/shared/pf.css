@@ -2,8 +2,8 @@
 :root {
   --bg: #0b0d11; --s1: #12151b; --s2: #191d25; --s3: #232834;
   --line: rgba(255, 255, 255, .10); --line-s: #7d8596;
-  --text: #eceff4; --muted: #a1a9b8; --faint: #8a92a3;
-  --accent: #ffb23e; --accent-ink: #1a1000; --ok: #5bd08a; --warn: #ffb23e; --bad: #ff6b5e; --info: #6ab0ff;
+  --text: #eceff4; --muted: #c6ccd6; --faint: #b4bbc8;
+  --accent: #ffb23e; --accent-ink: #1a1000; --ok: #5bd08a; --warn: #ffb23e; --bad: #ff8579; --info: #6ab0ff;
   --font: "Manrope", "Segoe UI", system-ui, sans-serif;
   --disp: "Unbounded", "Manrope", "Segoe UI", system-ui, sans-serif;
   --mono: "JetBrains Mono", Consolas, monospace;

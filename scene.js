@@ -205,7 +205,7 @@ async function boot() {
   }
   function buildWins() {
     const compact = isPortrait();
-    TS = compact ? 1.6 : 1.25;
+    TS = compact ? 1.6 : Math.min(2, Math.max(1.6, (window.devicePixelRatio || 1) * 1.25));
     const k = compact + ':' + TS;
     if (builtKey === k && wins.length) { return false; }
     wins.forEach(disposeWin);

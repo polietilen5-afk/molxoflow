@@ -5,7 +5,7 @@
   'use strict';
   var C = {
     bg: '#0b0d11', s1: '#12151b', s2: '#191d25', s3: '#232834', line: 'rgba(255,255,255,0.10)',
-    text: '#eceff4', muted: '#a1a9b8', faint: '#6f7788', accent: '#ffb23e', ink: '#1a1000', ok: '#5bd08a'
+    text: '#eceff4', muted: '#c6ccd6', faint: '#a6aebb', accent: '#ffb23e', ink: '#1a1000', ok: '#5bd08a'
   };
   var SANS = '"Manrope", "Segoe UI", system-ui, sans-serif';
   var MONO = '"JetBrains Mono", Consolas, monospace';
@@ -325,7 +325,7 @@
     var maxv = pw - (CM ? 56 : 90);
     for (i = 0; i < fl.length; i++) {
       y = fy[i];
-      tx(c, fl[i][0], lx, y - 4, CM ? 14 : 13, '#6b6e78', 600, 'left', null, maxv);
+      tx(c, fl[i][0], lx, y - 4, CM ? 14 : 13, '#474a52', 600, 'left', null, maxv);
       tx(c, fl[i][1], lx, y + 20, CM ? 19 : 18, '#1c1e25', 700, 'left', null, maxv);
       hw = Math.min(maxv, mw(c, fl[i][1], CM ? 19 : 18, 700)) + 14;
       d = t >= FIN ? 1 : ph(tm, 1000 + i * 1500, 500);

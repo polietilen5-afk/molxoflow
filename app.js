@@ -80,31 +80,59 @@
     doc.documentElement.classList.add('no3d');
     var fb = doc.getElementById('fallback');
     var items = [], world = el('div', 'fb-world'), built = null;
+    /* soft: у посетителя выключены анимации в системе. Окна не летят и не приближаются: стоят на месте и плавно сменяют друг друга
+       (меняется только прозрачность по положению прокрутки). Без soft работает прежний запасной вид (стопка окон в 3D). */
+    var soft = reduce;
+    var K = Math.min(2, Math.max(1, window.devicePixelRatio || 1)); /* плотность пикселей: текст в окнах чёткий на экранах с масштабом 125-200% */
     fb.appendChild(world);
     function unit() { return portrait() ? 88 : 190; }
+    /* размер окна в soft-режиме: вписывается в свою долю экрана и по ширине, и по высоте (в портретной раскладке окна выше) */
+    function softFit(d) {
+      var w = portrait() ? window.innerWidth * 0.9 : Math.min(window.innerWidth * 0.44, 720);
+      var h = window.innerHeight * (portrait() ? 0.4 : 0.62);
+      return Math.min(w / d.ww, h / d.wh);
+    }
     function build() {
-      var U = unit(), pt = portrait();
+      var U = soft ? Math.round(window.innerWidth) + 'x' + Math.round(window.innerHeight) : unit(), pt = portrait();
       if (built === pt + ':' + U) { return; }
       built = pt + ':' + U;
       world.textContent = ''; items = [];
       window.MXW.setMode(pt);
       window.MXW.list.forEach(function (d) {
         var c = doc.createElement('canvas');
-        c.width = d.W; c.height = d.H;
+        c.width = Math.round(d.W * K); c.height = Math.round(d.H * K);
         c.className = 'fb-win';
-        c.style.width = (d.ww * U) + 'px'; c.style.height = (d.wh * U) + 'px';
-        c.style.marginLeft = (-d.ww * U / 2) + 'px'; c.style.marginTop = (-d.wh * U / 2) + 'px';
-        c.style.transform = 'translate3d(' + (d.pos[0] * U) + 'px,' + (-d.pos[1] * U) + 'px,' + (d.pos[2] * U) + 'px) rotateY(' + (-d.ry) + 'rad)';
+        var UU = soft ? softFit(d) : U;
+        c.style.width = (d.ww * UU) + 'px'; c.style.height = (d.wh * UU) + 'px';
+        c.style.marginLeft = (-d.ww * UU / 2) + 'px'; c.style.marginTop = (-d.wh * UU / 2) + 'px';
+        c.style.transform = soft ? 'none' : 'translate3d(' + (d.pos[0] * U) + 'px,' + (-d.pos[1] * U) + 'px,' + (d.pos[2] * U) + 'px) rotateY(' + (-d.ry) + 'rad)';
         world.appendChild(c);
-        window.MXW.paint(c, d, window.MXW.FIN, 1);
+        window.MXW.paint(c, d, window.MXW.FIN, K);
         items.push({ d: d, c: c, last: 0 });
       });
     }
     build();
-    fbRepaint = function () { build(); items.forEach(function (it) { window.MXW.paint(it.c, it.d, window.MXW.FIN, 1); }); };
+    fbRepaint = function () { build(); items.forEach(function (it) { window.MXW.paint(it.c, it.d, window.MXW.FIN, K); }); };
     var cur = MX.p, t0 = performance.now(), vis = true, raf = 0;
     function pose(p) { return MX.pose ? MX.pose(p) : { x: 0, y: 0, z: 7.4 - p * 25.6 }; }
+    function placeSoft() {
+      /* камера «смотрит» на точку zt перед собой; окно активно, когда zt рядом с его глубиной; на стыке двух окон они перетекают друг в друга */
+      var zt = pose(cur).z - 4, n = items.length, o = [], i, a, b, m;
+      fb.style.transform = portrait() ? 'translateY(10vh)' : 'translateX(12vw)';
+      world.style.transform = 'none';
+      for (i = 0; i < n; i++) { o.push(0); }
+      if (zt >= items[0].d.pos[2]) { o[0] = 1; }
+      else if (zt <= items[n - 1].d.pos[2]) { o[n - 1] = 1; }
+      else {
+        for (i = 0; i < n - 1; i++) {
+          a = items[i].d.pos[2]; b = items[i + 1].d.pos[2];
+          if (zt <= a && zt > b) { m = sstep(0.35, 0.65, (a - zt) / (a - b)); o[i] = 1 - m; o[i + 1] = m; break; }
+        }
+      }
+      for (i = 0; i < n; i++) { items[i].c.style.opacity = String(o[i]); }
+    }
     function place() {
+      if (soft) { placeSoft(); return; }
       var U = unit(), ps = pose(cur), k = 1 - sstep(0, 0.11, cur);
       fb.style.transform = portrait() ? 'translateY(' + (k * 36) + 'vh)' : 'translateX(' + (k * 19) + 'vw)';
       world.style.transform = 'translate3d(' + (-ps.x * U) + 'px,' + (ps.y * U) + 'px,' + (-ps.z * U) + 'px)';
@@ -120,7 +148,7 @@
       if (reduce || !vis || MX.paused) { return; }
       items.forEach(function (it) {
         var dist = pose(cur).z - it.d.pos[2];
-        if (dist > 0 && dist < 11 && now - it.last > 90) { it.last = now; window.MXW.paint(it.c, it.d, now - t0, 1); }
+        if (dist > 0 && dist < 11 && now - it.last > 90) { it.last = now; window.MXW.paint(it.c, it.d, now - t0, K); }
       });
       raf = window.requestAnimationFrame(frame);
     }
@@ -144,7 +172,7 @@
   function loadScene() {
     if (MX.mode !== 'init') { return; }
     var s = doc.createElement('script');
-    s.type = 'module'; s.src = '/scene.js?v=5521c22d';
+    s.type = 'module'; s.src = '/scene.js?v=7e5c1274';
     s.onerror = function () { MX.why = 'scene-load'; MX.fallback(); };
     doc.head.appendChild(s);
     window.setTimeout(function () { if (!MX.ready && MX.mode === 'init') { MX.why = 'timeout'; MX.fallback(); } }, 30000);

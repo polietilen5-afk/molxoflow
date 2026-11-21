@@ -231,7 +231,7 @@
 .quote .w-eye { color: var(--amber); }
 .bq { margin: 0; max-width: 22em; font: 600 clamp(28px, 4.4vw, 54px)/1.12 var(--hd); font: 600 clamp(28px, 4.4cqw, 54px)/1.12 var(--hd); letter-spacing: .005em; text-wrap: balance; }
 .qw { display: inline-block; }
-.mo .qw { opacity: .3; transition: opacity .35s; }
+.mo .qw { opacity: .5; transition: opacity .35s; }
 .mo .qw.on { opacity: 1; }
 .prom { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin-top: clamp(36px, 6vw, 72px); margin-top: clamp(36px, 6cqw, 72px); }
 .prom li { border-top: 1px solid var(--lined); padding-top: 14px; display: grid; gap: 6px; align-content: start; }
