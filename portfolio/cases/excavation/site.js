@@ -22,7 +22,7 @@
   var SIMG = { pit: 'basement-dig', trench: 'trenching', grade: 'residential-grading', drive: 'driveway', demo: 'concrete', add: 'land-clearing' };
   /* fixed 16:9 frame (width/height attributes + aspect-ratio) so nothing jumps while the file loads */
   function pic(name, cls, eager) {
-    return '<figure class="ph' + (cls ? ' ' + cls : '') + '"><img src="img/' + name + '.webp" width="960" height="540" alt="' + esc(t('img.' + name)) + '" decoding="async"' + (eager ? ' fetchpriority="high"' : ' loading="lazy"') + '></figure>';
+    return '<figure class="ph' + (cls ? ' ' + cls : '') + '"><img src="/portfolio/cases/excavation/img/' + name + '.webp" width="960" height="540" alt="' + esc(t('img.' + name)) + '" decoding="async"' + (eager ? ' fetchpriority="high"' : ' loading="lazy"') + '></figure>';
   }
   function pgName(p) { return t('pg.' + p + '.nav'); }
   function sName(s) { return t('sv.' + s + '.n'); }

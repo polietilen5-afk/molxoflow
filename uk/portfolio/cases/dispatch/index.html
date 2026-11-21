@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="uk" data-lang-fixed="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- build:meta -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script id="i18n-pend">(function(){var F=["manrope-400-cyrillic.woff2","unbounded-500-cyrillic.woff2"],k,a;for(k=0;k<F.length;k++){a=document.createElement("link");a.rel="preload";a.as="font";a.type="font/woff2";a.crossOrigin="";a.href="/fonts/"+F[k];document.head.appendChild(a)}})();</script>
+<link rel="stylesheet" href="/fonts/fonts.css?v=1e6a8860">
+<link rel="canonical" href="https://molxoflow.com/uk/portfolio/cases/dispatch/">
+<link rel="alternate" hreflang="ru" href="https://molxoflow.com/ru/portfolio/cases/dispatch/">
+<link rel="alternate" hreflang="uk" href="https://molxoflow.com/uk/portfolio/cases/dispatch/">
+<link rel="alternate" hreflang="en" href="https://molxoflow.com/portfolio/cases/dispatch/">
+<link rel="alternate" hreflang="x-default" href="https://molxoflow.com/portfolio/cases/dispatch/">
+<meta property="og:url" content="https://molxoflow.com/uk/portfolio/cases/dispatch/">
+<meta property="og:locale" content="uk_UA">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Molxo Flow">
+<meta property="og:title" content="Route Match: заявки з чатів в одну таблицю">
+<meta property="og:description" content="Настільний помічник читає групові чати перевізника, витягує заявки на перевезення мовною моделлю та зіставляє їх з рейсами. Одинадцять робочих модулів в одному інтерактивному демо.">
+<meta property="og:image" content="https://molxoflow.com/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Route Match: заявки з чатів в одну таблицю">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Route Match: заявки з чатів в одну таблицю">
+<meta name="twitter:description" content="Настільний помічник читає групові чати перевізника, витягує заявки на перевезення мовною моделлю та зіставляє їх з рейсами. Одинадцять робочих модулів в одному інтерактивному демо.">
+<meta name="twitter:image" content="https://molxoflow.com/og.jpg">
+<!-- /build:meta -->
+<title data-i18n="doc.title">Route Match: заявки з чатів в одну таблицю</title>
+<meta name="description" content="Настільний помічник читає групові чати перевізника, витягує заявки на перевезення мовною моделлю та зіставляє їх з рейсами. Одинадцять робочих модулів в одному інтерактивному демо." data-i18n-attr="content:doc.desc">
+<meta name="theme-color" content="#0b0d11">
+<link rel="stylesheet" href="/portfolio/shared/pf.css?v=b71d20f9">
+<link rel="stylesheet" href="/portfolio/shared/kit.i18n.css?v=af977eac">
+<link rel="stylesheet" href="/portfolio/cases/dispatch/case.css?v=907d5683">
+</head>
+<body>
+<a class="skip" href="#demo" data-i18n="skip">Перейти до демо</a>
+
+<header class="pf-top">
+  <a class="pf-brand" href="/uk/">Molxo<span>Flow</span></a>
+  <nav class="pf-nav" data-i18n-attr="aria-label:nav.label" aria-label="Навігація кейсом">
+    <a class="pf-back" href="/uk/portfolio/" data-i18n="nav.back">← Портфоліо</a>
+    <div class="lang-sw" data-i18n-switch></div>
+  </nav>
+</header>
+
+<main>
+<section class="pf-sec hero">
+  <div class="pf-wrap">
+    <p class="eyebrow" data-i18n="hero.eyebrow">Кейс / настільний застосунок</p>
+    <h1 class="pf-h1" data-i18n="hero.title">Заявки з групових чатів збираються в одну охайну таблицю</h1>
+    <p class="pf-lead" data-i18n="hero.lead">Диспетчер стежить за десятками чатів, щоб помітити тих, кому треба доїхати або надіслати посилку. Застосунок читає чати замість нього, розкладає кожну заявку за полями, зіставляє з розкладом і веде журнал кожного рішення.</p>
+    <ul class="pf-tags" aria-label="Stack">
+      <li class="pf-tag" data-i18n="tag.desktop">Настільний застосунок</li>
+      <li class="pf-tag" data-i18n="tag.llm">Витяг даних за допомогою ШІ</li>
+      <li class="pf-tag" data-i18n="tag.regex">Запасний розбір за шаблонами</li>
+      <li class="pf-tag" data-i18n="tag.match">Зіставлення з рейсами</li>
+      <li class="pf-tag" data-i18n="tag.local">База даних на комп’ютері</li>
+    </ul>
+    <p class="hero-cta">
+      <a class="btn" href="#demo" data-i18n="cta.demo">Відкрити демо</a>
+      <a class="btn btn-ghost" href="https://t.me/Molxo1" data-i18n="cta.discuss">Обговорити схожий проєкт</a>
+    </p>
+  </div>
+</section>
+
+<section class="pf-sec sec-tight">
+  <div class="pf-wrap">
+    <h2 class="sr-only" data-i18n="brief.h">Проблема, рішення, результат</h2>
+    <div class="pf-grid3">
+      <article class="pf-card"><span class="pf-num">1</span><h3 data-i18n="g.task.h">Проблема</h3><p data-i18n="g.task.p">Заявки приходять вільним текстом у десятки чатів, з помилками та скороченнями. Знайти потрібні й звірити їх з розкладом означало години гортання та копіювання.</p></article>
+      <article class="pf-card"><span class="pf-num">2</span><h3 data-i18n="g.did.h">Що зробили</h3><p data-i18n="g.did.p">Настільний застосунок стежить за чатами, витягує тип, маршрут, дату й обсяг мовною моделлю (із запасним розбором за правилами) та оцінює кожну заявку щодо рейсів перевізника.</p></article>
+      <article class="pf-card"><span class="pf-num">3</span><h3 data-i18n="g.res.h">Результат</h3><p data-i18n="g.res.p">Замість годин гортання короткий список готових збігів. Одне місце для всіх заявок, рівень упевненості у кожної та шаблон відповіді в один клік.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="pf-sec demo-sec" id="demo" aria-labelledby="demo-h">
+  <div class="pf-wrap">
+    <p class="eyebrow" data-i18n="demo.eyebrow">Інтерактивне демо</p>
+    <h2 class="pf-h2" id="demo-h" data-i18n="demo.title">Увесь застосунок на одному вигаданому наборі даних</h2>
+    <p class="pf-lead" data-i18n="demo.lead">Повідомлення надходять самі. Опрацюйте заявку, змініть правило, додайте рейс або вимкніть мовну модель і подивіться, як реагують інші модулі. Дані спільні: заявки, рейси, міста, правила та журнал.</p>
+    <div class="pf-app rm" id="rm">
+      <div class="pf-app-bar rm-bar">
+        <span class="rm-logo" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H14a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h5.5"/></svg></span>
+        <strong class="rm-name" data-i18n="app.name">Route Match</strong>
+        <span class="rm-carrier" data-i18n="app.carrier">Harbor Lines</span>
+        <span class="rm-live" id="rm-live"></span>
+        <button type="button" class="rm-mini" id="rm-live-btn">Pause</button>
+        <div class="rm-stats" id="rm-stats"></div>
+      </div>
+      <div class="rm-shell">
+        <nav class="rm-side" id="rm-side" data-i18n-attr="aria-label:app.modules" aria-label="Модулі"></nav>
+        <div class="rm-main" id="rm-main" tabindex="-1" role="region" data-i18n-attr="aria-label:app.work" aria-label="Робоча область"></div>
+      </div>
+      <nav class="rm-bnav" id="rm-bnav" data-i18n-attr="aria-label:app.modules" aria-label="Модулі"></nav>
+      <div class="rm-drawer" id="rm-drawer" hidden></div>
+      <div class="toast" id="rm-toast" role="status" aria-live="polite"></div>
+    </div>
+    <p class="demo-note" data-i18n="demo.note">демо, дані вигадані</p>
+  </div>
+</section>
+
+<section class="pf-sec sec-tight" id="features">
+  <div class="pf-wrap">
+    <p class="eyebrow" data-i18n="feat.eyebrow">Що вміє система</p>
+    <h2 class="pf-h2" data-i18n="feat.title">Одинадцять робочих модулів на одних зв’язаних даних</h2>
+    <ul class="feat">
+      <li class="pf-card"><h3 data-i18n="mod.leads">Заявки</h3><p data-i18n="feat.leads">Картки зі статусом, пріоритетом, ознаками дубля й простою, ручними правками та причиною кожного збігу.</p><a class="open" href="#demo" data-open="leads" data-i18n="feat.open">Відкрити в демо</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.messages">Повідомлення</h3><p data-i18n="feat.messages">Жива стрічка групових чатів з фільтрами та покроковим розбором того, що сталося з кожним повідомленням.</p><a class="open" href="#demo" data-open="messages" data-i18n="feat.open">Відкрити в демо</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.routes">Маршрути</h3><p data-i18n="feat.routes">Прості рейси та складені маршрути із зупинками, розклад, місткість, геометрія дороги й підказки нових рейсів.</p><a class="open" href="#demo" data-open="routes" data-i18n="feat.open">Відкрити в демо</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.cities">Міста</h3><p data-i18n="feat.cities">Довідник міст із синонімами, перевірка написання та черга написань, що потребують рішення.</p><a class="open" href="#demo" data-open="cities" data-i18n="feat.open">Відкрити в демо</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.rules">Правила підбору</h3><p data-i18n="feat.rules">Пороги, радіус «поруч», допуск помилок і штрафи з живим переглядом на поточних заявках.</p><a class="open" href="#demo" data-open="rules" data-i18n="feat.open">Відкрити в демо</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.templates">Шаблони відповідей</h3><p data-i18n="feat.templates">Шаблони відповідей з підстановками для пасажирів, посилок, випадків без рейсу та відмови.</p><a class="open" href="#demo" data-open="templates" data-i18n="feat.open">Відкрити в демо</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.groups">Моніторинг чатів</h3><p data-i18n="feat.groups">Які чати слухаємо, винятки за ключовими словами та стан фонового збирача.</p><a class="open" href="#demo" data-open="groups" data-i18n="feat.open">Відкрити в демо</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.analytics">Аналітика</h3><p data-i18n="feat.analytics">Воронка від повідомлень до підтверджених заявок, навантаження за днями й чатами, джерело розбору та якість.</p><a class="open" href="#demo" data-open="analytics" data-i18n="feat.open">Відкрити в демо</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.journal">Журнал</h3><p data-i18n="feat.journal">Журнал розбору, змін статусів, правок правил, сповіщень і помилок з пошуком та вивантаженням діагностики.</p><a class="open" href="#demo" data-open="journal" data-i18n="feat.open">Відкрити в демо</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.export">Експорт</h3><p data-i18n="feat.export">Вивантаження заявок у таблицю для Excel і в файл для інших програм, а також черга для порталу замовника.</p><a class="open" href="#demo" data-open="export" data-i18n="feat.open">Відкрити в демо</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.settings">Налаштування</h3><p data-i18n="feat.settings">Провайдер і бюджет мовної моделі, сповіщення й тихі години, резервні копії, попередній відбір і чек-лист налаштування.</p><a class="open" href="#demo" data-open="settings" data-i18n="feat.open">Відкрити в демо</a></li>
+    </ul>
+    <div class="pf-card integ"><h3 data-i18n="integ.h">Інтеграції та постачання</h3><p data-i18n="integ.p">Підключення до мовної моделі для витягу, канал бота в месенджері для сповіщень про пріоритетні заявки, підключення до порталу замовника для підтверджених заявок, вивантаження в таблицю для Excel і в файл для інших програм, локальні резервні копії за розкладом і пакет діагностики без секретів. Постачається інсталятором для Windows.</p></div>
+  </div>
+</section>
+
+<section class="pf-sec">
+  <div class="pf-wrap">
+    <p class="eyebrow" data-i18n="how.eyebrow">Як це працює</p>
+    <h2 class="pf-h2" data-i18n="how.title">Чотири кроки від рядка в чаті до відповіді</h2>
+    <ol class="how">
+      <li class="pf-card"><span class="pf-num">1</span><h3 data-i18n="how.1.h">Читання</h3><p data-i18n="how.1.p">Застосунок читає нові повідомлення з особистих чатів менеджера на цьому ж комп’ютері. З машини йде лише текст для витягу.</p></li>
+      <li class="pf-card"><span class="pf-num">2</span><h3 data-i18n="how.2.h">Витяг</h3><p data-i18n="how.2.p">Мовна модель повертає тип, пункти відправлення й призначення, дату та обсяг. Якщо вона недоступна, вмикається розбір за шаблонами.</p></li>
+      <li class="pf-card"><span class="pf-num">3</span><h3 data-i18n="how.3.h">Зіставлення</h3><p data-i18n="how.3.p">Назви міст приводяться до єдиного написання та порівнюються з кожним активним рейсом: точний збіг, сусіднє місто або схоже написання, плюс тип послуги, дні рейсу та вільні місця.</p></li>
+      <li class="pf-card"><span class="pf-num">4</span><h3 data-i18n="how.4.h">Відповідь</h3><p data-i18n="how.4.p">Менеджер бачить рівень упевненості, обирає рейс і отримує готову відповідь. Автоматично нічого не надсилається.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="pf-sec">
+  <div class="pf-wrap">
+    <p class="eyebrow" data-i18n="stack.eyebrow">Стек</p>
+    <ul class="pf-tags">
+      <li class="pf-tag">Python</li><li class="pf-tag">FastAPI</li><li class="pf-tag">SQLite</li><li class="pf-tag">React</li>
+      <li class="pf-tag" data-i18n="stack.llm">Підключення до мовної моделі</li><li class="pf-tag" data-i18n="stack.fuzzy">Нечітке порівняння міст</li><li class="pf-tag" data-i18n="stack.pack">Інсталятор для Windows</li>
+    </ul>
+  </div>
+</section>
+
+<section class="pf-sec pf-cta">
+  <div class="pf-wrap">
+    <h2 class="pf-h2" data-i18n="cta.title">Заявки розкидані по чатах?</h2>
+    <p class="pf-lead cta-lead" data-i18n="cta.lead">Розкажіть, де вони накопичуються і якою має бути добра відповідь. Ми накреслимо схему обробки.</p>
+    <a class="btn" href="https://t.me/Molxo1" data-i18n="cta.discuss">Обговорити схожий проєкт</a>
+  </div>
+</section>
+</main>
+
+<footer class="pf-foot"><span data-i18n="foot">Molxo Flow / портфоліо. Дані в демо вигадані.</span></footer>
+
+<script src="/portfolio/shared/kit.i18n.js?v=27544e37"></script>
+<script src="/portfolio/cases/dispatch/i18n/en.js?v=133f6ff0"></script>
+<script src="/portfolio/cases/dispatch/i18n/ru.js?v=632ef0d7"></script>
+<script src="/portfolio/cases/dispatch/i18n/uk.js?v=81b56a62"></script>
+<script src="/portfolio/shared/pf.js?v=a8bb945e"></script>
+<script src="/portfolio/cases/dispatch/engine.js?v=0a53e581"></script>
+<script src="/portfolio/cases/dispatch/modules1.js?v=19c22837"></script>
+<script src="/portfolio/cases/dispatch/modules2.js?v=5dd53d86"></script>
+<script src="/portfolio/cases/dispatch/app.js?v=1ebec076"></script>
+</body>
+</html>

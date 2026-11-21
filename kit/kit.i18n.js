@@ -37,8 +37,20 @@
     if (l === 'ua') l = 'uk';
     return l;
   }
+  /* Языковая копия страницы (/ru/, /uk/): язык задан <html data-lang-fixed> и не определяется заново. */
+  function fixedLang() {
+    var f = '';
+    try { f = norm(w.document.documentElement.getAttribute('data-lang-fixed')); } catch (e) {}
+    return f === 'ru' || f === 'uk' ? f : '';
+  }
+  /* Адрес этой же страницы на другом языке: en без префикса, ru и uk под /ru/ и /uk/. */
+  function langHref(code) {
+    var p = w.location.pathname.replace(/^\/(ru|uk)(?=\/|$)/, '') || '/';
+    return (code === 'en' ? '' : '/' + code) + p + w.location.hash;
+  }
   function pickInitial() {
-    var q = '', nl = [], i, b;
+    var q = '', nl = [], i, b, fx = fixedLang();
+    if (fx && has(fx)) return fx;
     try { q = (/[?&]lang=([a-zA-Z]+)/.exec(w.location.search) || [])[1] || ''; } catch (e) {}
     q = norm(q);
     if (q && has(q)) return q;
@@ -82,6 +94,7 @@
   /* Перенос языка: ?lang= к внутренней ссылке (не якорь, не внешний адрес, не mailto/tel/tg). */
   function decorate(a) {
     var h = a.getAttribute('href'), hash = '', q = '', i, u, same;
+    if (fixedLang()) return; /* язык в адресе страницы: ?lang= не нужен */
     if (!h || a.hasAttribute('data-i18n-nolang') || /^(#|mailto:|tel:|tg:|javascript:|data:|blob:)/i.test(h)) return;
     if (/^(https?:)?\/\//i.test(h)) {
       try { u = new w.URL(h, w.location.href); same = u.host === w.location.host; } catch (e) { same = false; }
@@ -100,6 +113,7 @@
     for (i = 0; i < list.length; i++) decorate(list[i]);
   }
   function syncUrl() {
+    if (fixedLang()) return;
     try {
       var u = w.location, q = u.search.replace(/^\?/, '').replace(/(^|&)lang=[^&]*/g, '').replace(/^&/, '');
       w.history.replaceState(w.history.state, '', u.pathname + '?' + (q ? q + '&' : '') + 'lang=' + lang + u.hash);
@@ -186,7 +200,13 @@
       if (!b) return;
       all = switches();
       for (k = 0; k < all.length; k++) if (all[k] === b.parentNode) idx = k;
-      setLang(b.getAttribute('data-lang'));
+      var code = norm(b.getAttribute('data-lang')), fx = fixedLang();
+      if (fx && code !== fx && has(code)) { /* на языковой копии смена языка = переход на адрес другого языка */
+        try { w.localStorage.setItem(KEY, code); } catch (e4) {}
+        w.location.assign(langHref(code));
+        return;
+      }
+      setLang(code);
       if (idx >= 0) { b = activeBtn(switches()[idx]); if (b && b.focus) b.focus(); }
     });
     /* ссылки, добавленные позже (демо, динамика): язык дописывается перед переходом */

@@ -7,6 +7,10 @@
  *  3. sitemap.xml и строка Sitemap в robots.txt.
  *  4. Кэш-бастинг: ?v=<sha1, 8 знаков> во всех локальных script src и link stylesheet href; версия сцены
  *     (scene.js, подгружается из app.js) подставляется в app.js до расчёта хеша app.js.
+ *  5. Языковые копии: ru/ и uk/ повторяют дерево страниц (ru/index.html, ru/portfolio/index.html, ...) со статичным
+ *     текстом нужного языка в сыром HTML, своим canonical и полным набором hreflang (en: /, ru: /ru/, uk: /uk/).
+ *     Ссылки на ресурсы в копиях корневые (/app.js), ссылки на страницы ведут в тот же язык; kit.i18n.js держит язык
+ *     по <html data-lang-fixed> и меняет язык переходом на адрес другого языка.
  * Сборка идемпотентна: второй запуск ничего не меняет. Коды выхода: 0 готово, 1 ошибка (нет ключа и т.п.).
  */
 'use strict';
@@ -19,6 +23,7 @@ var ROOT = path.resolve(__dirname, '..');
 var ORIGIN = 'https://molxoflow.com';
 var SLUGS = ['fleet', 'dispatch', 'hr', 'tender', 'kb', 'autodiag', 'excavation', 'booking', 'recovery'];
 var LANGS = ['ru', 'uk', 'en'];
+var OG_LOCALE = { en: 'en_US', ru: 'ru_RU', uk: 'uk_UA' };
 
 /* Content-Security-Policy в meta: шрифты свои (fonts/), внешних хостов нет (T13, ADR-005). */
 var CSP = [
@@ -60,7 +65,11 @@ function cyrFonts(file) {
  * kit.i18n.js снимает класс после подстановки словаря и загрузки шрифтов, страховочный таймаут 1500 мс.
  * Без JS класс не ставится, контент виден. */
 function pendingBlock(page, fdir, nl, soft) {
-  var hide = !soft; /* soft: главная, только ранний preload кириллицы без скрытия */
+  var hide = !soft; /* soft: главная и языковые копии, только ранний preload кириллицы без скрытия */
+  if (page.lang) { /* языковая копия: язык известен заранее, определять его не нужно */
+    if (page.lang === 'en') return '';
+    return '<script id="i18n-pend">(function(){var F=' + JSON.stringify(cyrFonts(page.file)) + ',k,a;for(k=0;k<F.length;k++){a=document.createElement("link");a.rel="preload";a.as="font";a.type="font/woff2";a.crossOrigin="";a.href="/fonts/"+F[k];document.head.appendChild(a)}})();</script>';
+  }
   var js = "(function(){var d=document.documentElement,l='',m,s,n,i,b,q=/^(en|ru|uk|ua)/;" +
     "try{m=/[?&]lang=([a-zA-Z]+)/.exec(location.search);if(m){b=m[1].toLowerCase().slice(0,2);if(q.test(b))l=b}}catch(e){}" +
     "if(!l)try{b=String(localStorage.getItem('molxo-variant-lang')||'').toLowerCase().slice(0,2);if(q.test(b))l=b}catch(e){}" +
@@ -90,11 +99,11 @@ function escAttr(s) { return esc(s).replace(/"/g, '&quot;'); }
 function sha(buf) { return crypto.createHash('sha1').update(buf).digest('hex').slice(0, 8); }
 
 /* Загрузка словаря: файл выполняется с подставным MFI18N.register. */
-function loadDict(source) {
+function loadDict(source, lang) {
   var got = {};
   var sandbox = { MFI18N: { register: function (l, d) { got[l] = d; } }, window: {} };
   vm.runInNewContext(source, sandbox, { timeout: 2000 });
-  return got.en || {};
+  return got[lang || 'en'] || {};
 }
 function dictFor(page, html) {
   if (page.dict === 'inline') {
@@ -102,6 +111,10 @@ function dictFor(page, html) {
     return m ? loadDict(m[1]) : {};
   }
   return loadDict(readText(page.dict));
+}
+/* Словарь страницы на языке lang: файл рядом (en.js -> ru.js / uk.js). */
+function dictForLang(page, lang) {
+  return loadDict(readText(page.dict.replace(/en\.js$/, lang + '.js')), lang);
 }
 
 /* ---------- 1. Пререндер ---------- */
@@ -170,8 +183,10 @@ function getDesc(html) {
   c = /\scontent="([^"]*)"/.exec(m[0]);
   return c ? c[1] : '';
 }
+/* Адрес страницы на языке: en без префикса, ru и uk под /ru/ и /uk/. */
+function langUrl(url, lang) { return lang && lang !== 'en' ? '/' + lang + url : url; }
 function metaBlock(page, title, desc, nl) {
-  var L = [], noindex = page.url === null, canon = page.url ? ORIGIN + page.url : null;
+  var L = [], noindex = page.url === null, lang = page.lang || 'en', canon = page.url ? ORIGIN + langUrl(page.url, lang) : null;
   L.push('<!-- build:meta -->');
   L.push('<meta http-equiv="Content-Security-Policy" content="' + escAttr(CSP) + '">');
   L.push('<meta name="referrer" content="no-referrer">');
@@ -179,17 +194,18 @@ function metaBlock(page, title, desc, nl) {
   L.push('<link rel="icon" type="image/svg+xml" href="/favicon.svg">');
   var up = path.relative(path.dirname(abs(page.file)), ROOT).split(path.sep).join('/');
   var fdir = (up ? up + '/' : '') + 'fonts/';
-  if (page.url === null) fdir = '/fonts/'; /* 404.html отдаётся на любой глубине URL: путь только корневой */
-  L.push(pendingBlock(page, fdir, nl, page.file === 'index.html')); /* главная: свой гейт T07 (html:not(.rdy)), тут только preload кириллицы при ru/uk */
+  if (page.url === null || page.lang) fdir = '/fonts/'; /* 404.html и языковые копии: путь только корневой */
+  L.push(pendingBlock(page, fdir, nl, page.file === 'index.html' || !!page.lang)); /* главная и языковые копии: без скрытия, только preload кириллицы */
   L.push('<link rel="stylesheet" href="' + fdir + 'fonts.css">');
   if (PRELOAD_PAGES[page.file]) PRELOAD_FONTS.forEach(function (f) {
     L.push('<link rel="preload" href="' + fdir + f + '" as="font" type="font/woff2" crossorigin>');
   });
   if (canon) {
     L.push('<link rel="canonical" href="' + canon + '">');
-    LANGS.forEach(function (l) { L.push('<link rel="alternate" hreflang="' + l + '" href="' + canon + '?lang=' + l + '">'); });
-    L.push('<link rel="alternate" hreflang="x-default" href="' + canon + '">');
+    LANGS.forEach(function (l) { L.push('<link rel="alternate" hreflang="' + l + '" href="' + ORIGIN + langUrl(page.url, l) + '">'); });
+    L.push('<link rel="alternate" hreflang="x-default" href="' + ORIGIN + page.url + '">');
     L.push('<meta property="og:url" content="' + canon + '">');
+    L.push('<meta property="og:locale" content="' + OG_LOCALE[lang] + '">');
   }
   L.push('<meta property="og:type" content="website">');
   L.push('<meta property="og:site_name" content="Molxo Flow">');
@@ -244,7 +260,7 @@ function versioned(pageFile, html) {
 /* app.js подгружает scene.js динамически: подставляем хеш сцены, затем app.js получает свой хеш. */
 function stampScene() {
   var app = readText('app.js'), scene = sha(fs.readFileSync(abs('scene.js'))), n = 0;
-  var next = app.replace(/(['"])scene\.js(\?v=[0-9a-zA-Z]*)?\1/g, function (all, q) { n++; return q + 'scene.js?v=' + scene + q; });
+  var next = app.replace(/(['"])\/?scene\.js(\?v=[0-9a-zA-Z]*)?\1/g, function (all, q) { n++; return q + '/scene.js?v=' + scene + q; });
   if (n === 0) errors.push('app.js: не найдена ссылка на scene.js');
   writeIfChanged('app.js', next);
 }
@@ -254,12 +270,13 @@ function sitemap() {
   var L = ['<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'];
   PAGES.filter(function (p) { return p.url; }).forEach(function (p) {
-    var loc = ORIGIN + p.url;
-    L.push('  <url>');
-    L.push('    <loc>' + loc + '</loc>');
-    LANGS.forEach(function (l) { L.push('    <xhtml:link rel="alternate" hreflang="' + l + '" href="' + loc + '?lang=' + l + '"/>'); });
-    L.push('    <xhtml:link rel="alternate" hreflang="x-default" href="' + loc + '"/>');
-    L.push('  </url>');
+    ['en', 'ru', 'uk'].forEach(function (own) {
+      L.push('  <url>');
+      L.push('    <loc>' + ORIGIN + langUrl(p.url, own) + '</loc>');
+      LANGS.forEach(function (l) { L.push('    <xhtml:link rel="alternate" hreflang="' + l + '" href="' + ORIGIN + langUrl(p.url, l) + '"/>'); });
+      L.push('    <xhtml:link rel="alternate" hreflang="x-default" href="' + ORIGIN + p.url + '"/>');
+      L.push('  </url>');
+    });
   });
   L.push('</urlset>');
   writeIfChanged('sitemap.xml', L.join('\n') + '\n');
@@ -268,6 +285,47 @@ function robots() {
   var t = readText('robots.txt'), nl = t.indexOf('\r\n') >= 0 ? '\r\n' : '\n';
   t = t.replace(/^Sitemap:.*(\r?\n)?/gim, '').replace(/\s+$/, '');
   writeIfChanged('robots.txt', t + nl + nl + 'Sitemap: ' + ORIGIN + '/sitemap.xml' + nl);
+}
+
+/* ---------- 5. Языковые копии ru/ и uk/ ---------- */
+/* Ссылка из исходной страницы -> корневой путь. Страницы сайта получают префикс языка, ресурсы остаются общими. */
+function pageUrlOf(absPath) {
+  var rel = path.relative(ROOT, absPath).split(path.sep).join('/');
+  var u = '/' + rel.replace(/(^|\/)index\.html$/, '$1');
+  if (u.charAt(u.length - 1) !== '/') u += '/';
+  return PAGES.some(function (p) { return p.url === u; }) ? u : null;
+}
+function relocate(html, fromFile, lang) {
+  function fix(tag, attr, isLink) {
+    var re = new RegExp('(\\s' + attr + '=)(["\'])([^"\']*)\\2');
+    return tag.replace(re, function (all, a, q, ref) {
+      var h = ref.indexOf('#'), qi = ref.indexOf('?'), clean = ref.split('#')[0].split('?')[0], hash = h >= 0 ? ref.slice(h) : '', query = '', f, u;
+      if (qi >= 0 && (h < 0 || qi < h)) query = ref.slice(qi, h >= 0 ? h : undefined);
+      if (!clean || /^([a-z]+:)?\/\//i.test(clean) || /^(data|blob|mailto|tel|tg|javascript):/i.test(clean)) return all;
+      f = clean.charAt(0) === '/' ? path.join(ROOT, clean) : path.resolve(path.dirname(abs(fromFile)), clean);
+      u = isLink ? pageUrlOf(f) : null;
+      if (u) return a + q + langUrl(u, lang) + hash + q;
+      return a + q + '/' + path.relative(ROOT, f).split(path.sep).join('/') + query + hash + q;
+    });
+  }
+  html = html.replace(/<(script|img|source|video|audio|iframe)\b[^>]*\ssrc=["'][^"']*["'][^>]*>/gi, function (tag) { return fix(tag, 'src', false); });
+  html = html.replace(/<video\b[^>]*\sposter=["'][^"']*["'][^>]*>/gi, function (tag) { return fix(tag, 'poster', false); });
+  html = html.replace(/<link\b[^>]*\shref=["'][^"']*["'][^>]*>/gi, function (tag) { return /\brel=["'](canonical|alternate)["']/i.test(tag) ? tag : fix(tag, 'href', false); });
+  html = html.replace(/<a\b[^>]*\shref=["'][^"']*["'][^>]*>/gi, function (tag) { return fix(tag, 'href', true); });
+  return html;
+}
+function localized(page, lang) {
+  var html = readText(page.file), dict = dictForLang(page, lang), lp = { file: lang + '/' + page.file, url: page.url, lang: lang, dict: page.dict };
+  html = prerender(html, dict, lp.file);
+  html = html.replace(/<html\b([^>]*)>/i, function (m, attrs) {
+    attrs = attrs.replace(/\slang="[^"]*"/i, '').replace(/\sdata-lang-fixed="[^"]*"/i, '');
+    return '<html lang="' + lang + '" data-lang-fixed="' + lang + '"' + attrs + '>';
+  });
+  html = relocate(html, page.file, lang);
+  html = html.replace(/(reel(?:-poster)?\.)en(\.(?:mp4|jpg))/g, '$1' + lang + '$2'); /* ролик и постер на языке страницы */
+  html = injectMeta(html, lp);
+  html = versioned(lp.file, html);
+  return { file: lp.file, html: html };
 }
 
 /* ---------- запуск ---------- */
@@ -279,6 +337,13 @@ function main() {
     html = injectMeta(html, p);
     html = versioned(p.file, html);
     writeIfChanged(p.file, html);
+  });
+  PAGES.filter(function (p) { return p.url; }).forEach(function (p) {
+    ['ru', 'uk'].forEach(function (lang) {
+      var r = localized(p, lang);
+      fs.mkdirSync(path.dirname(abs(r.file)), { recursive: true });
+      writeIfChanged(r.file, r.html);
+    });
   });
   sitemap();
   robots();

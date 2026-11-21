@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ru" data-lang-fixed="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- build:meta -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script id="i18n-pend">(function(){var F=["manrope-400-cyrillic.woff2","unbounded-500-cyrillic.woff2"],k,a;for(k=0;k<F.length;k++){a=document.createElement("link");a.rel="preload";a.as="font";a.type="font/woff2";a.crossOrigin="";a.href="/fonts/"+F[k];document.head.appendChild(a)}})();</script>
+<link rel="stylesheet" href="/fonts/fonts.css?v=1e6a8860">
+<link rel="canonical" href="https://molxoflow.com/ru/">
+<link rel="alternate" hreflang="ru" href="https://molxoflow.com/ru/">
+<link rel="alternate" hreflang="uk" href="https://molxoflow.com/uk/">
+<link rel="alternate" hreflang="en" href="https://molxoflow.com/">
+<link rel="alternate" hreflang="x-default" href="https://molxoflow.com/">
+<meta property="og:url" content="https://molxoflow.com/ru/">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Molxo Flow">
+<meta property="og:title" content="Molxo Flow — автоматизация бизнеса и ИИ под ключ">
+<meta property="og:description" content="Автоматизируем рутину бизнеса: ИИ-агенты, боты, CRM и интеграции под задачу. Расскажите о задаче, и мы предложим схему решения.">
+<meta property="og:image" content="https://molxoflow.com/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Molxo Flow — автоматизация бизнеса и ИИ под ключ">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Molxo Flow — автоматизация бизнеса и ИИ под ключ">
+<meta name="twitter:description" content="Автоматизируем рутину бизнеса: ИИ-агенты, боты, CRM и интеграции под задачу. Расскажите о задаче, и мы предложим схему решения.">
+<meta name="twitter:image" content="https://molxoflow.com/og.jpg">
+<!-- /build:meta -->
+<title data-i18n="meta.title">Molxo Flow — автоматизация бизнеса и ИИ под ключ</title>
+<meta name="description" content="Автоматизируем рутину бизнеса: ИИ-агенты, боты, CRM и интеграции под задачу. Расскажите о задаче, и мы предложим схему решения." data-i18n-attr="content:meta.desc">
+<meta name="theme-color" content="#0b0d11">
+<link rel="stylesheet" href="/kit/kit.i18n.css?v=af977eac">
+<link rel="stylesheet" href="/style.css?v=ce2433e3">
+<link rel="stylesheet" href="/agent/agent.css?v=83a6bdf2">
+<noscript><style>html:not(.rdy) .hero, html:not(.rdy) .top-r, html:not(.rdy) .after { visibility: visible; }</style></noscript>
+</head>
+<body>
+<a class="skip" href="#pain" data-i18n="skip">К выбору проблемы</a>
+
+<canvas id="stage" role="img" aria-label="Трёхмерное пространство окон: сообщение клиента, ИИ-агент, запись в CRM, уведомление менеджеру" data-i18n-attr="aria-label:stage.aria" aria-describedby="scene-text"></canvas>
+<div id="fallback" aria-hidden="true"></div>
+
+<div id="scene-text" class="sr" data-i18n="scene.text">Тёмное пространство, в глубине которого висят окна приложений. Камера медленно летит сквозь них. Первое окно: мессенджер, клиент пишет вопрос о доставке, ИИ-агент отвечает. Рядом окно с входящими из почты, Telegram и сайта. Дальше панель «ИИ-агент работает» с короткой лентой действий, затем документ, из которого агент вынимает поля. Потом канбан-доска CRM: новая заявка сама переходит в колонку «В работе», появляется сообщение «Заявка создана». В конце телефон с уведомлением менеджеру о новой заявке. Все данные в окнах вымышлены.</div>
+
+<header class="top">
+  <a class="brand" href="#top" data-i18n-attr="aria-label:brand.aria" aria-label="Molxo Flow, наверх">Molxo<span>Flow</span></a>
+  <div class="top-r">
+    <div class="lang-sw" data-i18n-switch></div>
+    <a class="top-link" href="/ru/portfolio/" data-i18n="nav.portfolio">Портфолио</a>
+    <a class="btn btn-sm" href="https://t.me/Molxo1" target="_blank" rel="noopener" data-i18n="nav.start">Telegram</a>
+  </div>
+</header>
+
+<button class="pause" id="pauseBtn" type="button" aria-pressed="false"><i class="pause-ic" aria-hidden="true"></i><span data-i18n="pause.btn">Пауза анимации</span></button>
+
+<main id="top">
+  <div id="journey">
+    <div class="hero" id="hero">
+      <p class="eyebrow" data-i18n="hero.eyebrow">Molxo Flow · автоматизация и разработка</p>
+      <h1 data-i18n="hero.h1">Автоматизируем рутину бизнеса с ИИ</h1>
+      <p class="lead" data-i18n="hero.lead">Разрабатываем софт, ботов и сайты и внедряем автоматизацию в процессы. Меньше рутины и потерянных заявок. Расскажите о задаче, и мы предложим схему решения.</p>
+      <div class="actions">
+        <a class="btn" href="https://t.me/Molxo1" target="_blank" rel="noopener" id="startBtn" data-i18n="hero.start">Написать в Telegram</a>
+        <span class="micro-inline" data-i18n="hero.micro">Откроется Telegram. Разбор задачи бесплатный. Сроки и стоимость называем после разбора.</span>
+      </div>
+      <p class="demo-note" data-i18n="hero.demo">В окнах демонстрация, данные вымышлены. Листайте: камера едет по пути заявки.</p>
+    </div>
+
+    <div class="caption" id="caption" aria-live="off">
+      <span class="cap-n" id="capN">1</span>
+      <div><b id="capT"></b><span id="capS"></span></div>
+    </div>
+    <ol class="rail" id="rail" aria-hidden="true"><li></li><li></li><li></li><li></li></ol>
+  </div>
+
+  <div class="after">
+    <section class="blk" id="pain" aria-labelledby="painT">
+      <p class="kicker" data-i18n="pain.kicker">Типичные задачи</p>
+      <h2 id="painT" data-i18n="pain.h2">Что у вас отнимает время?</h2>
+      <p class="sub" data-i18n="pain.sub">Выберите, что болит сильнее всего. Покажем, что делает агент вместо человека.</p>
+      <div class="chips" id="chips" role="radiogroup" data-i18n-attr="aria-label:pain.group" aria-label="Типичная проблема"></div>
+      <div class="live" id="live" aria-live="polite"></div>
+    </section>
+
+    <section class="blk" id="how" aria-labelledby="howT">
+      <p class="kicker" data-i18n="how.kicker">Как мы работаем</p>
+      <h2 id="howT" data-i18n="how.h2">Четыре шага от задачи до запуска</h2>
+      <ol class="steps" id="steps"></ol>
+    </section>
+
+    <section class="blk" id="what" aria-labelledby="whatT">
+      <p class="kicker" data-i18n="what.kicker">Что делаем</p>
+      <h2 id="whatT" data-i18n="what.h2">Пять продуктов, один процесс</h2>
+      <ul class="prods" id="prods"></ul>
+    </section>
+
+    <section class="blk reel-blk" id="reel" aria-labelledby="reelT">
+      <p class="kicker" data-i18n="reel.kicker">Как это выглядит в работе</p>
+      <h2 id="reelT" data-i18n="reel.h2">Клиент пишет, агент отвечает, заявка в CRM</h2>
+      <figure class="reel">
+        <video id="reelVid" muted loop playsinline preload="none" data-i18n-attr="aria-label:reel.aria" aria-label="Зацикленная анимация: переписка с клиентом, панель ИИ-агента и CRM с новой заявкой. Демонстрация, данные вымышлены.">
+          <source id="reelSrc" src="/assets/reel.ru.mp4" type="video/mp4">
+        </video>
+        <figcaption data-i18n="reel.cap">Анимация интерфейса. Данные вымышлены.</figcaption>
+      </figure>
+    </section>
+
+    <section class="blk" id="get" aria-labelledby="getT">
+      <p class="kicker" data-i18n="get.kicker">Примеры материалов</p>
+      <h2 id="getT" data-i18n="get.h2">Как может выглядеть разбор задачи</h2>
+      <div class="docs" id="docs"></div>
+    </section>
+
+    <section class="blk close" id="start" aria-labelledby="startT">
+      <h2 id="startT" data-i18n="close.h2">Расскажите задачу. Остальное соберём.</h2>
+      <p class="sub" data-i18n="close.sub">Опишите задачу в Telegram, и мы предложим схему решения.</p>
+      <a class="btn btn-lg" href="https://t.me/Molxo1" target="_blank" rel="noopener" data-i18n="close.btn">Написать в Telegram</a>
+      <p class="micro" data-i18n="close.micro">Откроется Telegram. Разбор задачи бесплатный. Сроки и стоимость называем после разбора.</p>
+    </section>
+
+    <footer class="foot">
+      <p data-i18n="foot.about">Molxo — студия автоматизации бизнеса и разработки. Все примеры на странице: демонстрация, данные вымышлены.</p>
+      <p><a href="https://t.me/Molxo1" target="_blank" rel="noopener" data-i18n="foot.tg">Telegram @Molxo1</a> · <a href="/ru/privacy/" data-i18n="foot.privacy">Приватность</a></p>
+    </footer>
+  </div>
+</main>
+
+<script src="/kit/kit.i18n.js?v=27544e37"></script>
+<script defer src="/i18n/en.js?v=a052368d"></script>
+<script defer src="/i18n/ru.js?v=f69abc6e"></script>
+<script defer src="/i18n/uk.js?v=7b6736b4"></script>
+<script defer src="/wins.js?v=e84edb8f"></script>
+<script defer src="/app.js?v=c8fffeaf"></script>
+<script defer src="/agent/config.js?v=ce65efef"></script>
+<script defer src="/agent/agent.js?v=29f51aa7"></script>
+<!-- сцену three.js (scene.js, type=module) подгружает app.js после первой отрисовки: не при Save-Data и не при prefers-reduced-motion -->
+</body>
+</html>

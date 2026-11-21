@@ -74,7 +74,7 @@ PAGES.forEach(function (p) {
   if (p.url) {
     if (html.indexOf('<link rel="canonical" href="https://molxoflow.com' + p.url + '">') < 0) fail(p.file + ': нет canonical');
     ['ru', 'uk', 'en'].forEach(function (x) {
-      if (html.indexOf('hreflang="' + x + '" href="https://molxoflow.com' + p.url + '?lang=' + x + '"') < 0) fail(p.file + ': нет hreflang ' + x);
+      if (html.indexOf('hreflang="' + x + '" href="https://molxoflow.com' + (x === 'en' ? '' : '/' + x) + p.url + '"') < 0) fail(p.file + ': нет hreflang ' + x);
     });
     if (html.indexOf('hreflang="x-default" href="https://molxoflow.com' + p.url + '"') < 0) fail(p.file + ': нет hreflang x-default');
     if (metaContent(html, 'property', 'og:url') !== 'https://molxoflow.com' + p.url) fail(p.file + ': og:url');
@@ -151,6 +151,46 @@ PAGES.forEach(function (p) {
   else if (m[1] !== sha(fs.readFileSync(abs('scene.js')))) fail('app.js: устаревшая версия scene.js');
 }());
 
+/* Языковые копии ru/ и uk/: статичный текст языка в сыром HTML, самоссылающийся canonical, полный набор hreflang,
+ * ссылки на страницы ведут в тот же язык, ресурсы существуют. */
+(function () {
+  function langUrl(url, lang) { return lang !== 'en' ? '/' + lang + url : url; }
+  PAGES.filter(function (p) { return p.url; }).forEach(function (p) {
+    ['ru', 'uk'].forEach(function (lang) {
+      var file = lang + '/' + p.file, html, canon = 'https://molxoflow.com' + langUrl(p.url, lang), title, h1, m, re, ref, f;
+      try { html = fs.readFileSync(abs(file), 'utf8'); } catch (e) { fail(file + ': файла нет'); return; }
+      if (!new RegExp('<html lang="' + lang + '" data-lang-fixed="' + lang + '"').test(html)) fail(file + ': нет <html lang data-lang-fixed>');
+      if (html.indexOf('<link rel="canonical" href="' + canon + '">') < 0) fail(file + ': нет canonical на себя');
+      ['ru', 'uk', 'en'].forEach(function (x) {
+        if (html.indexOf('hreflang="' + x + '" href="https://molxoflow.com' + langUrl(p.url, x) + '"') < 0) fail(file + ': нет hreflang ' + x);
+      });
+      if (html.indexOf('hreflang="x-default" href="https://molxoflow.com' + p.url + '"') < 0) fail(file + ': нет hreflang x-default');
+      if (metaContent(html, 'property', 'og:url') !== canon) fail(file + ': og:url');
+      title = stripTags((/<title\b[^>]*>([\s\S]*?)<\/title>/.exec(html) || [])[1] || '');
+      h1 = /<h1\b[^>]*>([\s\S]*?)<\/h1>/.exec(html);
+      if (!/[А-Яа-яІіЇїЄєҐґ]/.test(title)) fail(file + ': title не на языке страницы');
+      if (!h1 || !/[А-Яа-яІіЇїЄєҐґ]/.test(stripTags(h1[1]))) fail(file + ': h1 не на языке страницы');
+      if (!/[А-Яа-яІіЇїЄєҐґ]/.test(metaContent(html, 'name', 'description'))) fail(file + ': description не на языке страницы');
+      m = /\[[a-z][a-z0-9]*(\.[a-z0-9]+)+\]/i.exec(html.replace(/<script[\s\S]*?<\/script>/g, ''));
+      if (m) fail(file + ': в HTML виден ключ ' + m[0]);
+      /* ссылки на страницы сайта: только в тот же язык */
+      re = /<a\b[^>]*\shref="([^"#][^"]*)"/g;
+      while ((m = re.exec(html))) {
+        ref = m[1].split('?')[0];
+        if (/^([a-z]+:)?\/\//i.test(ref)) continue;
+        if (PAGES.some(function (q) { return q.url === ref; })) fail(file + ': ссылка на страницу без языка: ' + ref);
+      }
+      /* ресурсы: корневые пути существуют */
+      re = /\s(?:src|href)="(\/[^"#?]+)/g;
+      while ((m = re.exec(html.replace(/<script\b(?![^>]*\ssrc=)[\s\S]*?<\/script>/g, '')))) {
+        f = abs(m[1].replace(/^\//, ''));
+        if (/\/$/.test(m[1])) { if (!fs.existsSync(abs(m[1].replace(/^\//, '') + 'index.html'))) fail(file + ': нет страницы ' + m[1]); }
+        else if (!fs.existsSync(f)) fail(file + ': нет файла ' + m[1]);
+      }
+    });
+  });
+}());
+
 /* sitemap и robots */
 (function () {
   var sm = '', rb = '', locs, i, depth = 0, tags;
@@ -163,9 +203,11 @@ PAGES.forEach(function (p) {
     });
     if (depth !== 0) fail('sitemap.xml: теги не сбалансированы');
     locs = (sm.match(/<loc>[^<]+<\/loc>/g) || []).length;
-    if (locs !== 12) fail('sitemap.xml: ожидалось 12 страниц, найдено ' + locs);
+    if (locs !== 36) fail('sitemap.xml: ожидалось 36 адресов (12 страниц x en, ru, uk), найдено ' + locs);
     PAGES.filter(function (p) { return p.url; }).forEach(function (p) {
-      if (sm.indexOf('<loc>https://molxoflow.com' + p.url + '</loc>') < 0) fail('sitemap.xml: нет ' + p.url);
+      ['', '/ru', '/uk'].forEach(function (pre) {
+        if (sm.indexOf('<loc>https://molxoflow.com' + pre + p.url + '</loc>') < 0) fail('sitemap.xml: нет ' + pre + p.url);
+      });
     });
   }
   try { rb = fs.readFileSync(abs('robots.txt'), 'utf8'); } catch (e2) { fail('нет robots.txt'); }

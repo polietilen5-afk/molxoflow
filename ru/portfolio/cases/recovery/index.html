@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ru" data-lang-fixed="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- build:meta -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script id="i18n-pend">(function(){var F=["manrope-400-cyrillic.woff2","unbounded-500-cyrillic.woff2"],k,a;for(k=0;k<F.length;k++){a=document.createElement("link");a.rel="preload";a.as="font";a.type="font/woff2";a.crossOrigin="";a.href="/fonts/"+F[k];document.head.appendChild(a)}})();</script>
+<link rel="stylesheet" href="/fonts/fonts.css?v=1e6a8860">
+<link rel="canonical" href="https://molxoflow.com/ru/portfolio/cases/recovery/">
+<link rel="alternate" hreflang="ru" href="https://molxoflow.com/ru/portfolio/cases/recovery/">
+<link rel="alternate" hreflang="uk" href="https://molxoflow.com/uk/portfolio/cases/recovery/">
+<link rel="alternate" hreflang="en" href="https://molxoflow.com/portfolio/cases/recovery/">
+<link rel="alternate" hreflang="x-default" href="https://molxoflow.com/portfolio/cases/recovery/">
+<meta property="og:url" content="https://molxoflow.com/ru/portfolio/cases/recovery/">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Molxo Flow">
+<meta property="og:title" content="Recovery Desk: возврат неуспешных платежей по подпискам">
+<meta property="og:description" content="Кейс: система возврата платежей, которая превращает неуспешное списание по подписке в короткую вежливую кампанию с письмами от ИИ, правилами, страницей обновления карты, очередью, аналитикой и журналом действий. Живое демо на вымышленных данных.">
+<meta property="og:image" content="https://molxoflow.com/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Recovery Desk: возврат неуспешных платежей по подпискам">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Recovery Desk: возврат неуспешных платежей по подпискам">
+<meta name="twitter:description" content="Кейс: система возврата платежей, которая превращает неуспешное списание по подписке в короткую вежливую кампанию с письмами от ИИ, правилами, страницей обновления карты, очередью, аналитикой и журналом действий. Живое демо на вымышленных данных.">
+<meta name="twitter:image" content="https://molxoflow.com/og.jpg">
+<!-- /build:meta -->
+<title data-i18n="meta.title">Recovery Desk: возврат неуспешных платежей по подпискам</title>
+<meta name="description" content="Кейс: система возврата платежей, которая превращает неуспешное списание по подписке в короткую вежливую кампанию с письмами от ИИ, правилами, страницей обновления карты, очередью, аналитикой и журналом действий. Живое демо на вымышленных данных." data-i18n-attr="content:meta.desc">
+<link rel="stylesheet" href="/portfolio/shared/pf.css?v=b71d20f9">
+<link rel="stylesheet" href="/portfolio/shared/kit.i18n.css?v=af977eac">
+<link rel="stylesheet" href="/portfolio/cases/recovery/case.css?v=649f1998">
+</head>
+<body>
+<a class="skip" href="#demo" data-i18n="skip">Перейти к демо</a>
+
+<header class="pf-top">
+  <a class="pf-brand" href="/ru/">Molxo<span>Flow</span></a>
+  <nav class="pf-nav" data-i18n-attr="aria-label:nav.main" aria-label="Навигация по кейсу">
+    <a class="pf-back" href="/ru/portfolio/" data-i18n="nav.back">← Портфолио</a>
+    <div class="lang-sw" data-i18n-switch></div>
+  </nav>
+</header>
+
+<main>
+<section class="pf-sec rc-hero">
+  <div class="pf-wrap">
+    <p class="eyebrow" data-i18n="hero.eyebrow">Кейс / Биллинг подписок / Возврат платежей</p>
+    <h1 class="pf-h1" data-i18n="hero.title">Неуспешный платёж по карте не должен заканчиваться отменой подписки</h1>
+    <p class="pf-lead" data-i18n="hero.lead1">Сервис по подписке терял платящих клиентов из-за истёкших карт и отклонённых списаний. Большинство из них не собирались уходить, они просто не заметили, что платёж не прошёл.</p>
+    <p class="pf-lead" data-i18n="hero.lead2">Мы сделали систему, которая слушает события платежей, заводит обращение, выбирает тон по причине отказа, пишет короткое человеческое письмо и даёт клиенту страницу, где карту можно исправить за минуту. Recovery Desk ниже, вымышленная переработка этой идеи, и в ней всё работает.</p>
+    <ul class="pf-tags">
+      <li class="pf-tag" data-i18n="tag.1">Веб-приложение</li>
+      <li class="pf-tag" data-i18n="tag.2">Уведомления от платёжной системы</li>
+      <li class="pf-tag" data-i18n="tag.3">Очередь писем с повторами</li>
+      <li class="pf-tag" data-i18n="tag.4">Письма от ИИ</li>
+      <li class="pf-tag" data-i18n="tag.5">Автоматические правила</li>
+      <li class="pf-tag" data-i18n="tag.6">Журнал действий и роли</li>
+    </ul>
+    <div class="rc-cta-row">
+      <a class="btn" href="#demo" data-i18n="hero.try">Попробовать демо</a>
+      <a class="btn btn-ghost" href="https://t.me/Molxo1" data-i18n="hero.discuss">Обсудить похожий проект</a>
+    </div>
+  </div>
+</section>
+
+<section class="rc-brief" data-i18n-attr="aria-label:brief.h" aria-label="Задача, решение, результат">
+  <div class="pf-wrap">
+    <div class="pf-grid3">
+      <article class="pf-card"><span class="pf-num">1</span><h3 data-i18n="task.h">Задача</h3><p data-i18n="task.p">Перестать терять подписчиков из-за сбоев платежа, которые легко исправить, не надоедая клиентам и не заставляя человека вручную гоняться за каждым случаем.</p></article>
+      <article class="pf-card"><span class="pf-num">2</span><h3 data-i18n="did.h">Что сделали</h3><p data-i18n="did.p">Четырнадцать связанных модулей: события, обращения, клиенты, кампании, правила, студия писем с ИИ, исходящие, страница клиента, аналитика, интеграции, настройки приватности, доступ и журнал.</p></article>
+      <article class="pf-card"><span class="pf-num">3</span><h3 data-i18n="res.h">Результат</h3><p data-i18n="res.p">Каждый сбой подхватывается в момент появления и обрабатывается одинаково аккуратно. Команда видит, что отправлено, что сработало и что требует человека.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="pf-sec rc-caps" id="caps">
+  <div class="pf-wrap">
+    <h2 class="pf-h2" data-i18n="cap.h">Что умеет система</h2>
+    <p class="pf-lead" data-i18n="cap.lead">Каждый модуль ниже работает в демо и использует одни и те же данные: неуспешный платёж в одном месте превращается в обращение, письмо, возврат и строку в журнале.</p>
+    <ul class="rc-capgrid">
+      <li><a href="#demo" data-go="overview"><b data-i18n="mod.overview">Обзор</b><span data-i18n="cap.overview">Открытые обращения, возвращённая сумма, воронка, ближайшие письма и что требует внимания.</span><em data-i18n="cap.open">Открыть в демо</em></a></li>
+      <li><a href="#demo" data-go="events"><b data-i18n="mod.events">События платежей</b><span data-i18n="cap.events">События платежей с проверкой подписи и дублей, просмотр содержимого и симулятор.</span><em data-i18n="cap.open">Открыть в демо</em></a></li>
+      <li><a href="#demo" data-go="cases"><b data-i18n="mod.cases">Неуспешные платежи</b><span data-i18n="cap.cases">Каждый неуспешный платёж как обращение: шаги, хронология, письма, заметки и действия.</span><em data-i18n="cap.open">Открыть в демо</em></a></li>
+      <li><a href="#demo" data-go="customers"><b data-i18n="mod.customers">Клиенты</b><span data-i18n="cap.customers">Статус подписки, состояние возврата, срок карты, отказ от писем и история по клиенту.</span><em data-i18n="cap.open">Открыть в демо</em></a></li>
+      <li><a href="#demo" data-go="campaigns"><b data-i18n="mod.campaigns">Кампании</b><span data-i18n="cap.campaigns">Активные кампании, редактируемая цепочка писем и планировщик с демо-часами.</span><em data-i18n="cap.open">Открыть в демо</em></a></li>
+      <li><a href="#demo" data-go="rules"><b data-i18n="mod.rules">Правила</b><span data-i18n="cap.rules">Коды причин по категориям, шаблонам, задержке повтора и числу попыток, с проверкой правил.</span><em data-i18n="cap.open">Открыть в демо</em></a></li>
+      <li><a href="#demo" data-go="studio"><b data-i18n="mod.studio">Студия писем с ИИ</b><span data-i18n="cap.studio">ИИ пишет письмо по тону и причине, проверяет по ограничениям, сохраняет черновики.</span><em data-i18n="cap.open">Открыть в демо</em></a></li>
+      <li><a href="#demo" data-go="outbox"><b data-i18n="mod.outbox">Исходящие</b><span data-i18n="cap.outbox">Очередь писем с ручной проверкой, повторами, возвратами и автоматическими уведомлениями почтового сервиса.</span><em data-i18n="cap.open">Открыть в демо</em></a></li>
+      <li><a href="#demo" data-go="portal"><b data-i18n="mod.portal">Страница клиента</b><span data-i18n="cap.portal">Страница, которую клиент открывает из письма: форма карты, проверка и результат.</span><em data-i18n="cap.open">Открыть в демо</em></a></li>
+      <li><a href="#demo" data-go="analytics"><b data-i18n="mod.analytics">Аналитика</b><span data-i18n="cap.analytics">Доля возврата, возвращённая сумма по неделям, итоги по причине, шагу и тарифу.</span><em data-i18n="cap.open">Открыть в демо</em></a></li>
+      <li><a href="#demo" data-go="integrations"><b data-i18n="mod.integrations">Интеграции</b><span data-i18n="cap.integrations">Платёжный провайдер, почтовый провайдер, ИИ-модель, обработчик очереди и резервные копии.</span><em data-i18n="cap.open">Открыть в демо</em></a></li>
+      <li><a href="#demo" data-go="privacy"><b data-i18n="mod.privacy">Настройки и приватность</b><span data-i18n="cap.privacy">Час отправки, лимит частоты, режим проверки, отказы от писем, выгрузка и удаление данных.</span><em data-i18n="cap.open">Открыть в демо</em></a></li>
+      <li><a href="#demo" data-go="access"><b data-i18n="mod.access">Пользователи и роли</b><span data-i18n="cap.access">Пользователи, роли и матрица прав: администратор, поддержка и финансы.</span><em data-i18n="cap.open">Открыть в демо</em></a></li>
+      <li><a href="#demo" data-go="audit"><b data-i18n="mod.audit">Журнал действий</b><span data-i18n="cap.audit">Журнал, который можно только дополнять: каждое действие системы и человека, с фильтрами.</span><em data-i18n="cap.open">Открыть в демо</em></a></li>
+    </ul>
+  </div>
+</section>
+
+<section class="pf-sec" id="demo">
+  <div class="pf-wrap">
+    <p class="eyebrow" data-i18n="demo.eyebrow">Живое демо</p>
+    <h2 class="pf-h2" data-i18n="demo.h2">Приложение для возврата платежей</h2>
+    <p class="pf-lead" data-i18n="demo.lead">Переключайтесь между модулями в меню. Нажмите «Следующий день», чтобы планировщик отправил очередные письма, смоделируйте неуспешный платёж в событиях, затем откройте страницу клиента. Смените роль, чтобы увидеть, как меняются права.</p>
+
+    <div class="pf-app rc" id="rc">
+      <div class="pf-app-bar"><i></i><i></i><i></i><span class="rc-url">recovery.demo</span></div>
+      <div class="rc-shell">
+        <aside class="rc-side">
+          <div class="rc-brandrow"><p class="rc-title" data-i18n="app.title">Recovery Desk</p><p class="rc-org" data-i18n="app.org">Brightlane, биллинг подписок</p></div>
+          <nav id="rc-nav" class="rc-nav" data-i18n-attr="aria-label:nav.label" aria-label="Модули"></nav>
+        </aside>
+        <div class="rc-body">
+          <div class="rc-bar">
+            <button type="button" class="rc-menu" id="rc-menu" aria-expanded="false" aria-controls="rc-nav" data-i18n-attr="aria-label:menu" aria-label="Меню"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M3.5 6h13M3.5 10h13M3.5 14h13"/></svg></button>
+            <h3 class="rc-modname" id="rc-modname"></h3>
+            <label class="rc-rolesel"><span data-i18n="role.label">Смотреть как</span><select id="rc-role"></select></label>
+          </div>
+          <div class="rc-sim" role="group" data-i18n-attr="aria-label:sim.label" aria-label="Демо-часы">
+            <span class="rc-clock" id="rc-clock"></span>
+            <button type="button" class="btn btn-sm" id="rc-tick" data-i18n="sim.tick">Следующий день</button>
+            <button type="button" class="btn btn-sm btn-ghost" id="rc-reset" data-i18n="sim.resetBtn">Сбросить демо</button>
+          </div>
+          <p class="rc-ribbon" id="rc-ribbon" hidden></p>
+          <div id="rc-mod" class="rc-mod" tabindex="-1"></div>
+        </div>
+      </div>
+      <div id="rc-dlg" hidden></div>
+    </div>
+    <p class="demo-note" data-i18n="demo.note">Демо, данные вымышленные.</p>
+    <div class="rc-toast" id="rc-toast" role="status" aria-live="polite" hidden></div>
+  </div>
+</section>
+
+<section class="pf-sec rc-ix">
+  <div class="pf-wrap">
+    <h2 class="pf-h2" data-i18n="ix.h">Интеграции, очередь и уведомления</h2>
+    <div class="pf-grid3">
+      <article class="pf-card"><h3 data-i18n="ix.1.h">Платёжный провайдер</h3><p data-i18n="ix.1.p">События приходят как автоматические уведомления от платёжной системы с подписью. Неверная подпись отклоняется, повтор распознаётся и игнорируется, а второй сбой у того же клиента присоединяется к открытому обращению.</p></article>
+      <article class="pf-card"><h3 data-i18n="ix.2.h">Почта и ИИ</h3><p data-i18n="ix.2.p">Письма идут через очередь с повторами и отслеживанием доставки. Если почтовый провайдер или ИИ недоступны, система не останавливается: письма ждут, а черновики берутся из готовых шаблонов.</p></article>
+      <article class="pf-card"><h3 data-i18n="ix.3.h">Уведомления с уважением к людям</h3><p data-i18n="ix.3.p">Час отправки, недельный лимит на клиента, отказы от писем и остановка при жалобе на спам. Серьёзные случаи, например подозрение на мошенничество, не идут в кампанию, а передаются человеку.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="pf-sec rc-how">
+  <div class="pf-wrap">
+    <h2 class="pf-h2" data-i18n="how.h2">Как это работает</h2>
+    <ol class="rc-steps">
+      <li class="pf-card"><span class="pf-num">1</span><h3 data-i18n="how.1.h">Слушаем</h3><p data-i18n="how.1.p">Платёжный провайдер присылает событие. Система проверяет подпись, игнорирует повторы и заводит обращение.</p></li>
+      <li class="pf-card"><span class="pf-num">2</span><h3 data-i18n="how.2.h">Решаем</h3><p data-i18n="how.2.p">Правила читают причину отказа и выбирают тон, шаблон и срок. Серьёзные случаи идут к человеку.</p></li>
+      <li class="pf-card"><span class="pf-num">3</span><h3 data-i18n="how.3.h">Пишем и отправляем</h3><p data-i18n="how.3.p">ИИ-модель пишет короткое человеческое письмо в рамках ограничений, очередь отправляет его с повторами и следит за доставкой.</p></li>
+      <li class="pf-card"><span class="pf-num">4</span><h3 data-i18n="how.4.h">Возвращаем и учимся</h3><p data-i18n="how.4.p">Клиент обновляет карту в один клик, обращение закрывается, а аналитика показывает, какой шаг сработал.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="pf-sec rc-stack">
+  <div class="pf-wrap">
+    <h2 class="pf-h2" data-i18n="stack.h2">Стек и компоненты</h2>
+    <ul class="pf-tags">
+      <li class="pf-tag" data-i18n="tag.1">Веб-приложение</li>
+      <li class="pf-tag" data-i18n="tag.2">Уведомления от платёжной системы</li>
+      <li class="pf-tag" data-i18n="tag.3">Очередь писем с повторами</li>
+      <li class="pf-tag" data-i18n="tag.4">Письма от ИИ</li>
+      <li class="pf-tag" data-i18n="tag.5">Автоматические правила</li>
+      <li class="pf-tag" data-i18n="tag.6">Журнал действий и роли</li>
+    </ul>
+  </div>
+</section>
+
+<section class="pf-sec pf-cta">
+  <div class="pf-wrap">
+    <h2 class="pf-h2" data-i18n="cta.h2">Теряете клиентов из-за истёкших карт?</h2>
+    <p class="pf-lead rc-mid" data-i18n="cta.p">Расскажите, как вы выставляете счета и что происходит после неуспешного платежа сейчас. Мы набросаем схему возврата, которая подойдёт.</p>
+    <a class="btn" href="https://t.me/Molxo1" data-i18n="hero.discuss">Обсудить похожий проект</a>
+  </div>
+</section>
+</main>
+
+<footer class="pf-foot" data-i18n="foot">Molxo Flow. Кейс, интерфейс и данные вымышленные.</footer>
+
+<script src="/portfolio/shared/kit.i18n.js?v=27544e37"></script>
+<script src="/portfolio/cases/recovery/i18n/en.js?v=0bb9401c"></script>
+<script src="/portfolio/cases/recovery/i18n/ru.js?v=a6af5948"></script>
+<script src="/portfolio/cases/recovery/i18n/uk.js?v=38d981a9"></script>
+<script src="/portfolio/shared/pf.js?v=a8bb945e"></script>
+<script src="/portfolio/cases/recovery/data.js?v=97977732"></script>
+<script src="/portfolio/cases/recovery/core.js?v=f4fb42d9"></script>
+<script src="/portfolio/cases/recovery/mods-a.js?v=549bef97"></script>
+<script src="/portfolio/cases/recovery/mods-b.js?v=105e157c"></script>
+<script src="/portfolio/cases/recovery/mods-c.js?v=515999f6"></script>
+<script src="/portfolio/cases/recovery/app.js?v=25d1c498"></script>
+</body>
+</html>

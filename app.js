@@ -137,7 +137,7 @@
   function loadScene() {
     if (MX.mode !== 'init') { return; }
     var s = doc.createElement('script');
-    s.type = 'module'; s.src = 'scene.js?v=4a367764';
+    s.type = 'module'; s.src = '/scene.js?v=5521c22d';
     s.onerror = function () { MX.fallback(); };
     doc.head.appendChild(s);
     window.setTimeout(function () { if (!MX.ready && MX.mode === 'init') { MX.fallback(); } }, 30000);
@@ -501,8 +501,8 @@
     var L = I.lang();
     if (L === vlang) { return; }
     vlang = L;
-    vid.poster = 'assets/reel-poster.' + L + '.jpg';
-    vsrc.setAttribute('src', 'assets/reel.' + L + '.mp4');
+    vid.poster = '/assets/reel-poster.' + L + '.jpg';
+    vsrc.setAttribute('src', '/assets/reel.' + L + '.mp4');
     vid.load();
     syncVid();
   }

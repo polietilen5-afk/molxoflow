@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ru" data-lang-fixed="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- build:meta -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script id="i18n-pend">(function(){var F=["manrope-400-cyrillic.woff2","unbounded-500-cyrillic.woff2"],k,a;for(k=0;k<F.length;k++){a=document.createElement("link");a.rel="preload";a.as="font";a.type="font/woff2";a.crossOrigin="";a.href="/fonts/"+F[k];document.head.appendChild(a)}})();</script>
+<link rel="stylesheet" href="/fonts/fonts.css?v=1e6a8860">
+<link rel="canonical" href="https://molxoflow.com/ru/portfolio/cases/dispatch/">
+<link rel="alternate" hreflang="ru" href="https://molxoflow.com/ru/portfolio/cases/dispatch/">
+<link rel="alternate" hreflang="uk" href="https://molxoflow.com/uk/portfolio/cases/dispatch/">
+<link rel="alternate" hreflang="en" href="https://molxoflow.com/portfolio/cases/dispatch/">
+<link rel="alternate" hreflang="x-default" href="https://molxoflow.com/portfolio/cases/dispatch/">
+<meta property="og:url" content="https://molxoflow.com/ru/portfolio/cases/dispatch/">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Molxo Flow">
+<meta property="og:title" content="Route Match: заявки из чатов в одну таблицу">
+<meta property="og:description" content="Настольный помощник читает групповые чаты перевозчика, извлекает заявки на перевозку языковой моделью и сопоставляет их с рейсами. Одиннадцать рабочих модулей в одном интерактивном демо.">
+<meta property="og:image" content="https://molxoflow.com/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Route Match: заявки из чатов в одну таблицу">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Route Match: заявки из чатов в одну таблицу">
+<meta name="twitter:description" content="Настольный помощник читает групповые чаты перевозчика, извлекает заявки на перевозку языковой моделью и сопоставляет их с рейсами. Одиннадцать рабочих модулей в одном интерактивном демо.">
+<meta name="twitter:image" content="https://molxoflow.com/og.jpg">
+<!-- /build:meta -->
+<title data-i18n="doc.title">Route Match: заявки из чатов в одну таблицу</title>
+<meta name="description" content="Настольный помощник читает групповые чаты перевозчика, извлекает заявки на перевозку языковой моделью и сопоставляет их с рейсами. Одиннадцать рабочих модулей в одном интерактивном демо." data-i18n-attr="content:doc.desc">
+<meta name="theme-color" content="#0b0d11">
+<link rel="stylesheet" href="/portfolio/shared/pf.css?v=b71d20f9">
+<link rel="stylesheet" href="/portfolio/shared/kit.i18n.css?v=af977eac">
+<link rel="stylesheet" href="/portfolio/cases/dispatch/case.css?v=907d5683">
+</head>
+<body>
+<a class="skip" href="#demo" data-i18n="skip">Перейти к демо</a>
+
+<header class="pf-top">
+  <a class="pf-brand" href="/ru/">Molxo<span>Flow</span></a>
+  <nav class="pf-nav" data-i18n-attr="aria-label:nav.label" aria-label="Навигация по кейсу">
+    <a class="pf-back" href="/ru/portfolio/" data-i18n="nav.back">← Портфолио</a>
+    <div class="lang-sw" data-i18n-switch></div>
+  </nav>
+</header>
+
+<main>
+<section class="pf-sec hero">
+  <div class="pf-wrap">
+    <p class="eyebrow" data-i18n="hero.eyebrow">Кейс / настольное приложение</p>
+    <h1 class="pf-h1" data-i18n="hero.title">Заявки из групповых чатов собираются в одну аккуратную таблицу</h1>
+    <p class="pf-lead" data-i18n="hero.lead">Диспетчер следит за десятками чатов, чтобы заметить тех, кому нужно доехать или отправить посылку. Приложение читает чаты за него, раскладывает каждую заявку по полям, сопоставляет с расписанием и ведёт журнал каждого решения.</p>
+    <ul class="pf-tags" aria-label="Stack">
+      <li class="pf-tag" data-i18n="tag.desktop">Настольное приложение</li>
+      <li class="pf-tag" data-i18n="tag.llm">Извлечение с помощью ИИ</li>
+      <li class="pf-tag" data-i18n="tag.regex">Запасной разбор по шаблонам</li>
+      <li class="pf-tag" data-i18n="tag.match">Сопоставление с рейсами</li>
+      <li class="pf-tag" data-i18n="tag.local">База данных на компьютере</li>
+    </ul>
+    <p class="hero-cta">
+      <a class="btn" href="#demo" data-i18n="cta.demo">Открыть демо</a>
+      <a class="btn btn-ghost" href="https://t.me/Molxo1" data-i18n="cta.discuss">Обсудить похожий проект</a>
+    </p>
+  </div>
+</section>
+
+<section class="pf-sec sec-tight">
+  <div class="pf-wrap">
+    <h2 class="sr-only" data-i18n="brief.h">Проблема, решение, результат</h2>
+    <div class="pf-grid3">
+      <article class="pf-card"><span class="pf-num">1</span><h3 data-i18n="g.task.h">Проблема</h3><p data-i18n="g.task.p">Заявки приходят свободным текстом в десятки чатов, с опечатками и сокращениями. Найти нужные и сверить их с расписанием значило часы прокрутки и копирования.</p></article>
+      <article class="pf-card"><span class="pf-num">2</span><h3 data-i18n="g.did.h">Что сделали</h3><p data-i18n="g.did.p">Настольное приложение следит за чатами, извлекает тип, маршрут, дату и объём языковой моделью (с запасным разбором по правилам) и оценивает каждую заявку относительно рейсов перевозчика.</p></article>
+      <article class="pf-card"><span class="pf-num">3</span><h3 data-i18n="g.res.h">Результат</h3><p data-i18n="g.res.p">Вместо часов прокрутки короткий список готовых совпадений. Одно место для всех заявок, уровень уверенности у каждой и шаблон ответа в один клик.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="pf-sec demo-sec" id="demo" aria-labelledby="demo-h">
+  <div class="pf-wrap">
+    <p class="eyebrow" data-i18n="demo.eyebrow">Интерактивное демо</p>
+    <h2 class="pf-h2" id="demo-h" data-i18n="demo.title">Всё приложение на одном вымышленном наборе данных</h2>
+    <p class="pf-lead" data-i18n="demo.lead">Сообщения приходят сами. Обработайте заявку, измените правило, добавьте рейс или выключите языковую модель и посмотрите, как реагируют остальные модули. Данные общие: заявки, рейсы, города, правила и журнал.</p>
+    <div class="pf-app rm" id="rm">
+      <div class="pf-app-bar rm-bar">
+        <span class="rm-logo" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H14a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h5.5"/></svg></span>
+        <strong class="rm-name" data-i18n="app.name">Route Match</strong>
+        <span class="rm-carrier" data-i18n="app.carrier">Harbor Lines</span>
+        <span class="rm-live" id="rm-live"></span>
+        <button type="button" class="rm-mini" id="rm-live-btn">Pause</button>
+        <div class="rm-stats" id="rm-stats"></div>
+      </div>
+      <div class="rm-shell">
+        <nav class="rm-side" id="rm-side" data-i18n-attr="aria-label:app.modules" aria-label="Модули"></nav>
+        <div class="rm-main" id="rm-main" tabindex="-1" role="region" data-i18n-attr="aria-label:app.work" aria-label="Рабочая область"></div>
+      </div>
+      <nav class="rm-bnav" id="rm-bnav" data-i18n-attr="aria-label:app.modules" aria-label="Модули"></nav>
+      <div class="rm-drawer" id="rm-drawer" hidden></div>
+      <div class="toast" id="rm-toast" role="status" aria-live="polite"></div>
+    </div>
+    <p class="demo-note" data-i18n="demo.note">демо, данные вымышленные</p>
+  </div>
+</section>
+
+<section class="pf-sec sec-tight" id="features">
+  <div class="pf-wrap">
+    <p class="eyebrow" data-i18n="feat.eyebrow">Что умеет система</p>
+    <h2 class="pf-h2" data-i18n="feat.title">Одиннадцать рабочих модулей на одних связанных данных</h2>
+    <ul class="feat">
+      <li class="pf-card"><h3 data-i18n="mod.leads">Заявки</h3><p data-i18n="feat.leads">Карточки со статусом, приоритетом, признаками дубля и просрочки, ручными правками и причиной каждого совпадения.</p><a class="open" href="#demo" data-open="leads" data-i18n="feat.open">Открыть в демо</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.messages">Сообщения</h3><p data-i18n="feat.messages">Живая лента групповых чатов с фильтрами и пошаговым разбором того, что случилось с каждым сообщением.</p><a class="open" href="#demo" data-open="messages" data-i18n="feat.open">Открыть в демо</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.routes">Маршруты</h3><p data-i18n="feat.routes">Простые рейсы и составные маршруты с остановками, расписание, вместимость, геометрия дороги и подсказки новых рейсов.</p><a class="open" href="#demo" data-open="routes" data-i18n="feat.open">Открыть в демо</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.cities">Города</h3><p data-i18n="feat.cities">Справочник городов с синонимами, проверка написания и очередь написаний, требующих решения.</p><a class="open" href="#demo" data-open="cities" data-i18n="feat.open">Открыть в демо</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.rules">Правила подбора</h3><p data-i18n="feat.rules">Пороги, радиус «рядом», допуск опечаток и штрафы с живым предпросмотром на текущих заявках.</p><a class="open" href="#demo" data-open="rules" data-i18n="feat.open">Открыть в демо</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.templates">Шаблоны ответов</h3><p data-i18n="feat.templates">Шаблоны ответов с подстановками для пассажиров, посылок, случаев без рейса и отказа.</p><a class="open" href="#demo" data-open="templates" data-i18n="feat.open">Открыть в демо</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.groups">Мониторинг чатов</h3><p data-i18n="feat.groups">Какие чаты слушаем, исключения по ключевым словам и состояние фонового сборщика.</p><a class="open" href="#demo" data-open="groups" data-i18n="feat.open">Открыть в демо</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.analytics">Аналитика</h3><p data-i18n="feat.analytics">Воронка от сообщений до подтверждённых заявок, нагрузка по дням и чатам, источник разбора и качество.</p><a class="open" href="#demo" data-open="analytics" data-i18n="feat.open">Открыть в демо</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.journal">Журнал</h3><p data-i18n="feat.journal">Журнал разбора, смены статусов, правок правил, уведомлений и ошибок с поиском и выгрузкой диагностики.</p><a class="open" href="#demo" data-open="journal" data-i18n="feat.open">Открыть в демо</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.export">Экспорт</h3><p data-i18n="feat.export">Выгрузка заявок в таблицу для Excel и в файл для других программ, плюс очередь для портала заказчика.</p><a class="open" href="#demo" data-open="export" data-i18n="feat.open">Открыть в демо</a></li>
+      <li class="pf-card"><h3 data-i18n="mod.settings">Настройки</h3><p data-i18n="feat.settings">Провайдер и бюджет языковой модели, уведомления и тихие часы, резервные копии, предварительный отбор и чек-лист настройки.</p><a class="open" href="#demo" data-open="settings" data-i18n="feat.open">Открыть в демо</a></li>
+    </ul>
+    <div class="pf-card integ"><h3 data-i18n="integ.h">Интеграции и поставка</h3><p data-i18n="integ.p">Подключение к языковой модели для извлечения, канал бота в мессенджере для уведомлений о приоритетных заявках, подключение к порталу заказчика для подтверждённых заявок, выгрузка в таблицу для Excel и в файл для других программ, локальные резервные копии по расписанию и пакет диагностики без секретов. Поставляется установщиком для Windows.</p></div>
+  </div>
+</section>
+
+<section class="pf-sec">
+  <div class="pf-wrap">
+    <p class="eyebrow" data-i18n="how.eyebrow">Как это работает</p>
+    <h2 class="pf-h2" data-i18n="how.title">Четыре шага от строки в чате до ответа</h2>
+    <ol class="how">
+      <li class="pf-card"><span class="pf-num">1</span><h3 data-i18n="how.1.h">Чтение</h3><p data-i18n="how.1.p">Приложение читает новые сообщения из личных чатов менеджера на этом же компьютере. С машины уходит только текст для извлечения.</p></li>
+      <li class="pf-card"><span class="pf-num">2</span><h3 data-i18n="how.2.h">Извлечение</h3><p data-i18n="how.2.p">Языковая модель возвращает тип, пункт отправления и назначения, дату и объём. Если она недоступна, подключается разбор по шаблонам.</p></li>
+      <li class="pf-card"><span class="pf-num">3</span><h3 data-i18n="how.3.h">Сопоставление</h3><p data-i18n="how.3.p">Названия городов приводятся к единому написанию и сравниваются с каждым активным рейсом: точное совпадение, соседний город или похожее написание, плюс тип услуги, дни рейса и свободные места.</p></li>
+      <li class="pf-card"><span class="pf-num">4</span><h3 data-i18n="how.4.h">Ответ</h3><p data-i18n="how.4.p">Менеджер видит уровень уверенности, выбирает рейс и получает готовый ответ. Автоматически ничего не отправляется.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="pf-sec">
+  <div class="pf-wrap">
+    <p class="eyebrow" data-i18n="stack.eyebrow">Стек</p>
+    <ul class="pf-tags">
+      <li class="pf-tag">Python</li><li class="pf-tag">FastAPI</li><li class="pf-tag">SQLite</li><li class="pf-tag">React</li>
+      <li class="pf-tag" data-i18n="stack.llm">Подключение к языковой модели</li><li class="pf-tag" data-i18n="stack.fuzzy">Нечёткое сравнение городов</li><li class="pf-tag" data-i18n="stack.pack">Установщик для Windows</li>
+    </ul>
+  </div>
+</section>
+
+<section class="pf-sec pf-cta">
+  <div class="pf-wrap">
+    <h2 class="pf-h2" data-i18n="cta.title">Заявки разбросаны по чатам?</h2>
+    <p class="pf-lead cta-lead" data-i18n="cta.lead">Расскажите, где они копятся и каким должен быть хороший ответ. Мы набросаем схему обработки.</p>
+    <a class="btn" href="https://t.me/Molxo1" data-i18n="cta.discuss">Обсудить похожий проект</a>
+  </div>
+</section>
+</main>
+
+<footer class="pf-foot"><span data-i18n="foot">Molxo Flow / портфолио. Данные в демо вымышленные.</span></footer>
+
+<script src="/portfolio/shared/kit.i18n.js?v=27544e37"></script>
+<script src="/portfolio/cases/dispatch/i18n/en.js?v=133f6ff0"></script>
+<script src="/portfolio/cases/dispatch/i18n/ru.js?v=632ef0d7"></script>
+<script src="/portfolio/cases/dispatch/i18n/uk.js?v=81b56a62"></script>
+<script src="/portfolio/shared/pf.js?v=a8bb945e"></script>
+<script src="/portfolio/cases/dispatch/engine.js?v=0a53e581"></script>
+<script src="/portfolio/cases/dispatch/modules1.js?v=19c22837"></script>
+<script src="/portfolio/cases/dispatch/modules2.js?v=5dd53d86"></script>
+<script src="/portfolio/cases/dispatch/app.js?v=1ebec076"></script>
+</body>
+</html>

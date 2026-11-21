@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="uk" data-lang-fixed="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- build:meta -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script id="i18n-pend">(function(){var F=["manrope-400-cyrillic.woff2","unbounded-500-cyrillic.woff2"],k,a;for(k=0;k<F.length;k++){a=document.createElement("link");a.rel="preload";a.as="font";a.type="font/woff2";a.crossOrigin="";a.href="/fonts/"+F[k];document.head.appendChild(a)}})();</script>
+<link rel="stylesheet" href="/fonts/fonts.css?v=1e6a8860">
+<link rel="canonical" href="https://molxoflow.com/uk/portfolio/">
+<link rel="alternate" hreflang="ru" href="https://molxoflow.com/ru/portfolio/">
+<link rel="alternate" hreflang="uk" href="https://molxoflow.com/uk/portfolio/">
+<link rel="alternate" hreflang="en" href="https://molxoflow.com/portfolio/">
+<link rel="alternate" hreflang="x-default" href="https://molxoflow.com/portfolio/">
+<meta property="og:url" content="https://molxoflow.com/uk/portfolio/">
+<meta property="og:locale" content="uk_UA">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Molxo Flow">
+<meta property="og:title" content="Портфоліо | Molxo Flow">
+<meta property="og:description" content="Дев’ять інтерактивних демо на основі реальних проєктів: автопарк, диспетчеризація, кадри, тендери, асистент знань, діагностика авто, сайт підрядника, онлайн-запис і повернення платежів. Дані вигадані.">
+<meta property="og:image" content="https://molxoflow.com/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Портфоліо | Molxo Flow">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Портфоліо | Molxo Flow">
+<meta name="twitter:description" content="Дев’ять інтерактивних демо на основі реальних проєктів: автопарк, диспетчеризація, кадри, тендери, асистент знань, діагностика авто, сайт підрядника, онлайн-запис і повернення платежів. Дані вигадані.">
+<meta name="twitter:image" content="https://molxoflow.com/og.jpg">
+<!-- /build:meta -->
+<title data-i18n="meta.title">Портфоліо | Molxo Flow</title>
+<meta name="description" content="Дев’ять інтерактивних демо на основі реальних проєктів: автопарк, диспетчеризація, кадри, тендери, асистент знань, діагностика авто, сайт підрядника, онлайн-запис і повернення платежів. Дані вигадані." data-i18n-attr="content:meta.desc">
+<meta name="theme-color" content="#0b0d11">
+<link rel="stylesheet" href="/portfolio/shared/kit.i18n.css?v=af977eac">
+<link rel="stylesheet" href="/portfolio/shared/pf.css?v=b71d20f9">
+<style>
+.pf-wrap.hero, .pf-wrap.pf-sec { padding-inline: var(--gut); }
+.hero { padding-block: clamp(40px, 8vw, 96px) clamp(16px, 3vw, 32px); }
+.hero-in { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px clamp(24px, 5vw, 72px); align-items: end; }
+.hero-count { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 0 0 8px; border-bottom: 2px solid var(--accent); min-width: 180px; }
+.hero-count b { font: 700 clamp(72px, 9vw, 132px)/.9 var(--disp); letter-spacing: -.05em; color: var(--accent); }
+.hero-count span { font: 500 14px/1.3 var(--mono); color: var(--muted); letter-spacing: .02em; }
+.cases { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; padding: 0; margin: 0; list-style: none; }
+.cases > li { display: flex; }
+.case { display: flex; flex-direction: column; width: 100%; overflow: hidden; background: var(--s1); border: 1px solid var(--line); border-radius: 18px; text-decoration: none; transition: border-color .18s var(--ease), transform .18s var(--ease), background .18s; }
+.case:hover, .case:focus-visible { border-color: var(--accent); background: var(--s2); transform: translateY(-2px); }
+.case-fig { position: relative; display: block; border-bottom: 1px solid var(--line); background: var(--s2); }
+.case-img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; background: var(--s2); }
+.case-fmt { position: absolute; top: 8px; right: 8px; z-index: 1; padding: 4px 10px; border: 1px solid var(--accent); border-radius: 999px; background: #0b0d11; color: #fff; font: 600 12px/1.2 var(--mono); letter-spacing: .03em; pointer-events: none; }
+.case-nm { font: 500 13px/1.3 var(--mono); color: var(--muted); letter-spacing: .02em; }
+.case-body { display: flex; flex-direction: column; flex: 1; gap: 12px; padding: 20px 24px 24px; }
+.case-k { font: 500 12px/1.4 var(--mono); color: var(--accent); letter-spacing: .04em; text-transform: uppercase; }
+.case h3 { margin: 0; font: 700 clamp(22px, 2vw, 26px)/1.18 var(--disp); letter-spacing: -.03em; overflow-wrap: anywhere; }
+.case p { margin: 0; color: var(--muted); font-size: 16px; }
+.case .pf-tags { margin: auto 0 0; padding-top: 4px; }
+.case-go { display: inline-flex; align-items: center; align-self: flex-start; min-height: 44px; padding: 0 20px; border: 1px solid var(--accent); border-radius: 999px; font: 700 15px/1 var(--font); color: var(--text); transition: background .18s, color .18s; }
+.case-go::after { content: "\2192"; margin-left: 8px; color: var(--accent); transition: transform .18s var(--ease), color .18s; }
+.case:hover .case-go, .case:focus-visible .case-go { background: var(--accent); color: var(--accent-ink); }
+.case:hover .case-go::after, .case:focus-visible .case-go::after { transform: translateX(4px); color: var(--accent-ink); }
+.grp { margin: 0 0 clamp(36px, 5vw, 64px); }
+.grp-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; margin: 0 0 20px; }
+.grp-n { font: 500 15px/1 var(--mono); color: var(--accent); letter-spacing: .06em; }
+.grp-t { margin: 0; font: 700 clamp(22px, 2.6vw, 32px)/1.1 var(--disp); letter-spacing: -.03em; }
+.grp-l { flex-basis: 100%; margin: 0; color: var(--muted); max-width: 46em; }
+@media (max-width: 1060px) { .cases { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 680px) { .cases { grid-template-columns: 1fr; } .hero-in { grid-template-columns: 1fr; } .hero-count { flex-direction: row; align-items: baseline; gap: 14px; min-width: 0; } .hero-count b { font-size: 64px; } }
+.note { max-width: 46em; margin-top: 36px; }
+@media (hover: none) { .case:hover { transform: none; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#cases" data-i18n="skip">Перейти до кейсів</a>
+<header class="pf-top">
+  <a class="pf-brand" href="/uk/" data-i18n-attr="aria-label:brand.aria" aria-label="Molxo Flow, на головну">Molxo<span>Flow</span></a>
+  <div class="pf-nav">
+    <div class="lang-sw" data-i18n-switch></div>
+    <a class="btn btn-sm" href="https://t.me/Molxo1" target="_blank" rel="noopener" data-i18n="nav.talk">Обговорити проєкт</a>
+  </div>
+</header>
+<main>
+  <section class="pf-wrap hero">
+    <div class="hero-in">
+      <div>
+        <p class="eyebrow" data-i18n="hero.eyebrow">Портфоліо · інтерактивні демо</p>
+        <h1 class="pf-h1" data-i18n="hero.title">Програми, що зняли рутину з реальних команд</h1>
+        <p class="pf-lead" data-i18n="hero.lead">Дев’ять робочих продуктів, перебудованих як живі застосунки: їх можна проклікати модуль за модулем. Замовники, назви й дані знеособлені та замінені вигаданими; логіка й спосіб роботи справжні.</p>
+      </div>
+      <p class="hero-count"><b data-i18n="hero.count">9</b><span data-i18n="hero.countl">робочих демо</span></p>
+    </div>
+  </section>
+  <section class="pf-wrap pf-sec" id="cases" style="padding-top:8px">
+    <div id="groups"></div>
+    <p class="demo-note note" data-i18n="note">Демонстрація, дані вигадані. Кожен кейс — перероблена й знеособлена версія реального проєкту: без імен замовників і справжніх даних.</p>
+  </section>
+  <section class="pf-wrap pf-sec pf-cta">
+    <h2 class="pf-h2" data-i18n="cta.title">Є схожа рутина, яку треба прибрати?</h2>
+    <p class="pf-lead" style="margin-inline:auto" data-i18n="cta.lead">Розкажіть про завдання: ми вивчимо процес, запропонуємо рішення й розробимо його.</p>
+    <a class="btn" href="https://t.me/Molxo1" target="_blank" rel="noopener" data-i18n="cta.btn">Обговорити проєкт</a>
+  </section>
+</main>
+<footer class="pf-foot" data-i18n="foot">Molxo Flow · у демо вигадані дані</footer>
+<script src="/portfolio/shared/kit.i18n.js?v=27544e37"></script>
+<script src="/portfolio/i18n/en.js?v=c51b26c5"></script>
+<script src="/portfolio/i18n/ru.js?v=d56b58f5"></script>
+<script src="/portfolio/i18n/uk.js?v=f314afc5"></script>
+<script>
+(function () {
+  'use strict';
+  var GROUPS = [
+    { k: 'g1', cases: [{ slug: 'fleet', k: 'fleet' }, { slug: 'dispatch', k: 'dispatch' }, { slug: 'hr', k: 'hr' }] },
+    { k: 'g2', cases: [{ slug: 'tender', k: 'tender' }, { slug: 'kb', k: 'kb' }, { slug: 'autodiag', k: 'autodiag' }] },
+    { k: 'g3', cases: [{ slug: 'excavation', k: 'exc' }, { slug: 'booking', k: 'booking' }, { slug: 'recovery', k: 'recovery' }] }
+  ];
+  var root = document.getElementById('groups');
+  function card(c, t) {
+    var li, a, el, bd, tg, fg;
+    li = document.createElement('li');
+    a = document.createElement('a'); a.className = 'case'; a.href = document.documentElement.hasAttribute('data-lang-fixed') ? 'cases/' + c.slug + '/' : 'cases/' + c.slug + '/index.html?lang=' + MFI18N.lang();
+    fg = document.createElement('span'); fg.className = 'case-fig';
+    el = document.createElement('img'); el.className = 'case-img'; el.src = '/portfolio/img/' + c.slug + '.' + MFI18N.lang() + '.jpg'; el.width = 640; el.height = 400; el.loading = 'lazy'; el.decoding = 'async'; el.alt = t(c.k + '.alt'); fg.appendChild(el);
+    el = document.createElement('span'); el.className = 'case-fmt'; el.textContent = t(c.k + '.fmt'); fg.appendChild(el);
+    a.appendChild(fg);
+    bd = document.createElement('div'); bd.className = 'case-body';
+    el = document.createElement('span'); el.className = 'case-k'; el.textContent = t(c.k + '.kind'); bd.appendChild(el);
+    el = document.createElement('h3'); el.textContent = t(c.k + '.use'); bd.appendChild(el);
+    el = document.createElement('span'); el.className = 'case-nm'; el.textContent = t(c.k + '.name'); bd.appendChild(el);
+    el = document.createElement('p'); el.textContent = t(c.k + '.tag'); bd.appendChild(el);
+    tg = document.createElement('ul'); tg.className = 'pf-tags';
+    t(c.k + '.stack').split('|').slice(0, 3).forEach(function (s) { var x = document.createElement('li'); x.className = 'pf-tag'; x.textContent = s; tg.appendChild(x); });
+    bd.appendChild(tg);
+    el = document.createElement('span'); el.className = 'case-go'; el.textContent = t('open'); bd.appendChild(el);
+    a.appendChild(bd);
+    li.appendChild(a);
+    return li;
+  }
+  function render() {
+    var t = MFI18N.t, i, j, g, sec, h, el, ul;
+    root.innerHTML = '';
+    for (i = 0; i < GROUPS.length; i++) {
+      g = GROUPS[i];
+      sec = document.createElement('section'); sec.className = 'grp';
+      h = document.createElement('div'); h.className = 'grp-h';
+      el = document.createElement('span'); el.className = 'grp-n'; el.textContent = '0' + (i + 1); h.appendChild(el);
+      el = document.createElement('h2'); el.className = 'grp-t'; el.textContent = t(g.k + '.title'); h.appendChild(el);
+      el = document.createElement('p'); el.className = 'grp-l'; el.textContent = t(g.k + '.lead'); h.appendChild(el);
+      sec.appendChild(h);
+      ul = document.createElement('ul'); ul.className = 'cases';
+      for (j = 0; j < g.cases.length; j++) ul.appendChild(card(g.cases[j], t));
+      sec.appendChild(ul);
+      root.appendChild(sec);
+    }
+  }
+  MFI18N.onChange(render);
+}());
+</script>
+</body>
+</html>
