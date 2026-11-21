@@ -191,6 +191,21 @@ PAGES.forEach(function (p) {
   });
 }());
 
+/* schema.org на главных страницах (en, ru, uk): блок разбирается как JSON, есть Organization и WebSite нужного языка. */
+(function () {
+  [['index.html', 'en', ''], ['ru/index.html', 'ru', '/ru'], ['uk/index.html', 'uk', '/uk']].forEach(function (e) {
+    var html = '', m, data, org, site;
+    try { html = fs.readFileSync(abs(e[0]), 'utf8'); } catch (x) { fail(e[0] + ': файла нет'); return; }
+    m = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(html);
+    if (!m) { fail(e[0] + ': нет JSON-LD'); return; }
+    try { data = JSON.parse(m[1]); } catch (x2) { fail(e[0] + ': JSON-LD не разбирается'); return; }
+    org = data.filter(function (d) { return d['@type'] === 'Organization'; })[0];
+    site = data.filter(function (d) { return d['@type'] === 'WebSite'; })[0];
+    if (!org || org.url !== 'https://molxoflow.com/' || !org.name) fail(e[0] + ': JSON-LD Organization неверен');
+    if (!site || site.inLanguage !== e[1] || site.url !== 'https://molxoflow.com' + e[2] + '/') fail(e[0] + ': JSON-LD WebSite неверен');
+  });
+}());
+
 /* sitemap и robots */
 (function () {
   var sm = '', rb = '', locs, i, depth = 0, tags;

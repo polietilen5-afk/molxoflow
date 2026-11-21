@@ -1,6 +1,6 @@
 MFI18N.register('en', {
   'meta.title': 'Portfolio | Molxo Flow',
-  'meta.desc': 'Nine interactive demos built from real projects: fleet, dispatch, HR, tenders, knowledge assistant, car diagnostics, a contractor website, online booking and payment recovery. Data is fictional.',
+  'meta.desc': 'Nine interactive demos from real projects: fleet, dispatch, HR, tenders, knowledge assistant, car diagnostics, website, booking and payments. Fictional data.',
   'skip': 'Skip to cases', 'brand.aria': 'Molxo Flow home', 'nav.talk': 'Discuss a project',
   'hero.eyebrow': 'Portfolio · interactive demos',
   'hero.title': 'Software that took routine off real teams',

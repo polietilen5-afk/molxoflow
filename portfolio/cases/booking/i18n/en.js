@@ -1,6 +1,6 @@
 MFI18N.register('en', {
-  'meta.title': 'Booking Desk: online booking for clinics and service centers | Molxo Flow',
-  'meta.desc': 'Case study: a subscription-based booking service with a public booking page, schedule with conflict protection, client base, AI consultant, Telegram bot, reminders and analytics. Interactive demo.',
+  'meta.title': 'Booking Desk: online booking for clinics | Molxo Flow',
+  'meta.desc': 'Case study: a subscription booking service with a public booking page, conflict-free schedule, client base, AI consultant, Telegram bot, analytics. Demo.',
   'skip': 'Skip to the demo',
   'nav.back': '← Portfolio',
   'hero.eyebrow': 'Case: online booking for clinics and service centers',

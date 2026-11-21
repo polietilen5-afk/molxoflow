@@ -1,6 +1,6 @@
 MFI18N.register('en', {
   'meta.title': 'Crew Ledger: HR, timesheets and checks | Molxo Flow',
-  'meta.desc': 'Case study: an internal people-operations application with staff cards, HR events and approvals, timesheets, piecework, memos, checks, a read-only accounting sync, reports, audit and backups. Interactive demo.',
+  'meta.desc': 'Case study: an internal HR app with staff cards, timesheets, approvals, checks, read-only accounting sync, reports and backups. Interactive demo.',
   'skip': 'Skip to the demo',
   'nav.back': '← Portfolio',
   'brief.h': 'The problem, the solution, the result',

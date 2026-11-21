@@ -1,7 +1,7 @@
 /* English dictionary for the Recovery Desk case. */
 MFI18N.register('en', {
   'meta.title': 'Recovery Desk: win back failed subscription payments',
-  'meta.desc': 'Case study: a payment recovery system that turns failed subscription payments into short, polite campaigns with AI-written emails, rules, a customer update page, a queue, analytics and an audit log. Live demo with fictional data.',
+  'meta.desc': 'Case study: a payment recovery system that turns failed subscription payments into short polite campaigns with AI-written emails, rules and analytics. Live demo.',
   'skip': 'Skip to the demo',
   'nav.back': '← Portfolio',
   'nav.main': 'Case navigation',

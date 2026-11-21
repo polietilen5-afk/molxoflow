@@ -1,6 +1,6 @@
 MFI18N.register('en', {
   "doc.title": "Knowledge Agent: answers only from your sources",
-  "doc.desc": "An assistant that answers customers only from the company's own sources, cites them, says it does not know when there is no data, and runs on a local or a cloud model. Twelve working modules in one interactive demo.",
+  "doc.desc": "An assistant answers customers only from the company's own sources, cites them, says it doesn't know when data is missing, and runs on a local or cloud model.",
   "skip": "Skip to the demo",
   "nav.label": "Case navigation",
   "nav.back": "← Portfolio",

@@ -1,7 +1,7 @@
 /* English dictionary for the Auto Diagnostic case. */
 MFI18N.register('en', {
-  'meta.title': 'Auto Diagnostic: an AI car diagnosis app with repair cost estimates',
-  'meta.desc': 'Case study: a mobile app that turns symptoms into likely causes, urgency and a repair cost range, with a garage, error code catalog, service booking, history and reminders. Live demo with fictional data.',
+  'meta.title': 'Auto Diagnostic: AI car diagnosis with repair cost estimates',
+  'meta.desc': 'Case study: a mobile app that turns symptoms into likely causes, urgency and a repair cost range, with garage, error codes, service booking and reminders. Live demo.',
   'skip': 'Skip to the demo',
   'nav.back': '← Portfolio',
   'nav.main': 'Case navigation',

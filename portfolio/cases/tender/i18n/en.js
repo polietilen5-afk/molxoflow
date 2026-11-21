@@ -1,6 +1,6 @@
 MFI18N.register('en', {
   'meta.title': 'Bid Radar: tenders in, decisions out | Molxo Flow',
-  'meta.desc': 'Case study: a procurement platform for several companies at once. It collects tenders from email and portals, reads the documents with AI, checks them against the company profile and guides the bid to submission. Interactive demo with fictional data.',
+  'meta.desc': 'Case study: a procurement platform that collects tenders from email and portals, reads documents with AI, checks them against the company profile and guides the bid.',
   'skip': 'Skip to the demo',
   'nav.back': '← Portfolio',
   'hero.eyebrow': 'Case: procurement automation',

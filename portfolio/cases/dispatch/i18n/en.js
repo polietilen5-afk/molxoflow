@@ -1,6 +1,6 @@
 MFI18N.register('en', {
   'doc.title': 'Route Match: chat requests in one table',
-  'doc.desc': 'A desktop assistant that reads carrier group chats, extracts transport requests with a language model and matches them to routes. Eleven working modules in one interactive demo.',
+  'doc.desc': 'A desktop assistant reads carrier group chats, extracts transport requests with a language model and matches them to routes. Interactive demo, 11 modules.',
   'skip': 'Skip to the demo',
   'nav.label': 'Case navigation',
   'nav.back': '← Portfolio',

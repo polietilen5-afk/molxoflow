@@ -1,7 +1,7 @@
 /* English dictionary for the Fleet Desk case. */
 MFI18N.register('en', {
-  'meta.title': 'Fleet Desk: a fleet management system that reminds you before a deadline is missed',
-  'meta.desc': 'Case study: a full fleet management app with a vehicle register, documents and deadlines, repairs, fuel, directories, reminders, reports, import and export, roles and an audit log. Live demo with fictional data.',
+  'meta.title': 'Fleet Desk: fleet management that reminds you of deadlines',
+  'meta.desc': 'Case study: a fleet app with vehicle register, documents and deadlines, repairs, fuel, reminders, reports and audit log. Live demo, fictional data.',
   'skip': 'Skip to the demo',
   'nav.back': '← Portfolio',
   'nav.main': 'Case navigation',

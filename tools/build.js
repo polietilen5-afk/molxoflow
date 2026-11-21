@@ -219,6 +219,12 @@ function metaBlock(page, title, desc, nl) {
   L.push('<meta name="twitter:title" content="' + title + '">');
   L.push('<meta name="twitter:description" content="' + desc + '">');
   L.push('<meta name="twitter:image" content="' + ORIGIN + '/og.jpg">');
+  if (page.url === '/') { /* schema.org: связывает бренд с доменом; только факты, которые уже есть на сайте */
+    L.push('<script type="application/ld+json">' + JSON.stringify([
+      { '@context': 'https://schema.org', '@type': 'Organization', '@id': ORIGIN + '/#org', name: 'Molxo Flow', url: ORIGIN + '/', logo: ORIGIN + '/favicon.svg', sameAs: ['https://t.me/Molxo1'] },
+      { '@context': 'https://schema.org', '@type': 'WebSite', '@id': canon + '#site', name: 'Molxo Flow', url: canon, inLanguage: lang, publisher: { '@id': ORIGIN + '/#org' } }
+    ]) + '</script>');
+  }
   L.push('<!-- /build:meta -->');
   return L.join(nl) + nl;
 }

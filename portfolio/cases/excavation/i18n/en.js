@@ -1,6 +1,6 @@
 MFI18N.register('en', {
   'meta.title': 'Website + lead flow | Molxo Flow',
-  'meta.desc': 'Case study: a multi-page contractor website with a quote wizard, a request form and a manager panel with inbox, visit calendar and quote builder. Live demo with fictional data.',
+  'meta.desc': 'Case study: a contractor website with a quote wizard, request form and manager panel with inbox, visit calendar and quote builder. Live demo, fictional data.',
   'a11y.skip': 'Skip to content',
   'nav.back': '← Portfolio',
   'hero.eyebrow': 'Case · Website + lead flow',
