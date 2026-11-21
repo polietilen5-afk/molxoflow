@@ -71,6 +71,8 @@ function pendingBlock(page, fdir, nl, soft) {
     return '<script id="i18n-pend">(function(){var F=' + JSON.stringify(cyrFonts(page.file)) + ',k,a;for(k=0;k<F.length;k++){a=document.createElement("link");a.rel="preload";a.as="font";a.type="font/woff2";a.crossOrigin="";a.href="/fonts/"+F[k];document.head.appendChild(a)}})();</script>';
   }
   var js = "(function(){var d=document.documentElement,l='',m,s,n,i,b,q=/^(en|ru|uk|ua)/;" +
+    /* главная: если скрипты не отработали (сбой загрузки, робот поиска), через 3 с страница всё равно открывается */
+    (page.file === 'index.html' ? "setTimeout(function(){d.classList.add('rdy','rdy2')},3000);" : "") +
     "try{m=/[?&]lang=([a-zA-Z]+)/.exec(location.search);if(m){b=m[1].toLowerCase().slice(0,2);if(q.test(b))l=b}}catch(e){}" +
     "if(!l)try{b=String(localStorage.getItem('molxo-variant-lang')||'').toLowerCase().slice(0,2);if(q.test(b))l=b}catch(e){}" +
     "if(!l)try{n=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language];for(i=0;i<n.length;i++){b=String(n[i]||'').toLowerCase().slice(0,2);if(q.test(b)){l=b;break}}}catch(e){}" +

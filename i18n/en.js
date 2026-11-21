@@ -96,6 +96,8 @@ MFI18N.register('en', {
   'foot.about': 'Molxo is a business automation and development studio. Every example on this page is a demo, the data is fictional.',
   'foot.tg': 'Telegram @Molxo1',
   'pause.btn': 'Pause animation',
+  'motion.on': 'Turn on 3D animation',
+  'motion.off': 'Turn off 3D animation',
   'foot.privacy': 'Privacy',
 
   'win.chat': 'Messenger', 'win.inbox': 'Inbox', 'win.agent': 'AI agent', 'win.doc': 'Document: request.pdf', 'win.crm': 'CRM: requests',

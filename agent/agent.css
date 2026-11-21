@@ -45,3 +45,7 @@
   .agent-screen { border-radius: 37px; }
 }
 @media (prefers-reduced-motion: reduce) { .agent-fab { transition: none; } }
+
+/* кнопки «Пауза анимации» и «3D» живут в правом нижнем углу: когда есть окно чата, они поднимаются над его кнопкой */
+body:has(.agent-widget) .pause { bottom: calc(max(14px, env(safe-area-inset-bottom)) + 68px); }
+body:has(.agent-widget) #motionBtn { bottom: calc(max(14px, env(safe-area-inset-bottom)) + 124px); }

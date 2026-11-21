@@ -4,10 +4,17 @@
   'use strict';
   var doc = document;
   var I = window.MFI18N;
+  /* Если скрипт языка не загрузился (сбой сети, робот поиска с урезанной загрузкой), страница не должна оставаться скрытой:
+     тексты уже в HTML (пререндер), поэтому просто открываем её и выходим. */
+  if (!I) { doc.documentElement.classList.add('rdy', 'rdy2'); return; }
   function t(k, v) { return I.t(k, v); }
-  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var sysReduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  /* Пользователь с выключенными анимациями в системе может сам включить 3D кнопкой «Включить 3D-анимацию» (хранится в localStorage). */
+  var motionOn = false;
+  try { motionOn = window.localStorage.getItem('molxo-motion') === 'on'; } catch (e0) { motionOn = false; }
+  var reduce = sysReduce && !motionOn;
   var saveData = !!(navigator.connection && navigator.connection.saveData);
-  var MX = window.MX = { p: 0, reduce: reduce, saveData: saveData, paused: false, ready: false, mode: 'init', heroBottom: 0 };
+  var MX = window.MX = { p: 0, reduce: reduce, sysReduce: sysReduce, saveData: saveData, paused: false, ready: false, mode: 'init', why: '', heroBottom: 0 };
 
   function el(tag, cls, text) { var e = doc.createElement(tag); if (cls) { e.className = cls; } if (text != null) { e.textContent = text; } return e; }
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
@@ -138,12 +145,15 @@
     if (MX.mode !== 'init') { return; }
     var s = doc.createElement('script');
     s.type = 'module'; s.src = '/scene.js?v=5521c22d';
-    s.onerror = function () { MX.fallback(); };
+    s.onerror = function () { MX.why = 'scene-load'; MX.fallback(); };
     doc.head.appendChild(s);
-    window.setTimeout(function () { if (!MX.ready && MX.mode === 'init') { MX.fallback(); } }, 30000);
+    window.setTimeout(function () { if (!MX.ready && MX.mode === 'init') { MX.why = 'timeout'; MX.fallback(); } }, 30000);
   }
   afterFirstPaint(function () {
-    if (location.search.indexOf('no3d') >= 0 || saveData || reduce) { MX.fallback(); } else { loadScene(); }
+    if (location.search.indexOf('no3d') >= 0) { MX.why = 'no3d'; MX.fallback(); }
+    else if (saveData) { MX.why = 'saveData'; MX.fallback(); }
+    else if (reduce) { MX.why = 'reduce'; MX.fallback(); }
+    else { loadScene(); }
   });
 
   /* ---------- «Вашу боль разберём» ---------- */
@@ -610,6 +620,15 @@
 
   /* ---------- пауза анимации (WCAG 2.2.2): стадии блоков, ТЗ-ротатор, видео, окна сцены, CSS-анимации ---------- */
   var pauseBtn = doc.getElementById('pauseBtn');
+  var motionBtn = doc.getElementById('motionBtn');
+  if (motionBtn && sysReduce) {
+    motionBtn.hidden = false;
+    if (motionOn) { motionBtn.querySelector('span').setAttribute('data-i18n', 'motion.off'); }
+    motionBtn.addEventListener('click', function () {
+      try { if (motionOn) { window.localStorage.removeItem('molxo-motion'); } else { window.localStorage.setItem('molxo-motion', 'on'); } } catch (e1) { /* без хранилища кнопка ничего не меняет */ }
+      window.location.reload();
+    });
+  }
   function setPaused(on) {
     MX.paused = on;
     doc.documentElement.classList.toggle('paused', on);
@@ -646,6 +665,7 @@
   }
   I.onChange(function () {
     if (pauseBtn) { pauseBtn.classList.add('rdy'); }
+    if (motionBtn) { motionBtn.classList.add('rdy'); }
     doc.documentElement.classList.add('rdy');
     window.setTimeout(function () { doc.documentElement.classList.add('rdy2'); }, 1000);
     /* первая сборка уступает отрисовке: герой (LCP) показывается до тяжёлой сборки блоков ниже */
